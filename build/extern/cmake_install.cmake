@@ -42,6 +42,7 @@ if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   include("D:/school/Visualization/build/extern/glfw/cmake_install.cmake")
   include("D:/school/Visualization/build/extern/glm/cmake_install.cmake")
   include("D:/school/Visualization/build/extern/glad/cmake_install.cmake")
+  include("D:/school/Visualization/build/extern/imgui/cmake_install.cmake")
 
 endif()
 

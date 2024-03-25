@@ -83,18 +83,21 @@ clean: extern/clean
 extern/all: extern/glfw/all
 extern/all: extern/glm/all
 extern/all: extern/glad/all
+extern/all: extern/imgui/all
 .PHONY : extern/all
 
 # Recursive "preinstall" directory target.
 extern/preinstall: extern/glfw/preinstall
 extern/preinstall: extern/glm/preinstall
 extern/preinstall: extern/glad/preinstall
+extern/preinstall: extern/imgui/preinstall
 .PHONY : extern/preinstall
 
 # Recursive "clean" directory target.
 extern/clean: extern/glfw/clean
 extern/clean: extern/glm/clean
 extern/clean: extern/glad/clean
+extern/clean: extern/imgui/clean
 .PHONY : extern/clean
 
 #=============================================================================
@@ -193,6 +196,21 @@ extern/glm/glm/clean: extern/glm/glm/CMakeFiles/glm.dir/clean
 .PHONY : extern/glm/glm/clean
 
 #=============================================================================
+# Directory level rules for directory extern/imgui
+
+# Recursive "all" directory target.
+extern/imgui/all: extern/imgui/CMakeFiles/imgui.dir/all
+.PHONY : extern/imgui/all
+
+# Recursive "preinstall" directory target.
+extern/imgui/preinstall:
+.PHONY : extern/imgui/preinstall
+
+# Recursive "clean" directory target.
+extern/imgui/clean: extern/imgui/CMakeFiles/imgui.dir/clean
+.PHONY : extern/imgui/clean
+
+#=============================================================================
 # Directory level rules for directory src
 
 # Recursive "all" directory target.
@@ -212,8 +230,9 @@ src/clean: src/CMakeFiles/TEST.dir/clean
 
 # All Build rule for target.
 src/CMakeFiles/TEST.dir/all: extern/glfw/src/CMakeFiles/glfw.dir/all
-src/CMakeFiles/TEST.dir/all: extern/glm/glm/CMakeFiles/glm.dir/all
 src/CMakeFiles/TEST.dir/all: extern/glad/CMakeFiles/glad.dir/all
+src/CMakeFiles/TEST.dir/all: extern/glm/glm/CMakeFiles/glm.dir/all
+src/CMakeFiles/TEST.dir/all: extern/imgui/CMakeFiles/imgui.dir/all
 	$(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/depend
 	$(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=D:\school\Visualization\build\CMakeFiles --progress-num=1,2,3,4,5,6 "Built target TEST"
@@ -221,7 +240,7 @@ src/CMakeFiles/TEST.dir/all: extern/glad/CMakeFiles/glad.dir/all
 
 # Build rule for subdir invocation for target.
 src/CMakeFiles/TEST.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start D:\school\Visualization\build\CMakeFiles 32
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\school\Visualization\build\CMakeFiles 40
 	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 src/CMakeFiles/TEST.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start D:\school\Visualization\build\CMakeFiles 0
 .PHONY : src/CMakeFiles/TEST.dir/rule
@@ -294,7 +313,7 @@ extern/glfw/src/CMakeFiles/glfw.dir/clean:
 extern/glfw/src/CMakeFiles/update_mappings.dir/all:
 	$(MAKE) $(MAKESILENT) -f extern\glfw\src\CMakeFiles\update_mappings.dir\build.make extern/glfw/src/CMakeFiles/update_mappings.dir/depend
 	$(MAKE) $(MAKESILENT) -f extern\glfw\src\CMakeFiles\update_mappings.dir\build.make extern/glfw/src/CMakeFiles/update_mappings.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=D:\school\Visualization\build\CMakeFiles --progress-num=33 "Built target update_mappings"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=D:\school\Visualization\build\CMakeFiles --progress-num=41 "Built target update_mappings"
 .PHONY : extern/glfw/src/CMakeFiles/update_mappings.dir/all
 
 # Build rule for subdir invocation for target.
@@ -364,6 +383,32 @@ glad: extern/glad/CMakeFiles/glad.dir/rule
 extern/glad/CMakeFiles/glad.dir/clean:
 	$(MAKE) $(MAKESILENT) -f extern\glad\CMakeFiles\glad.dir\build.make extern/glad/CMakeFiles/glad.dir/clean
 .PHONY : extern/glad/CMakeFiles/glad.dir/clean
+
+#=============================================================================
+# Target rules for target extern/imgui/CMakeFiles/imgui.dir
+
+# All Build rule for target.
+extern/imgui/CMakeFiles/imgui.dir/all: extern/glfw/src/CMakeFiles/glfw.dir/all
+	$(MAKE) $(MAKESILENT) -f extern\imgui\CMakeFiles\imgui.dir\build.make extern/imgui/CMakeFiles/imgui.dir/depend
+	$(MAKE) $(MAKESILENT) -f extern\imgui\CMakeFiles\imgui.dir\build.make extern/imgui/CMakeFiles/imgui.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=D:\school\Visualization\build\CMakeFiles --progress-num=33,34,35,36,37,38,39,40 "Built target imgui"
+.PHONY : extern/imgui/CMakeFiles/imgui.dir/all
+
+# Build rule for subdir invocation for target.
+extern/imgui/CMakeFiles/imgui.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\school\Visualization\build\CMakeFiles 30
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 extern/imgui/CMakeFiles/imgui.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start D:\school\Visualization\build\CMakeFiles 0
+.PHONY : extern/imgui/CMakeFiles/imgui.dir/rule
+
+# Convenience name for target.
+imgui: extern/imgui/CMakeFiles/imgui.dir/rule
+.PHONY : imgui
+
+# clean rule for target.
+extern/imgui/CMakeFiles/imgui.dir/clean:
+	$(MAKE) $(MAKESILENT) -f extern\imgui\CMakeFiles\imgui.dir\build.make extern/imgui/CMakeFiles/imgui.dir/clean
+.PHONY : extern/imgui/CMakeFiles/imgui.dir/clean
 
 #=============================================================================
 # Special targets to cleanup operation of make.

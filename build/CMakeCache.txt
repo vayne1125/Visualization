@@ -428,6 +428,33 @@ glm_IS_TOP_LEVEL:STATIC=OFF
 //Value Computed by CMake
 glm_SOURCE_DIR:STATIC=D:/school/Visualization/extern/glm
 
+//Value Computed by CMake
+imgui_BINARY_DIR:STATIC=D:/school/Visualization/build/extern/imgui
+
+//Value Computed by CMake
+imgui_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+imgui_SOURCE_DIR:STATIC=D:/school/Visualization/extern/imgui
+
+//Value Computed by CMake
+imgui_demo_BINARY_DIR:STATIC=D:/school/Visualization/build/extern/imgui
+
+//Value Computed by CMake
+imgui_demo_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+imgui_demo_SOURCE_DIR:STATIC=D:/school/Visualization/extern/imgui
+
+//Value Computed by CMake
+impui_BINARY_DIR:STATIC=D:/school/Visualization/build/extern/imgui
+
+//Value Computed by CMake
+impui_IS_TOP_LEVEL:STATIC=OFF
+
+//Value Computed by CMake
+impui_SOURCE_DIR:STATIC=D:/school/Visualization/extern/imgui
+
 
 ########################
 # INTERNAL cache entries
@@ -573,7 +600,7 @@ CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_NM
 CMAKE_NM-ADVANCED:INTERNAL=1
 //number of local generators
-CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=9
+CMAKE_NUMBER_OF_MAKEFILES:INTERNAL=10
 //ADVANCED property for variable: CMAKE_OBJCOPY
 CMAKE_OBJCOPY-ADVANCED:INTERNAL=1
 //ADVANCED property for variable: CMAKE_OBJDUMP

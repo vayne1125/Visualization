@@ -57,6 +57,7 @@ set(CMAKE_MAKEFILE_DEPENDS
   "D:/school/Visualization/extern/glfw/src/CMakeLists.txt"
   "D:/school/Visualization/extern/glm/CMakeLists.txt"
   "D:/school/Visualization/extern/glm/glm/CMakeLists.txt"
+  "D:/school/Visualization/extern/imgui/CMakeLists.txt"
   "D:/school/Visualization/src/CMakeLists.txt"
   )
 
@@ -81,6 +82,7 @@ set(CMAKE_MAKEFILE_PRODUCTS
   "extern/glm/CMakeFiles/CMakeDirectoryInformation.cmake"
   "extern/glm/glm/CMakeFiles/CMakeDirectoryInformation.cmake"
   "extern/glad/CMakeFiles/CMakeDirectoryInformation.cmake"
+  "extern/imgui/CMakeFiles/CMakeDirectoryInformation.cmake"
   )
 
 # Dependency information for all targets:
@@ -91,4 +93,5 @@ set(CMAKE_DEPEND_INFO_FILES
   "extern/glfw/src/CMakeFiles/update_mappings.dir/DependInfo.cmake"
   "extern/glm/glm/CMakeFiles/glm.dir/DependInfo.cmake"
   "extern/glad/CMakeFiles/glad.dir/DependInfo.cmake"
+  "extern/imgui/CMakeFiles/imgui.dir/DependInfo.cmake"
   )

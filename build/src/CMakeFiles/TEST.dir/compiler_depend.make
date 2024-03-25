@@ -1126,6 +1126,10 @@ src/CMakeFiles/TEST.dir/main.cpp.obj: D:/school/Visualization/src/main.cpp \
   D:/school/Visualization/extern/glm/glm/vec2.hpp \
   D:/school/Visualization/extern/glm/glm/vec3.hpp \
   D:/school/Visualization/extern/glm/glm/vec4.hpp \
+  D:/school/Visualization/extern/imgui/include/imconfig.h \
+  D:/school/Visualization/extern/imgui/include/imgui.h \
+  D:/school/Visualization/extern/imgui/include/imgui_impl_glfw.h \
+  D:/school/Visualization/extern/imgui/include/imgui_impl_opengl3.h \
   C:/MinGW/include/_mingw.h \
   C:/MinGW/include/assert.h \
   C:/MinGW/include/ctype.h \
@@ -1903,6 +1907,8 @@ C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/typeinfo:
 
 C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/utility:
 
+D:/school/Visualization/extern/imgui/include/imgui_impl_opengl3.h:
+
 C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/set:
 
 D:/school/Visualization/extern/glm/glm/ext/matrix_float3x4_precision.hpp:
@@ -2148,6 +2154,8 @@ D:/school/Visualization/extern/glm/glm/ext/vector_double4.hpp:
 D:/school/Visualization/extern/glm/glm/mat2x4.hpp:
 
 D:/school/Visualization/extern/glm/glm/ext/vector_double4_precision.hpp:
+
+D:/school/Visualization/extern/imgui/include/imgui.h:
 
 C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++/mingw32/bits/time_members.h:
 
@@ -2448,3 +2456,7 @@ D:/school/Visualization/extern/glfw/include/GLFW/glfw3.h:
 D:/school/Visualization/src/header/Volume.hpp:
 
 D:/school/Visualization/src/main.cpp:
+
+D:/school/Visualization/extern/imgui/include/imconfig.h:
+
+D:/school/Visualization/extern/imgui/include/imgui_impl_glfw.h:

@@ -37,7 +37,8 @@
 					[
 						3,
 						6,
-						8
+						8,
+						9
 					],
 					"hasInstallRule" : true,
 					"jsonFile" : "directory-extern-Debug-88bde94350c4fc5056f9.json",
@@ -63,7 +64,7 @@
 					"source" : "extern/glfw",
 					"targetIndexes" : 
 					[
-						4
+						5
 					]
 				},
 				{
@@ -80,7 +81,7 @@
 					"targetIndexes" : 
 					[
 						2,
-						5
+						6
 					]
 				},
 				{
@@ -134,6 +135,21 @@
 					[
 						1
 					]
+				},
+				{
+					"build" : "extern/imgui",
+					"jsonFile" : "directory-extern.imgui-Debug-8a98c2b1876fee1ddb47.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.22.1"
+					},
+					"parentIndex" : 2,
+					"projectIndex" : 4,
+					"source" : "extern/imgui",
+					"targetIndexes" : 
+					[
+						4
+					]
 				}
 			],
 			"name" : "Debug",
@@ -144,7 +160,8 @@
 					[
 						1,
 						2,
-						3
+						3,
+						4
 					],
 					"directoryIndexes" : 
 					[
@@ -170,8 +187,8 @@
 					"targetIndexes" : 
 					[
 						2,
-						4,
-						5
+						5,
+						6
 					]
 				},
 				{
@@ -198,6 +215,18 @@
 					[
 						1
 					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						9
+					],
+					"name" : "imgui",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						4
+					]
 				}
 			],
 			"targets" : 
@@ -205,7 +234,7 @@
 				{
 					"directoryIndex" : 1,
 					"id" : "TEST::@145eef247bfb46b6828c",
-					"jsonFile" : "target-TEST-Debug-f833c354a1d144fd6d27.json",
+					"jsonFile" : "target-TEST-Debug-f62ce3e79f5214e01bad.json",
 					"name" : "TEST",
 					"projectIndex" : 0
 				},
@@ -229,6 +258,13 @@
 					"jsonFile" : "target-glm-Debug-f5aa9103b90cc8c12fcc.json",
 					"name" : "glm",
 					"projectIndex" : 2
+				},
+				{
+					"directoryIndex" : 9,
+					"id" : "imgui::@585051bfad45d3748f65",
+					"jsonFile" : "target-imgui-Debug-74811a5a7261542514e8.json",
+					"name" : "imgui",
+					"projectIndex" : 4
 				},
 				{
 					"directoryIndex" : 3,

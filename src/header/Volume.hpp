@@ -8,6 +8,7 @@ public:
     Volume();
     Volume(string infFile, string rawFile, float isoLevel);
     void draw();
+    vector<float> data;
 private:
     void read_inf(string file);
     void read_raw(string file);
@@ -20,12 +21,7 @@ private:
     vector<vector<vector<glm::vec3>>> gradient;
     glm::vec3 resolution;
     // iso-value 的分布
-    vector<float> data;
-    vector<float> mesh = {
-    -0.5f, 0.0f, -0.5f, 0 , 1, 0, 
-     0.5f,  0.0f, -0.5f, 0,1,0,
-     0.0f,  0.0f, 0.5f, 0,1,0
-};
+    vector<float> mesh ;
     int vertexCnt = 0;
     unsigned int VAO;
 };

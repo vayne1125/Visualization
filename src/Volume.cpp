@@ -102,23 +102,23 @@ void Volume::calc_mesh(float isoLevel){
     for(int i=0;i<resolution.x-1;i++){
         for(int j=0;j<resolution.y-1;j++){
             for(int k=0;k<resolution.z-1;k++){
-                // grid[0] = glm::vec3(i  , j  , k  );
-                // grid[1] = glm::vec3(i  , j  , k+1);
-                // grid[2] = glm::vec3(i  , j+1, k+1);
-                // grid[3] = glm::vec3(i  , j+1, k  );
-                // grid[4] = glm::vec3(i+1, j  , k  );
-                // grid[5] = glm::vec3(i+1, j  , k+1);
-                // grid[6] = glm::vec3(i+1, j+1, k+1);
-                // grid[7] = glm::vec3(i+1, j+1, k  );
+                grid[0] = glm::vec3(i  , j  , k  );
+                grid[1] = glm::vec3(i  , j  , k+1);
+                grid[2] = glm::vec3(i  , j+1, k+1);
+                grid[3] = glm::vec3(i  , j+1, k  );
+                grid[4] = glm::vec3(i+1, j  , k  );
+                grid[5] = glm::vec3(i+1, j  , k+1);
+                grid[6] = glm::vec3(i+1, j+1, k+1);
+                grid[7] = glm::vec3(i+1, j+1, k  );
 
-                grid[0] = glm::vec3(i  , j+1  , k  );
-                grid[1] = glm::vec3(i+1, j+1  , k);
-                grid[2] = glm::vec3(i+1, j+1,  k+1);
-                grid[3] = glm::vec3(i  , j+1,  k+1);
-                grid[4] = glm::vec3(i  , j , k  );
-                grid[5] = glm::vec3(i+1, j , k);
-                grid[6] = glm::vec3(i+1, j , k+1);
-                grid[7] = glm::vec3(i  , j , k+1);
+                // grid[0] = glm::vec3(i  , j+1, k  );
+                // grid[1] = glm::vec3(i+1, j+1, k  );
+                // grid[2] = glm::vec3(i+1, j+1, k+1);
+                // grid[3] = glm::vec3(i  , j+1, k+1);
+                // grid[4] = glm::vec3(i  , j  , k  );
+                // grid[5] = glm::vec3(i+1, j  , k  );
+                // grid[6] = glm::vec3(i+1, j  , k+1);
+                // grid[7] = glm::vec3(i  , j  , k+1);
 
                 int tableIndex = 0;
                 for(int i=0,tp=1;i<8;i++,tp<<=1){

@@ -1131,6 +1131,10 @@ src/CMakeFiles/TEST.dir/main.cpp.obj
  D:/school/Visualization/extern/glm/glm/vec2.hpp
  D:/school/Visualization/extern/glm/glm/vec3.hpp
  D:/school/Visualization/extern/glm/glm/vec4.hpp
+ D:/school/Visualization/extern/imgui/include/imconfig.h
+ D:/school/Visualization/extern/imgui/include/imgui.h
+ D:/school/Visualization/extern/imgui/include/imgui_impl_glfw.h
+ D:/school/Visualization/extern/imgui/include/imgui_impl_opengl3.h
  C:/MinGW/include/_mingw.h
  C:/MinGW/include/assert.h
  C:/MinGW/include/ctype.h

@@ -8,19 +8,25 @@ src/CMakeFiles/TEST.dir/main.cpp.obj: \
  c:\mingw\include\sdkddkver.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\stddef.h \
  D:/school/Visualization/extern/glfw/include/GLFW/glfw3.h \
+ D:/school/Visualization/extern/imgui/include/imgui.h \
+ D:/school/Visualization/extern/imgui/include/imconfig.h \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\float.h c:\mingw\include\float.h \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\stdarg.h \
+ c:\mingw\include\string.h c:\mingw\include\strings.h \
+ c:\mingw\include\wchar.h c:\mingw\include\assert.h \
+ D:/school/Visualization/extern/imgui/include/imgui_impl_glfw.h \
+ D:/school/Visualization/extern/imgui/include/imgui_impl_opengl3.h \
  d:\school\visualization\src\header\volume.hpp \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\mingw32\bits\stdc++.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\cassert \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\mingw32\bits\c++config.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\mingw32\bits\os_defines.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\mingw32\bits\cpu_defines.h \
- c:\mingw\include\assert.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\cctype \
  c:\mingw\include\ctype.h c:\mingw\include\wctype.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\cerrno \
  c:\mingw\include\errno.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\cfloat \
- c:\mingw\lib\gcc\mingw32\6.3.0\include\float.h c:\mingw\include\float.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\ciso646 \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\climits \
  c:\mingw\include\limits.h \
@@ -35,15 +41,12 @@ src/CMakeFiles/TEST.dir/main.cpp.obj: \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\csignal \
  c:\mingw\include\signal.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\cstdarg \
- c:\mingw\lib\gcc\mingw32\6.3.0\include\stdarg.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\cstddef \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\cstdio \
  c:\mingw\include\stdio.h c:\mingw\include\sys/types.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\cstdlib \
  c:\mingw\include\stdlib.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\cstring \
- c:\mingw\include\string.h c:\mingw\include\strings.h \
- c:\mingw\include\wchar.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\ctime c:\mingw\include\time.h \
  c:\mingw\include\sys\types.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\ccomplex \

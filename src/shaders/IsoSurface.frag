@@ -20,12 +20,12 @@ void main(){
         discard;
     }
     vec3 lightColor = vec3(1,1,1);
+
     vec3 norm = normalize(gradient);
     vec3 lightDir = normalize(lightPos - fragPos);
-
     vec3 viewDir = normalize(viewPos - fragPos); 
 
-    if (dot(norm, -viewDir) < 0)
+    if (dot(norm, viewDir) < 0)
 	{
         norm = -norm;
     }
@@ -44,7 +44,9 @@ void main(){
     float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     vec3 specular = specularStrength * spec * lightColor; 
 
-    vec4 result = vec4(ambient + diffuse + specular,1) * objectColor;
+    // vec4 result = clamp(vec4(ambient + diffuse + specular,1), vec4(0.0), vec4(1.0)) * objectColor;;
+    vec4 result = clamp(vec4(ambient + diffuse,1), vec4(0.0), vec4(1.0)) * objectColor;;
+    //vec4(ambient + diffuse + specular,1) * objectColor;
     fragColor = result;
     // vec4 result = vec4(ambient + diffuse, 1) * objectColor;
     // fragColor = result;

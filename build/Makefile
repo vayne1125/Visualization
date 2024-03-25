@@ -238,6 +238,19 @@ glad/fast:
 	$(MAKE) $(MAKESILENT) -f extern\glad\CMakeFiles\glad.dir\build.make extern/glad/CMakeFiles/glad.dir/build
 .PHONY : glad/fast
 
+#=============================================================================
+# Target rules for targets named imgui
+
+# Build rule for target.
+imgui: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 imgui
+.PHONY : imgui
+
+# fast build rule for target.
+imgui/fast:
+	$(MAKE) $(MAKESILENT) -f extern\imgui\CMakeFiles\imgui.dir\build.make extern/imgui/CMakeFiles/imgui.dir/build
+.PHONY : imgui/fast
+
 # Help Target
 help:
 	@echo The following are some of the valid targets for this Makefile:
@@ -256,6 +269,7 @@ help:
 	@echo ... glad
 	@echo ... glfw
 	@echo ... glm
+	@echo ... imgui
 .PHONY : help
 
 

@@ -1,8 +1,14 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+
+#include <imgui.h>
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
+
 #include "./header/Volume.hpp"
 #include "./header/Shader.hpp"
 #include "./header/Camera.hpp"
+
 #include <bits/stdc++.h>
 #define   PI   3.1415927
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -17,7 +23,7 @@ const unsigned int SCR_HEIGHT = 600;
 int enableCliped = 0;
 float fovy = 100;
 
-glm::vec4 clipNormal = glm::vec4(0,1,0,-200);
+glm::vec4 clipNormal = glm::vec4(0,1,0,-150);
 int main()
 {
     // glfw: initialize and configure
@@ -26,7 +32,6 @@ int main()
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
 
     // glfw window creation
     // --------------------
@@ -53,21 +58,80 @@ int main()
     }
 
     glEnable(GL_DEPTH_TEST); 
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     string v = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.vert";
     string f = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.frag";
     Shader shader(v,f);
 
-    string inf = "D:\\school\\Visualization\\src\\asset\\testing_engine.inf";
-    string raw = "D:\\school\\Visualization\\src\\asset\\testing_engine.raw";
+    string inf = "D:\\school\\Visualization\\src\\asset\\Carp.inf";
+    string raw = "D:\\school\\Visualization\\src\\asset\\Carp.raw";
     
-    Volume volume(inf,raw,80);
-    Volume volume2(inf,raw,100);
+    Volume volume(inf,raw,30);
+    // Volume volume2(inf,raw,200);
+
+
+
+    //------------------
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    // Setup Platform/Renderer backends
+    ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
+    ImGui_ImplOpenGL3_Init();
+    //------------------
+
 
     // render loop
     // -----------
-    while(!glfwWindowShouldClose(window))
-    {
+    while(!glfwWindowShouldClose(window)){
+
+        //---------------------
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        
+//----------------------
+ImGui::SetNextWindowBgAlpha(0.35f);
+ImGui::Begin("00957116 C. Y. Wang");
+ImGui::Text("Clipped plane:");
+ImGui::SetNextItemWidth(50);
+ImGui::SliderFloat("x + ",&clipNormal.x,0.0f,1.0f); // ax + by + cz + d = 0
+ImGui::SameLine();
+
+ImGui::SetNextItemWidth(50);
+ImGui::SliderFloat("y + ",&clipNormal.y,0.0f,1.0f);
+ImGui::SameLine();
+
+ImGui::SetNextItemWidth(50);
+ImGui::SliderFloat("z + ",&clipNormal.z,0.0f,1.0f);
+ImGui::SameLine();
+
+ImGui::SetNextItemWidth(100);
+ImGui::SliderFloat(" = 0",&clipNormal.w,-150,150);
+
+if(ImGui::RadioButton("clipped section", enableCliped)){
+    enableCliped ^= 1;
+}
+ImGui::End();
+
+//------histogram--------
+ImGui::SetNextWindowBgAlpha(0.35f);
+ImGui::Begin("Histogram");
+ImGui::PlotHistogram("##iso_value", volume.data.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
+int text_iso_value_len = ImGui::CalcTextSize("Iso-value").x;
+ImGui::SetCursorPosX(100-text_iso_value_len/2.0);
+ImGui::Text("Iso-value");
+ImGui::End();
+ImGui::ShowDemoWindow(); // Show demo window! :)
+//---------------------
+
         // input
         processInput(window);
 
@@ -86,7 +150,7 @@ int main()
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 fixedRY = glm::mat4(1.0f);
         fixedRY = glm::rotate(fixedRY, (float)glfwGetTime()* glm::radians(20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        // model = glm::rotate(model, (float)glfwGetTime()* glm::radians(20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         // model = glm::rotate(model, glm::radians((float)20), glm::vec3(1.0f, 0.0f, 1.0f));
 
         shader.set_uniform("model",model);
@@ -100,14 +164,19 @@ int main()
         shader.set_uniform("view", view);
         shader.set_uniform("viewPos", glm::vec3(0,0,-200));
 
-        glm::vec3 lightPos = glm::vec3(0,0,200);
+        glm::vec3 lightPos = glm::vec3(0,0,-300);
         shader.set_uniform("lightPos",lightPos);
         
-        shader.set_uniform("objectColor",glm::vec4(0.5f, 0.5f, 0.5f,1));
+        shader.set_uniform("objectColor",glm::vec4(1.0f, 76/255.0f, 153/255.0f, 1.0f));
+        // volume2.draw();
+
+        shader.set_uniform("objectColor",glm::vec4(0.5f, 0.5f, 0.5f,0.8f));
         volume.draw();
 
-        shader.set_uniform("objectColor",glm::vec4(1.0f, 76/255.0f, 153/255.0f, 1.0f));
-        volume2.draw();
+//---------------------
+ImGui::Render();
+ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+//---------------------
 
         // swap buffers and poll IO events
         glfwSwapBuffers(window);
@@ -133,7 +202,6 @@ void processInput(GLFWwindow *window)
 
     if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS){
         clipNormal.x--;
-        cout << "1\n";
     }else if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
         clipNormal.x++;
     }
@@ -152,13 +220,10 @@ void processInput(GLFWwindow *window)
 
     if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
         clipNormal.w--;
-        cout << "-\n";
         clipNormal.w = max(-200.0f,clipNormal[3]);
-        cout << clipNormal[3] << "\n";
     }else if(glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS){
         clipNormal.w++;
         clipNormal.w = min(200.0f,clipNormal[3]);
-        cout << clipNormal[3] << "\n";
     }
 
     

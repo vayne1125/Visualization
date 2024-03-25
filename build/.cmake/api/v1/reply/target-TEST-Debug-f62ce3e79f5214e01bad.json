@@ -61,6 +61,10 @@
 				{
 					"backtrace" : 2,
 					"path" : "D:/school/Visualization/extern/glad/include"
+				},
+				{
+					"backtrace" : 2,
+					"path" : "D:/school/Visualization/extern/imgui/include"
 				}
 			],
 			"language" : "CXX",
@@ -82,11 +86,15 @@
 		},
 		{
 			"backtrace" : 2,
+			"id" : "glad::@6d81f930c6bec73dde7b"
+		},
+		{
+			"backtrace" : 2,
 			"id" : "glm::@fd9a7823937da46381f5"
 		},
 		{
 			"backtrace" : 2,
-			"id" : "glad::@6d81f930c6bec73dde7b"
+			"id" : "imgui::@585051bfad45d3748f65"
 		}
 	],
 	"id" : "TEST::@145eef247bfb46b6828c",
@@ -115,6 +123,16 @@
 			{
 				"backtrace" : 2,
 				"fragment" : "..\\extern\\glad\\libglad.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "..\\extern\\imgui\\libimgui.a",
+				"role" : "libraries"
+			},
+			{
+				"backtrace" : 2,
+				"fragment" : "..\\extern\\glfw\\src\\libglfw3.a",
 				"role" : "libraries"
 			},
 			{

@@ -267,6 +267,9 @@
 		},
 		{
 			"path" : "extern/glad/CMakeLists.txt"
+		},
+		{
+			"path" : "extern/imgui/CMakeLists.txt"
 		}
 	],
 	"kind" : "cmakeFiles",

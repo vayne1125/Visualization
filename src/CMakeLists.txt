@@ -10,4 +10,5 @@ target_link_libraries(TEST
 glfw
 glm::glm
 glad
+imgui
 )

@@ -163,6 +163,8 @@ src/TEST.exe: src/CMakeFiles/TEST.dir/build.make
 src/TEST.exe: extern/glfw/src/libglfw3.a
 src/TEST.exe: extern/glm/glm/libglm.a
 src/TEST.exe: extern/glad/libglad.a
+src/TEST.exe: extern/imgui/libimgui.a
+src/TEST.exe: extern/glfw/src/libglfw3.a
 src/TEST.exe: src/CMakeFiles/TEST.dir/linkLibs.rsp
 src/TEST.exe: src/CMakeFiles/TEST.dir/objects1.rsp
 src/TEST.exe: src/CMakeFiles/TEST.dir/link.txt

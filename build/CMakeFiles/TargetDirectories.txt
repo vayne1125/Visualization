@@ -58,3 +58,10 @@ D:/school/Visualization/build/extern/glad/CMakeFiles/list_install_components.dir
 D:/school/Visualization/build/extern/glad/CMakeFiles/install.dir
 D:/school/Visualization/build/extern/glad/CMakeFiles/install/local.dir
 D:/school/Visualization/build/extern/glad/CMakeFiles/install/strip.dir
+D:/school/Visualization/build/extern/imgui/CMakeFiles/imgui.dir
+D:/school/Visualization/build/extern/imgui/CMakeFiles/edit_cache.dir
+D:/school/Visualization/build/extern/imgui/CMakeFiles/rebuild_cache.dir
+D:/school/Visualization/build/extern/imgui/CMakeFiles/list_install_components.dir
+D:/school/Visualization/build/extern/imgui/CMakeFiles/install.dir
+D:/school/Visualization/build/extern/imgui/CMakeFiles/install/local.dir
+D:/school/Visualization/build/extern/imgui/CMakeFiles/install/strip.dir
