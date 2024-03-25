@@ -1,0 +1,2 @@
+C:\MinGW\bin\ar.exe qc libglm.a CMakeFiles/glm.dir/detail/glm.cpp.obj
+C:\MinGW\bin\ranlib.exe libglm.a
