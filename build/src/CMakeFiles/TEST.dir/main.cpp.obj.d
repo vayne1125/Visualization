@@ -16,7 +16,7 @@ src/CMakeFiles/TEST.dir/main.cpp.obj: \
  c:\mingw\include\wchar.h c:\mingw\include\assert.h \
  D:/school/Visualization/extern/imgui/include/imgui_impl_glfw.h \
  D:/school/Visualization/extern/imgui/include/imgui_impl_opengl3.h \
- d:\school\visualization\src\header\volume.hpp \
+ d:\school\visualization\src\header\shader.hpp \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\mingw32\bits\stdc++.h \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\cassert \
  c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\mingw32\bits\c++config.h \
@@ -401,7 +401,6 @@ src/CMakeFiles/TEST.dir/main.cpp.obj: \
  D:/school/Visualization/extern/glm/glm/detail/type_half.inl \
  D:/school/Visualization/extern/glm/glm/integer.hpp \
  D:/school/Visualization/extern/glm/glm/detail/func_integer.inl \
- d:\school\visualization\src\header\shader.hpp \
  D:/school/Visualization/extern/glm/glm/gtc/type_ptr.hpp \
  d:\school\visualization\extern\glm\glm\gtc\quaternion.hpp \
  d:\school\visualization\extern\glm\glm\gtc\constants.hpp \
@@ -451,4 +450,6 @@ src/CMakeFiles/TEST.dir/main.cpp.obj: \
  d:\school\visualization\extern\glm\glm\ext\vector_uint1.hpp \
  d:\school\visualization\extern\glm\glm\ext\vector_uint1_sized.hpp \
  D:/school/Visualization/extern/glm/glm/gtc/type_ptr.inl \
- d:\school\visualization\src\header\camera.hpp
+ d:\school\visualization\src\header\camera.hpp \
+ d:\school\visualization\src\header\modelmanager.hpp \
+ d:\school\visualization\src\header\volume.hpp

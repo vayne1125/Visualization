@@ -207,7 +207,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=TEST
+CMAKE_PROJECT_NAME:STATIC=Visualization
 
 //Value Computed by CMake
 CMAKE_PROJECT_VERSION:STATIC=3.5.0
@@ -409,6 +409,15 @@ TEST_IS_TOP_LEVEL:STATIC=ON
 
 //Value Computed by CMake
 TEST_SOURCE_DIR:STATIC=D:/school/Visualization
+
+//Value Computed by CMake
+Visualization_BINARY_DIR:STATIC=D:/school/Visualization/build
+
+//Value Computed by CMake
+Visualization_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+Visualization_SOURCE_DIR:STATIC=D:/school/Visualization
 
 //Value Computed by CMake
 glad_BINARY_DIR:STATIC=D:/school/Visualization/build/extern/glad

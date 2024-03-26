@@ -1,11 +1,12 @@
-add_executable(TEST
+add_executable(Visualization
 "main.cpp"
 "Shader.cpp"
 "Volume.cpp"
-"MarchingCubes.cpp"
+"Const.cpp"
 "Camera.cpp"
+"ModelManager.cpp"
 ) #列所有的cpp
-target_link_libraries(TEST
+target_link_libraries(Visualization
 # OpenGL::GL
 glfw
 glm::glm

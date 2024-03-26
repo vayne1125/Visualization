@@ -1,33 +1,39 @@
 [
 {
   "directory": "D:/school/Visualization/build/src",
-  "command": "C:\\MinGW\\bin\\g++.exe  @CMakeFiles/TEST.dir/includes_CXX.rsp -g -o CMakeFiles\\TEST.dir\\main.cpp.obj -c D:\\school\\Visualization\\src\\main.cpp",
+  "command": "C:\\MinGW\\bin\\g++.exe  @CMakeFiles/Visualization.dir/includes_CXX.rsp -g -o CMakeFiles\\Visualization.dir\\main.cpp.obj -c D:\\school\\Visualization\\src\\main.cpp",
   "file": "D:/school/Visualization/src/main.cpp",
-  "output": "src/CMakeFiles/TEST.dir/main.cpp.obj"
+  "output": "src/CMakeFiles/Visualization.dir/main.cpp.obj"
 },
 {
   "directory": "D:/school/Visualization/build/src",
-  "command": "C:\\MinGW\\bin\\g++.exe  @CMakeFiles/TEST.dir/includes_CXX.rsp -g -o CMakeFiles\\TEST.dir\\Shader.cpp.obj -c D:\\school\\Visualization\\src\\Shader.cpp",
+  "command": "C:\\MinGW\\bin\\g++.exe  @CMakeFiles/Visualization.dir/includes_CXX.rsp -g -o CMakeFiles\\Visualization.dir\\Shader.cpp.obj -c D:\\school\\Visualization\\src\\Shader.cpp",
   "file": "D:/school/Visualization/src/Shader.cpp",
-  "output": "src/CMakeFiles/TEST.dir/Shader.cpp.obj"
+  "output": "src/CMakeFiles/Visualization.dir/Shader.cpp.obj"
 },
 {
   "directory": "D:/school/Visualization/build/src",
-  "command": "C:\\MinGW\\bin\\g++.exe  @CMakeFiles/TEST.dir/includes_CXX.rsp -g -o CMakeFiles\\TEST.dir\\Volume.cpp.obj -c D:\\school\\Visualization\\src\\Volume.cpp",
+  "command": "C:\\MinGW\\bin\\g++.exe  @CMakeFiles/Visualization.dir/includes_CXX.rsp -g -o CMakeFiles\\Visualization.dir\\Volume.cpp.obj -c D:\\school\\Visualization\\src\\Volume.cpp",
   "file": "D:/school/Visualization/src/Volume.cpp",
-  "output": "src/CMakeFiles/TEST.dir/Volume.cpp.obj"
+  "output": "src/CMakeFiles/Visualization.dir/Volume.cpp.obj"
 },
 {
   "directory": "D:/school/Visualization/build/src",
-  "command": "C:\\MinGW\\bin\\g++.exe  @CMakeFiles/TEST.dir/includes_CXX.rsp -g -o CMakeFiles\\TEST.dir\\MarchingCubes.cpp.obj -c D:\\school\\Visualization\\src\\MarchingCubes.cpp",
-  "file": "D:/school/Visualization/src/MarchingCubes.cpp",
-  "output": "src/CMakeFiles/TEST.dir/MarchingCubes.cpp.obj"
+  "command": "C:\\MinGW\\bin\\g++.exe  @CMakeFiles/Visualization.dir/includes_CXX.rsp -g -o CMakeFiles\\Visualization.dir\\Const.cpp.obj -c D:\\school\\Visualization\\src\\Const.cpp",
+  "file": "D:/school/Visualization/src/Const.cpp",
+  "output": "src/CMakeFiles/Visualization.dir/Const.cpp.obj"
 },
 {
   "directory": "D:/school/Visualization/build/src",
-  "command": "C:\\MinGW\\bin\\g++.exe  @CMakeFiles/TEST.dir/includes_CXX.rsp -g -o CMakeFiles\\TEST.dir\\Camera.cpp.obj -c D:\\school\\Visualization\\src\\Camera.cpp",
+  "command": "C:\\MinGW\\bin\\g++.exe  @CMakeFiles/Visualization.dir/includes_CXX.rsp -g -o CMakeFiles\\Visualization.dir\\Camera.cpp.obj -c D:\\school\\Visualization\\src\\Camera.cpp",
   "file": "D:/school/Visualization/src/Camera.cpp",
-  "output": "src/CMakeFiles/TEST.dir/Camera.cpp.obj"
+  "output": "src/CMakeFiles/Visualization.dir/Camera.cpp.obj"
+},
+{
+  "directory": "D:/school/Visualization/build/src",
+  "command": "C:\\MinGW\\bin\\g++.exe  @CMakeFiles/Visualization.dir/includes_CXX.rsp -g -o CMakeFiles\\Visualization.dir\\ModelManager.cpp.obj -c D:\\school\\Visualization\\src\\ModelManager.cpp",
+  "file": "D:/school/Visualization/src/ModelManager.cpp",
+  "output": "src/CMakeFiles/Visualization.dir/ModelManager.cpp.obj"
 },
 {
   "directory": "D:/school/Visualization/build/extern/glfw/src",

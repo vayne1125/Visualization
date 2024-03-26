@@ -19,6 +19,7 @@ Shader::Shader(){
 
 }
 void Shader::init(string vertexPath, string fragmentPath){
+    cout << vertexPath << " " << fragmentPath << "\n";
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
     std::string fragmentCode;
@@ -96,8 +97,8 @@ void Shader::checkCompileErrors(unsigned int shader, std::string type)
         }
     }
 Shader::Shader(const string &vertexPath, const string &fragmentPath){
-    cout << "Shader.cpp\n";
     init(vertexPath,fragmentPath);
+    cout << "Shader.cpp\n";
 }
 void Shader::use(){ 
     glUseProgram(this->ID); 

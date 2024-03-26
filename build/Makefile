@@ -161,17 +161,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named TEST
+# Target rules for targets named Visualization
 
 # Build rule for target.
-TEST: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 TEST
-.PHONY : TEST
+Visualization: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 Visualization
+.PHONY : Visualization
 
 # fast build rule for target.
-TEST/fast:
-	$(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/build
-.PHONY : TEST/fast
+Visualization/fast:
+	$(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/build
+.PHONY : Visualization/fast
 
 #=============================================================================
 # Target rules for targets named uninstall
@@ -265,7 +265,7 @@ help:
 	@echo ... rebuild_cache
 	@echo ... uninstall
 	@echo ... update_mappings
-	@echo ... TEST
+	@echo ... Visualization
 	@echo ... glad
 	@echo ... glfw
 	@echo ... glm

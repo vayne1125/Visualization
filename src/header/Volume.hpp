@@ -1,6 +1,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include<bits/stdc++.h>
+#include <bits/stdc++.h>
 #include <glm/glm.hpp>
 using namespace std;
 class Volume{
@@ -9,6 +9,7 @@ public:
     Volume(string infFile, string rawFile, float isoLevel);
     void draw();
     vector<float> data;
+    float isoValue;
 private:
     void read_inf(string file);
     void read_raw(string file);
@@ -20,8 +21,7 @@ private:
     vector<vector<vector<float>>> isoValueGrid;
     vector<vector<vector<glm::vec3>>> gradient;
     glm::vec3 resolution;
-    // iso-value 的分布
-    vector<float> mesh ;
+    vector<float> mesh;
     int vertexCnt = 0;
     unsigned int VAO;
 };

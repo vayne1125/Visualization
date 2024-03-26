@@ -6,6 +6,7 @@ Volume::Volume(){
 }
 Volume::Volume(string infFile,string rawFile, float isoLevel){
     cout << "Volume.cpp\n";
+    this -> isoValue = isoLevel;
     read_inf(infFile);
     read_raw(rawFile);
     cal_gradient();

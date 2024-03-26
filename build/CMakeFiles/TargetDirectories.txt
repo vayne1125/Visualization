@@ -4,7 +4,7 @@ D:/school/Visualization/build/CMakeFiles/list_install_components.dir
 D:/school/Visualization/build/CMakeFiles/install.dir
 D:/school/Visualization/build/CMakeFiles/install/local.dir
 D:/school/Visualization/build/CMakeFiles/install/strip.dir
-D:/school/Visualization/build/src/CMakeFiles/TEST.dir
+D:/school/Visualization/build/src/CMakeFiles/Visualization.dir
 D:/school/Visualization/build/src/CMakeFiles/edit_cache.dir
 D:/school/Visualization/build/src/CMakeFiles/rebuild_cache.dir
 D:/school/Visualization/build/src/CMakeFiles/list_install_components.dir

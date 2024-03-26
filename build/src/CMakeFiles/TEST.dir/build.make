@@ -113,20 +113,20 @@ src/CMakeFiles/TEST.dir/Volume.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/TEST.dir/Volume.cpp.s"
 	cd /d D:\school\Visualization\build\src && C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\school\Visualization\src\Volume.cpp -o CMakeFiles\TEST.dir\Volume.cpp.s
 
-src/CMakeFiles/TEST.dir/MarchingCubes.cpp.obj: src/CMakeFiles/TEST.dir/flags.make
-src/CMakeFiles/TEST.dir/MarchingCubes.cpp.obj: src/CMakeFiles/TEST.dir/includes_CXX.rsp
-src/CMakeFiles/TEST.dir/MarchingCubes.cpp.obj: D:/school/Visualization/src/MarchingCubes.cpp
-src/CMakeFiles/TEST.dir/MarchingCubes.cpp.obj: src/CMakeFiles/TEST.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\school\Visualization\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object src/CMakeFiles/TEST.dir/MarchingCubes.cpp.obj"
-	cd /d D:\school\Visualization\build\src && C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/TEST.dir/MarchingCubes.cpp.obj -MF CMakeFiles\TEST.dir\MarchingCubes.cpp.obj.d -o CMakeFiles\TEST.dir\MarchingCubes.cpp.obj -c D:\school\Visualization\src\MarchingCubes.cpp
+src/CMakeFiles/TEST.dir/Const.cpp.obj: src/CMakeFiles/TEST.dir/flags.make
+src/CMakeFiles/TEST.dir/Const.cpp.obj: src/CMakeFiles/TEST.dir/includes_CXX.rsp
+src/CMakeFiles/TEST.dir/Const.cpp.obj: D:/school/Visualization/src/Const.cpp
+src/CMakeFiles/TEST.dir/Const.cpp.obj: src/CMakeFiles/TEST.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\school\Visualization\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object src/CMakeFiles/TEST.dir/Const.cpp.obj"
+	cd /d D:\school\Visualization\build\src && C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/TEST.dir/Const.cpp.obj -MF CMakeFiles\TEST.dir\Const.cpp.obj.d -o CMakeFiles\TEST.dir\Const.cpp.obj -c D:\school\Visualization\src\Const.cpp
 
-src/CMakeFiles/TEST.dir/MarchingCubes.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/TEST.dir/MarchingCubes.cpp.i"
-	cd /d D:\school\Visualization\build\src && C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\school\Visualization\src\MarchingCubes.cpp > CMakeFiles\TEST.dir\MarchingCubes.cpp.i
+src/CMakeFiles/TEST.dir/Const.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/TEST.dir/Const.cpp.i"
+	cd /d D:\school\Visualization\build\src && C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\school\Visualization\src\Const.cpp > CMakeFiles\TEST.dir\Const.cpp.i
 
-src/CMakeFiles/TEST.dir/MarchingCubes.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/TEST.dir/MarchingCubes.cpp.s"
-	cd /d D:\school\Visualization\build\src && C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\school\Visualization\src\MarchingCubes.cpp -o CMakeFiles\TEST.dir\MarchingCubes.cpp.s
+src/CMakeFiles/TEST.dir/Const.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/TEST.dir/Const.cpp.s"
+	cd /d D:\school\Visualization\build\src && C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\school\Visualization\src\Const.cpp -o CMakeFiles\TEST.dir\Const.cpp.s
 
 src/CMakeFiles/TEST.dir/Camera.cpp.obj: src/CMakeFiles/TEST.dir/flags.make
 src/CMakeFiles/TEST.dir/Camera.cpp.obj: src/CMakeFiles/TEST.dir/includes_CXX.rsp
@@ -143,13 +143,29 @@ src/CMakeFiles/TEST.dir/Camera.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/TEST.dir/Camera.cpp.s"
 	cd /d D:\school\Visualization\build\src && C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\school\Visualization\src\Camera.cpp -o CMakeFiles\TEST.dir\Camera.cpp.s
 
+src/CMakeFiles/TEST.dir/ModelManager.cpp.obj: src/CMakeFiles/TEST.dir/flags.make
+src/CMakeFiles/TEST.dir/ModelManager.cpp.obj: src/CMakeFiles/TEST.dir/includes_CXX.rsp
+src/CMakeFiles/TEST.dir/ModelManager.cpp.obj: D:/school/Visualization/src/ModelManager.cpp
+src/CMakeFiles/TEST.dir/ModelManager.cpp.obj: src/CMakeFiles/TEST.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=D:\school\Visualization\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object src/CMakeFiles/TEST.dir/ModelManager.cpp.obj"
+	cd /d D:\school\Visualization\build\src && C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT src/CMakeFiles/TEST.dir/ModelManager.cpp.obj -MF CMakeFiles\TEST.dir\ModelManager.cpp.obj.d -o CMakeFiles\TEST.dir\ModelManager.cpp.obj -c D:\school\Visualization\src\ModelManager.cpp
+
+src/CMakeFiles/TEST.dir/ModelManager.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/TEST.dir/ModelManager.cpp.i"
+	cd /d D:\school\Visualization\build\src && C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E D:\school\Visualization\src\ModelManager.cpp > CMakeFiles\TEST.dir\ModelManager.cpp.i
+
+src/CMakeFiles/TEST.dir/ModelManager.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/TEST.dir/ModelManager.cpp.s"
+	cd /d D:\school\Visualization\build\src && C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S D:\school\Visualization\src\ModelManager.cpp -o CMakeFiles\TEST.dir\ModelManager.cpp.s
+
 # Object files for target TEST
 TEST_OBJECTS = \
 "CMakeFiles/TEST.dir/main.cpp.obj" \
 "CMakeFiles/TEST.dir/Shader.cpp.obj" \
 "CMakeFiles/TEST.dir/Volume.cpp.obj" \
-"CMakeFiles/TEST.dir/MarchingCubes.cpp.obj" \
-"CMakeFiles/TEST.dir/Camera.cpp.obj"
+"CMakeFiles/TEST.dir/Const.cpp.obj" \
+"CMakeFiles/TEST.dir/Camera.cpp.obj" \
+"CMakeFiles/TEST.dir/ModelManager.cpp.obj"
 
 # External object files for target TEST
 TEST_EXTERNAL_OBJECTS =
@@ -157,8 +173,9 @@ TEST_EXTERNAL_OBJECTS =
 src/TEST.exe: src/CMakeFiles/TEST.dir/main.cpp.obj
 src/TEST.exe: src/CMakeFiles/TEST.dir/Shader.cpp.obj
 src/TEST.exe: src/CMakeFiles/TEST.dir/Volume.cpp.obj
-src/TEST.exe: src/CMakeFiles/TEST.dir/MarchingCubes.cpp.obj
+src/TEST.exe: src/CMakeFiles/TEST.dir/Const.cpp.obj
 src/TEST.exe: src/CMakeFiles/TEST.dir/Camera.cpp.obj
+src/TEST.exe: src/CMakeFiles/TEST.dir/ModelManager.cpp.obj
 src/TEST.exe: src/CMakeFiles/TEST.dir/build.make
 src/TEST.exe: extern/glfw/src/libglfw3.a
 src/TEST.exe: extern/glm/glm/libglm.a
@@ -168,7 +185,7 @@ src/TEST.exe: extern/glfw/src/libglfw3.a
 src/TEST.exe: src/CMakeFiles/TEST.dir/linkLibs.rsp
 src/TEST.exe: src/CMakeFiles/TEST.dir/objects1.rsp
 src/TEST.exe: src/CMakeFiles/TEST.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=D:\school\Visualization\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable TEST.exe"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=D:\school\Visualization\build\CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Linking CXX executable TEST.exe"
 	cd /d D:\school\Visualization\build\src && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles\TEST.dir\link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

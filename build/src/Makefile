@@ -161,25 +161,25 @@ depend:
 .PHONY : depend
 
 # Convenience name for target.
-src/CMakeFiles/TEST.dir/rule:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 src/CMakeFiles/TEST.dir/rule
-.PHONY : src/CMakeFiles/TEST.dir/rule
+src/CMakeFiles/Visualization.dir/rule:
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f CMakeFiles\Makefile2 src/CMakeFiles/Visualization.dir/rule
+.PHONY : src/CMakeFiles/Visualization.dir/rule
 
 # Convenience name for target.
-TEST: src/CMakeFiles/TEST.dir/rule
-.PHONY : TEST
+Visualization: src/CMakeFiles/Visualization.dir/rule
+.PHONY : Visualization
 
 # fast build rule for target.
-TEST/fast:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/build
-.PHONY : TEST/fast
+Visualization/fast:
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/build
+.PHONY : Visualization/fast
 
 Camera.obj: Camera.cpp.obj
 .PHONY : Camera.obj
 
 # target to build an object file
 Camera.cpp.obj:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/Camera.cpp.obj
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Camera.cpp.obj
 .PHONY : Camera.cpp.obj
 
 Camera.i: Camera.cpp.i
@@ -187,7 +187,7 @@ Camera.i: Camera.cpp.i
 
 # target to preprocess a source file
 Camera.cpp.i:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/Camera.cpp.i
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Camera.cpp.i
 .PHONY : Camera.cpp.i
 
 Camera.s: Camera.cpp.s
@@ -195,39 +195,63 @@ Camera.s: Camera.cpp.s
 
 # target to generate assembly for a file
 Camera.cpp.s:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/Camera.cpp.s
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Camera.cpp.s
 .PHONY : Camera.cpp.s
 
-MarchingCubes.obj: MarchingCubes.cpp.obj
-.PHONY : MarchingCubes.obj
+Const.obj: Const.cpp.obj
+.PHONY : Const.obj
 
 # target to build an object file
-MarchingCubes.cpp.obj:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/MarchingCubes.cpp.obj
-.PHONY : MarchingCubes.cpp.obj
+Const.cpp.obj:
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Const.cpp.obj
+.PHONY : Const.cpp.obj
 
-MarchingCubes.i: MarchingCubes.cpp.i
-.PHONY : MarchingCubes.i
+Const.i: Const.cpp.i
+.PHONY : Const.i
 
 # target to preprocess a source file
-MarchingCubes.cpp.i:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/MarchingCubes.cpp.i
-.PHONY : MarchingCubes.cpp.i
+Const.cpp.i:
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Const.cpp.i
+.PHONY : Const.cpp.i
 
-MarchingCubes.s: MarchingCubes.cpp.s
-.PHONY : MarchingCubes.s
+Const.s: Const.cpp.s
+.PHONY : Const.s
 
 # target to generate assembly for a file
-MarchingCubes.cpp.s:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/MarchingCubes.cpp.s
-.PHONY : MarchingCubes.cpp.s
+Const.cpp.s:
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Const.cpp.s
+.PHONY : Const.cpp.s
+
+ModelManager.obj: ModelManager.cpp.obj
+.PHONY : ModelManager.obj
+
+# target to build an object file
+ModelManager.cpp.obj:
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/ModelManager.cpp.obj
+.PHONY : ModelManager.cpp.obj
+
+ModelManager.i: ModelManager.cpp.i
+.PHONY : ModelManager.i
+
+# target to preprocess a source file
+ModelManager.cpp.i:
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/ModelManager.cpp.i
+.PHONY : ModelManager.cpp.i
+
+ModelManager.s: ModelManager.cpp.s
+.PHONY : ModelManager.s
+
+# target to generate assembly for a file
+ModelManager.cpp.s:
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/ModelManager.cpp.s
+.PHONY : ModelManager.cpp.s
 
 Shader.obj: Shader.cpp.obj
 .PHONY : Shader.obj
 
 # target to build an object file
 Shader.cpp.obj:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/Shader.cpp.obj
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Shader.cpp.obj
 .PHONY : Shader.cpp.obj
 
 Shader.i: Shader.cpp.i
@@ -235,7 +259,7 @@ Shader.i: Shader.cpp.i
 
 # target to preprocess a source file
 Shader.cpp.i:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/Shader.cpp.i
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Shader.cpp.i
 .PHONY : Shader.cpp.i
 
 Shader.s: Shader.cpp.s
@@ -243,7 +267,7 @@ Shader.s: Shader.cpp.s
 
 # target to generate assembly for a file
 Shader.cpp.s:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/Shader.cpp.s
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Shader.cpp.s
 .PHONY : Shader.cpp.s
 
 Volume.obj: Volume.cpp.obj
@@ -251,7 +275,7 @@ Volume.obj: Volume.cpp.obj
 
 # target to build an object file
 Volume.cpp.obj:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/Volume.cpp.obj
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Volume.cpp.obj
 .PHONY : Volume.cpp.obj
 
 Volume.i: Volume.cpp.i
@@ -259,7 +283,7 @@ Volume.i: Volume.cpp.i
 
 # target to preprocess a source file
 Volume.cpp.i:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/Volume.cpp.i
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Volume.cpp.i
 .PHONY : Volume.cpp.i
 
 Volume.s: Volume.cpp.s
@@ -267,7 +291,7 @@ Volume.s: Volume.cpp.s
 
 # target to generate assembly for a file
 Volume.cpp.s:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/Volume.cpp.s
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/Volume.cpp.s
 .PHONY : Volume.cpp.s
 
 main.obj: main.cpp.obj
@@ -275,7 +299,7 @@ main.obj: main.cpp.obj
 
 # target to build an object file
 main.cpp.obj:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/main.cpp.obj
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/main.cpp.obj
 .PHONY : main.cpp.obj
 
 main.i: main.cpp.i
@@ -283,7 +307,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/main.cpp.i
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -291,7 +315,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\TEST.dir\build.make src/CMakeFiles/TEST.dir/main.cpp.s
+	cd /d D:\school\Visualization\build && $(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 # Help Target
@@ -306,13 +330,16 @@ help:
 	@echo ... install/strip
 	@echo ... list_install_components
 	@echo ... rebuild_cache
-	@echo ... TEST
+	@echo ... Visualization
 	@echo ... Camera.obj
 	@echo ... Camera.i
 	@echo ... Camera.s
-	@echo ... MarchingCubes.obj
-	@echo ... MarchingCubes.i
-	@echo ... MarchingCubes.s
+	@echo ... Const.obj
+	@echo ... Const.i
+	@echo ... Const.s
+	@echo ... ModelManager.obj
+	@echo ... ModelManager.i
+	@echo ... ModelManager.s
 	@echo ... Shader.obj
 	@echo ... Shader.i
 	@echo ... Shader.s

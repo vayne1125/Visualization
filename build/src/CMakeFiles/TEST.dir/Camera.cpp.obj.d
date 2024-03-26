@@ -250,4 +250,25 @@ src/CMakeFiles/TEST.dir/Camera.cpp.obj: \
  d:\school\visualization\extern\glm\glm\ext\matrix_clip_space.inl \
  d:\school\visualization\extern\glm\glm\ext\matrix_transform.hpp \
  d:\school\visualization\extern\glm\glm\ext\matrix_transform.inl \
- D:/school/Visualization/extern/glm/glm/gtc/matrix_transform.inl
+ D:/school/Visualization/extern/glm/glm/gtc/matrix_transform.inl \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\iostream \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\ostream \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\ios \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\ios_base.h \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\locale_classes.h \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\locale_classes.tcc \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\system_error \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\mingw32\bits\error_constants.h \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\streambuf \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\streambuf.tcc \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\basic_ios.h \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\locale_facets.h \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\cwctype \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\mingw32\bits\ctype_base.h \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\streambuf_iterator.h \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\mingw32\bits\ctype_inline.h \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\locale_facets.tcc \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\basic_ios.tcc \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\ostream.tcc \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\istream \
+ c:\mingw\lib\gcc\mingw32\6.3.0\include\c++\bits\istream.tcc

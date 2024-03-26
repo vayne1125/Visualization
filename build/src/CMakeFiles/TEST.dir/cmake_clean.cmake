@@ -1,8 +1,10 @@
 file(REMOVE_RECURSE
   "CMakeFiles/TEST.dir/Camera.cpp.obj"
   "CMakeFiles/TEST.dir/Camera.cpp.obj.d"
-  "CMakeFiles/TEST.dir/MarchingCubes.cpp.obj"
-  "CMakeFiles/TEST.dir/MarchingCubes.cpp.obj.d"
+  "CMakeFiles/TEST.dir/Const.cpp.obj"
+  "CMakeFiles/TEST.dir/Const.cpp.obj.d"
+  "CMakeFiles/TEST.dir/ModelManager.cpp.obj"
+  "CMakeFiles/TEST.dir/ModelManager.cpp.obj.d"
   "CMakeFiles/TEST.dir/Shader.cpp.obj"
   "CMakeFiles/TEST.dir/Shader.cpp.obj.d"
   "CMakeFiles/TEST.dir/Volume.cpp.obj"

@@ -5,9 +5,9 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
-#include "./header/Volume.hpp"
 #include "./header/Shader.hpp"
 #include "./header/Camera.hpp"
+#include "./header/ModelManager.hpp"
 
 #include <bits/stdc++.h>
 #define   PI   3.1415927
@@ -21,11 +21,119 @@ const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
 
 int enableCliped = 0;
-float fovy = 100;
-
 glm::vec4 clipNormal = glm::vec4(0,1,0,-150);
-int main()
-{
+int addIsoValue = 128;
+Shader *shader;
+Camera *camera;
+ModelManager *modelManager;
+
+void draw_iso_surface_gui(){
+    ImGui::SetNextWindowBgAlpha(0.35f);
+    ImGuiWindowFlags window_flags = 0;
+    window_flags |= ImGuiWindowFlags_NoMove;
+    ImGui::Begin("00957116 C. Y. Wang", 0, window_flags);
+
+    ImGui::Text("Add Iso Surface");
+    ImGui::Text("Iso Value");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(162);
+    if(ImGui::InputInt("##Iso Value",&addIsoValue)){
+        addIsoValue = min(addIsoValue,255);
+        addIsoValue = max(addIsoValue,1);
+    }
+    ImGui::SameLine();
+    
+    int btnSz = 130;
+    // ImGui::SetNextItemWidth(text_len);
+    if(ImGui::Button("Add",ImVec2(btnSz, 20))){
+        modelManager->add_volume(addIsoValue);
+    }
+
+    ImGui::NewLine();
+    
+    ImGui::Text("Rotate:");
+    ImGui::Text("X:");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("##x",&modelManager->rotate.x,0,360); // ax + by + cz + d = 0
+
+    ImGui::SameLine();
+    ImGui::Text("Y:");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("##y",&modelManager->rotate.y,0,360); // ax + by + cz + d = 0
+
+    ImGui::SameLine();
+    ImGui::Text("Z:");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("##z",&modelManager->rotate.z,0,360); // ax + by + cz + d = 0
+
+    ImGui::SameLine();
+    if(ImGui::Button("Auto rotate Y", ImVec2(btnSz, 20))){
+        modelManager->autoRY ^= 1;
+    }
+
+    ImGui::NewLine();
+    ImGui::Text("Clipped plane:");
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("x + ",&clipNormal.x,-1.0f,1.0f); // ax + by + cz + d = 0
+    ImGui::SameLine();
+
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("y + ",&clipNormal.y,-1.0f,1.0f);
+    ImGui::SameLine();
+
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("z + ",&clipNormal.z,-1.0f,1.0f);
+    ImGui::SameLine();
+
+    ImGui::SetNextItemWidth(100);
+    ImGui::SliderFloat(" = 0",&clipNormal.w,-150,150);
+
+    // if(ImGui::RadioButton("clipped section", enableCliped)){
+    //     enableCliped ^= 1;
+    // }
+
+    if(ImGui::Button("clipped section", ImVec2(btnSz, 20))){
+        enableCliped ^= 1;
+    }
+    if(ImGui::IsItemHovered()){
+        if(enableCliped){
+            ImGui::SetTooltip("click to disable clipped section");
+        }else{
+            ImGui::SetTooltip("click to enable clipped section");
+        }
+    }
+    ImGui::SameLine();
+    if(ImGui::Button("Reset", ImVec2(btnSz, 20))){
+        clipNormal = glm::vec4(0,1,0,-150);
+        modelManager->rotate = glm::vec3(0,0,0);
+        enableCliped = 0;
+    }
+    // ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_DefaultOpen;
+    // if (ImGui::TreeNodeEx("Histogram", flag))
+    // {
+    //     ImGui::PlotHistogram("##iso_value", volume->data.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
+    //     int text_iso_value_len = ImGui::CalcTextSize("Iso-value").x;
+    //     ImGui::SetCursorPosX(100-text_iso_value_len/2.0);
+    //     ImGui::Text("Iso-value");
+    //     ImGui::TreePop();  // This is required at the end of the if block
+    // }  
+    ImGui::End();
+
+    //------histogram--------
+    ImGui::SetNextWindowBgAlpha(0.35f);
+    ImGui::Begin("Histogram");
+    ImGui::PlotHistogram("##iso_value", modelManager->isoValueDistributed.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
+    int text_len = ImGui::CalcTextSize("Iso-value").x;
+    ImGui::SetCursorPosX(100-text_len/2.0);
+    ImGui::Text("Iso-value");
+    ImGui::End();
+    ImGui::ShowDemoWindow(); // Show demo window! :)
+}
+
+int main(){
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -63,16 +171,14 @@ int main()
 
     string v = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.vert";
     string f = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.frag";
-    Shader shader(v,f);
+    shader = new Shader(v,f);
 
     string inf = "D:\\school\\Visualization\\src\\asset\\Carp.inf";
     string raw = "D:\\school\\Visualization\\src\\asset\\Carp.raw";
-    
-    Volume volume(inf,raw,30);
-    // Volume volume2(inf,raw,200);
 
-
-
+    camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
+    modelManager = new ModelManager(inf,raw);
+    modelManager->add_volume(30);
     //------------------
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -96,41 +202,7 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        
-//----------------------
-ImGui::SetNextWindowBgAlpha(0.35f);
-ImGui::Begin("00957116 C. Y. Wang");
-ImGui::Text("Clipped plane:");
-ImGui::SetNextItemWidth(50);
-ImGui::SliderFloat("x + ",&clipNormal.x,0.0f,1.0f); // ax + by + cz + d = 0
-ImGui::SameLine();
-
-ImGui::SetNextItemWidth(50);
-ImGui::SliderFloat("y + ",&clipNormal.y,0.0f,1.0f);
-ImGui::SameLine();
-
-ImGui::SetNextItemWidth(50);
-ImGui::SliderFloat("z + ",&clipNormal.z,0.0f,1.0f);
-ImGui::SameLine();
-
-ImGui::SetNextItemWidth(100);
-ImGui::SliderFloat(" = 0",&clipNormal.w,-150,150);
-
-if(ImGui::RadioButton("clipped section", enableCliped)){
-    enableCliped ^= 1;
-}
-ImGui::End();
-
-//------histogram--------
-ImGui::SetNextWindowBgAlpha(0.35f);
-ImGui::Begin("Histogram");
-ImGui::PlotHistogram("##iso_value", volume.data.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
-int text_iso_value_len = ImGui::CalcTextSize("Iso-value").x;
-ImGui::SetCursorPosX(100-text_iso_value_len/2.0);
-ImGui::Text("Iso-value");
-ImGui::End();
-ImGui::ShowDemoWindow(); // Show demo window! :)
-//---------------------
+        draw_iso_surface_gui();
 
         // input
         processInput(window);
@@ -140,43 +212,38 @@ ImGui::ShowDemoWindow(); // Show demo window! :)
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        shader.use();
+        shader->use();
     
         glm::mat4 projection;
-        projection = glm::perspective(glm::radians(fovy),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 2000.0f);
-        shader.set_uniform("projection",projection);
+        projection = glm::perspective(glm::radians(camera->zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 2000.0f);
+        shader->set_uniform("projection",projection);
 
+        shader->set_uniform("model",modelManager->GetModelMatrix());        
+        if(modelManager->autoRY) modelManager->updateFixedRY();
+        shader->set_uniform("fixedRY",modelManager->GetFixedRYMatrix());
 
-        glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 fixedRY = glm::mat4(1.0f);
-        fixedRY = glm::rotate(fixedRY, (float)glfwGetTime()* glm::radians(20.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        // model = glm::rotate(model, glm::radians((float)20), glm::vec3(1.0f, 0.0f, 1.0f));
-
-        shader.set_uniform("model",model);
-        shader.set_uniform("fixedRY",fixedRY);
-
-        shader.set_uniform("clipNormal",clipNormal);
-        shader.set_uniform("enableCliped",enableCliped);
+        shader->set_uniform("clipNormal",clipNormal);
+        shader->set_uniform("enableCliped",enableCliped);
         
         // camera/view transformation
-        glm::mat4 view = glm::lookAt(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0));
-        shader.set_uniform("view", view);
-        shader.set_uniform("viewPos", glm::vec3(0,0,-200));
+        glm::mat4 view = camera->GetViewMatrix();//glm::lookAt(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0));
+        shader->set_uniform("view", view);
+        shader->set_uniform("viewPos", camera->position);
 
         glm::vec3 lightPos = glm::vec3(0,0,-300);
-        shader.set_uniform("lightPos",lightPos);
+        shader->set_uniform("lightPos",lightPos);
         
-        shader.set_uniform("objectColor",glm::vec4(1.0f, 76/255.0f, 153/255.0f, 1.0f));
-        // volume2.draw();
-
-        shader.set_uniform("objectColor",glm::vec4(0.5f, 0.5f, 0.5f,0.8f));
-        volume.draw();
-
-//---------------------
-ImGui::Render();
-ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-//---------------------
+        int sz = modelManager->volumeArray.size();
+        for(int i=0;i<sz;i++){
+            float isV = modelManager->volumeArray[i].isoValue;
+            shader->set_uniform("objectHSVColor",glm::vec3(255-isV, 1.0f, 0.5f));
+            modelManager->volumeArray[i].draw();
+        }
+        // shader->set_uniform("objectColor",glm::vec4(0.5f, 0.5f, 0.5f,0.8f));
+        // modelManager->volumeArray[1].draw();
+        
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         // swap buffers and poll IO events
         glfwSwapBuffers(window);
@@ -185,7 +252,7 @@ ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
-    glDeleteProgram(shader.ID);
+    glDeleteProgram(shader->ID);
 
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -193,71 +260,28 @@ ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     return 0;
 }
 
-// process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
-// ---------------------------------------------------------------------------------------------------------
-void processInput(GLFWwindow *window)
-{
-    // if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-    //     enableCliped ^= 1;
 
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS){
-        clipNormal.x--;
-    }else if(glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
-        clipNormal.x++;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
-        clipNormal.y--;
-    }else if(glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
-        clipNormal.y++;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS){
-        clipNormal.z--;
-    }else if(glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
-        clipNormal.z++;
-    }
-
-    if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS){
-        clipNormal.w--;
-        clipNormal.w = max(-200.0f,clipNormal[3]);
-    }else if(glfwGetKey(window, GLFW_KEY_F) == GLFW_PRESS){
-        clipNormal.w++;
-        clipNormal.w = min(200.0f,clipNormal[3]);
-    }
-
-    
+void processInput(GLFWwindow *window){
+    // if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS);   
 }
 
-// glfw: whenever the window size changed (by OS or user resize) this callback function executes
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    // make sure the viewport matches the new window dimensions; note that width and 
-    // height will be significantly larger than specified on retina displays.
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height){
     glViewport(0, 0, width, height);
 }
 
-// glfw: whenever the mouse moves, this callback is called
-// -------------------------------------------------------
+
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn){
 
 }
 
-// glfw: whenever the mouse scroll wheel scrolls, this callback is called
-// ----------------------------------------------------------------------
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
-{
-    fovy -= (float)yoffset;
-    if (fovy < 1.0f)
-        fovy = 1.0f;
-    if (fovy > 120.0f)
-        fovy = 100.0f;
-    // camera.ProcessMouseScroll(static_cast<float>(yoffset));
+
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset){
+    camera->ProcessMouseScroll(static_cast<float>(yoffset));
 }
 
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods){
-    if (button == GLFW_MOUSE_BUTTON_RIGHT){
-        enableCliped ^= 1;
-    }
+    // if (button == GLFW_MOUSE_BUTTON_RIGHT){
+    //     enableCliped ^= 1;
+    // }
 }
