@@ -6,9 +6,11 @@ using namespace std;
 class Volume{
 public:
     Volume();
+    void delete_VAO();
     Volume(string infFile, string rawFile, float isoLevel);
     void draw();
     vector<float> data;
+
     float isoValue;
 private:
     void read_inf(string file);

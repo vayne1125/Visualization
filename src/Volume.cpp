@@ -39,7 +39,6 @@ void Volume::set_VAO(){
     glBindVertexArray(0);
 }
 void Volume::draw(){
-
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_TRIANGLES, 0, vertexCnt);
     glBindVertexArray(0);
@@ -187,6 +186,11 @@ glm::vec3 Volume::calc_interpolation(float isoLevel,glm::vec3 p1, glm::vec3 p2, 
     p.y = p1.y + mu * (p2.y - p1.y);
     p.z = p1.z + mu * (p2.z - p1.z);
     return p;
+}
+void Volume::delete_VAO(){
+    cout << "IsoValue: " << (int)isoValue << " -> ";
+    cout << "delete\n";
+    glDeleteVertexArrays(1, &VAO);
 }
 void Volume::cal_gradient(){
     gradient.resize(resolution[0],vector<vector<glm::vec3>>(resolution[1],vector<glm::vec3>(resolution[2])));

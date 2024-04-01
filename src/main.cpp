@@ -26,12 +26,13 @@ int addIsoValue = 128;
 Shader *shader;
 Camera *camera;
 ModelManager *modelManager;
-
+// int CUR = 250;
 void draw_iso_surface_gui(){
     ImGui::SetNextWindowBgAlpha(0.35f);
     ImGuiWindowFlags window_flags = 0;
-    window_flags |= ImGuiWindowFlags_NoMove;
-    ImGui::Begin("00957116 C. Y. Wang", 0, window_flags);
+    // window_flags |= ImGuiWindowFlags_NoMove;
+    // ImGui::Begin("00957116 C. Y. Wang", 0, window_flags);
+    ImGui::Begin("00957116 C. Y. Wang");
 
     ImGui::Text("Add Iso Surface");
     ImGui::Text("Iso Value");
@@ -40,6 +41,8 @@ void draw_iso_surface_gui(){
     if(ImGui::InputInt("##Iso Value",&addIsoValue)){
         addIsoValue = min(addIsoValue,255);
         addIsoValue = max(addIsoValue,1);
+        // CUR--;
+        // cout << CUR << " ";
     }
     ImGui::SameLine();
     
@@ -49,6 +52,77 @@ void draw_iso_surface_gui(){
         modelManager->add_volume(addIsoValue);
     }
 
+    // ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_DefaultOpen;
+    if (ImGui::TreeNodeEx("iso value list")){
+
+        {
+            ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
+            ImGui::BeginChild("ChildL", ImVec2(ImGui::GetContentRegionAvail().x, 95), ImGuiChildFlags_None, window_flags);
+            for(int i = 1; i<=255; i++){
+                if(modelManager->volumeIsoValueArray[i]){
+                    int tp = i;
+                    string stp;
+                    while(tp){
+                        stp += tp%10 + '0';
+                        tp/=10;
+                    }
+                    reverse(stp.begin(),stp.end());
+                    {
+                        ImGui::PushID(i);
+                        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV((255-i)/360.0, 1.0f, 0.5f));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV((255-i)/360.0,  1.0f, 0.5f));
+                        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV((255-i)/360.0,  1.0f, 0.5f));
+                        ImGui::Button("  ", ImVec2(20, 20));
+                        ImGui::PopStyleColor(3);
+                        ImGui::PopID();
+                        ImGui::SameLine();
+                    }
+                    
+                    ImGui::Text(stp.c_str());
+                    ImGui::SameLine();
+                    ImGui::SetCursorPosX(220);
+                    string btns = "delete##" + stp;
+                    if(ImGui::Button(btns.c_str(), ImVec2(btnSz, 20))){
+                        modelManager->delete_volume(i);
+                    }
+                }
+            }
+            ImGui::EndChild();
+        }
+
+        // for(int i = 1; i<=255; i++){
+        //     if(modelManager->volumeIsoValueArray[i]){
+        //         int tp = i;
+        //         string stp;
+        //         while(tp){
+        //             stp += tp%10 + '0';
+        //             tp/=10;
+        //         }
+        //         reverse(stp.begin(),stp.end());
+               
+        //         {
+        //             ImGui::PushID(i);
+        //             ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV((255-i)/360.0, 1.0f, 0.5f));
+        //             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV((255-i)/360.0,  1.0f, 0.5f));
+        //             ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV((255-i)/360.0,  1.0f, 0.5f));
+        //             ImGui::Button("  ", ImVec2(20, 20));
+        //             ImGui::PopStyleColor(3);
+        //             ImGui::PopID();
+        //             ImGui::SameLine();
+        //         }
+                
+        //         ImGui::Text(stp.c_str());
+        //         ImGui::SameLine();
+        //         ImGui::SetCursorPosX(250);
+        //         string btns = "delete##" + stp;
+        //         if(ImGui::Button(btns.c_str(), ImVec2(btnSz, 20))){
+        //             modelManager->delete_volume(i);
+        //         }
+        //     }
+        // }
+        
+        ImGui::TreePop();  // This is required at the end of the if block
+    } 
     ImGui::NewLine();
     
     ImGui::Text("Rotate:");
@@ -95,14 +169,14 @@ void draw_iso_surface_gui(){
     //     enableCliped ^= 1;
     // }
 
-    if(ImGui::Button("clipped section", ImVec2(btnSz, 20))){
+    if(ImGui::Button("Cross section", ImVec2(btnSz, 20))){
         enableCliped ^= 1;
     }
     if(ImGui::IsItemHovered()){
         if(enableCliped){
-            ImGui::SetTooltip("click to disable clipped section");
+            ImGui::SetTooltip("click to disable cross section");
         }else{
-            ImGui::SetTooltip("click to enable clipped section");
+            ImGui::SetTooltip("click to enable cross section");
         }
     }
     ImGui::SameLine();
@@ -130,6 +204,7 @@ void draw_iso_surface_gui(){
     ImGui::SetCursorPosX(100-text_len/2.0);
     ImGui::Text("Iso-value");
     ImGui::End();
+    
     ImGui::ShowDemoWindow(); // Show demo window! :)
 }
 
@@ -177,8 +252,8 @@ int main(){
     string raw = "D:\\school\\Visualization\\src\\asset\\Carp.raw";
 
     camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
-    modelManager = new ModelManager(inf,raw);
-    modelManager->add_volume(30);
+    modelManager = new ModelManager(inf,raw,200);
+    // modelManager->add_volume(30);
     //------------------
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
