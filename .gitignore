@@ -1,0 +1,5 @@
+# local build(s)
+build*
+
+/.vs
+/.vscode
