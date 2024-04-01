@@ -230,9 +230,9 @@ src/clean: src/CMakeFiles/Visualization.dir/clean
 
 # All Build rule for target.
 src/CMakeFiles/Visualization.dir/all: extern/glfw/src/CMakeFiles/glfw.dir/all
+src/CMakeFiles/Visualization.dir/all: extern/imgui/CMakeFiles/imgui.dir/all
 src/CMakeFiles/Visualization.dir/all: extern/glm/glm/CMakeFiles/glm.dir/all
 src/CMakeFiles/Visualization.dir/all: extern/glad/CMakeFiles/glad.dir/all
-src/CMakeFiles/Visualization.dir/all: extern/imgui/CMakeFiles/imgui.dir/all
 	$(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/depend
 	$(MAKE) $(MAKESILENT) -f src\CMakeFiles\Visualization.dir\build.make src/CMakeFiles/Visualization.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --progress-dir=D:\school\Visualization\build\CMakeFiles --progress-num=1,2,3,4,5,6,7 "Built target Visualization"

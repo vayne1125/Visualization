@@ -1,7 +1,7 @@
-prefix=C:/Program Files (x86)/TEST
+prefix=C:/Program Files (x86)/Visualization
 exec_prefix=${prefix}
-includedir=C:/Program Files (x86)/TEST/include
-libdir=C:/Program Files (x86)/TEST/lib
+includedir=C:/Program Files (x86)/Visualization/include
+libdir=C:/Program Files (x86)/Visualization/lib
 
 Name: GLFW
 Description: A multi-platform library for OpenGL, window and input
