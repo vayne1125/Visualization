@@ -26,100 +26,85 @@ int addIsoValue = 128;
 Shader *shader;
 Camera *camera;
 ModelManager *modelManager;
-// int CUR = 250;
+static int modelFileIndex = 0;
+const char* modelFileList[] = { "carp", "engine"};
+// int CUR = 240;
 void draw_iso_surface_gui(){
+    int btnSz = 130;
     ImGui::SetNextWindowBgAlpha(0.35f);
     ImGuiWindowFlags window_flags = 0;
     // window_flags |= ImGuiWindowFlags_NoMove;
     // ImGui::Begin("00957116 C. Y. Wang", 0, window_flags);
     ImGui::Begin("00957116 C. Y. Wang");
-
-    ImGui::Text("Add Iso Surface");
-    ImGui::Text("Iso Value");
-    ImGui::SameLine();
-    ImGui::SetNextItemWidth(162);
-    if(ImGui::InputInt("##Iso Value",&addIsoValue)){
-        addIsoValue = min(addIsoValue,255);
-        addIsoValue = max(addIsoValue,1);
-        // CUR--;
-        // cout << CUR << " ";
+    // Load Model
+    {
+        int tpIndex = 0;
+        ImGui::Text("Load Model");
+        ImGui::SetNextItemWidth(232);
+        if(ImGui::Combo("##loadfile", &tpIndex, modelFileList, IM_ARRAYSIZE(modelFileList)));
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(250);
+        if(ImGui::Button("Load",ImVec2(btnSz, 20))){
+            if(tpIndex != modelFileIndex) 
+                modelManager->init(modelFileList[modelFileIndex], 200);
+            modelFileIndex = tpIndex;
+            // cout << modelFileList[modelFileIndex] << "\n";
+        }
     }
-    ImGui::SameLine();
-    
-    int btnSz = 130;
-    // ImGui::SetNextItemWidth(text_len);
-    if(ImGui::Button("Add",ImVec2(btnSz, 20))){
-        modelManager->add_volume(addIsoValue);
+    ImGui::NewLine();
+    // Add Iso Surface
+    {
+        ImGui::Text("Add Iso Surface");
+        ImGui::Text("Iso Value");
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(162);
+        if(ImGui::InputInt("##Iso Value",&addIsoValue)){
+            addIsoValue = min(addIsoValue,255);
+            addIsoValue = max(addIsoValue,1);
+            // CUR--;
+            // cout << CUR << " ";
+        }
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(250);
+        if(ImGui::Button("Add",ImVec2(btnSz, 20))){
+            modelManager->add_volume(addIsoValue);
+        }
     }
-
     // ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_DefaultOpen;
     if (ImGui::TreeNodeEx("iso value list")){
-
-        {
-            ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
-            ImGui::BeginChild("ChildL", ImVec2(ImGui::GetContentRegionAvail().x, 95), ImGuiChildFlags_None, window_flags);
-            for(int i = 1; i<=255; i++){
-                if(modelManager->volumeIsoValueArray[i]){
-                    int tp = i;
-                    string stp;
-                    while(tp){
-                        stp += tp%10 + '0';
-                        tp/=10;
-                    }
-                    reverse(stp.begin(),stp.end());
-                    {
-                        ImGui::PushID(i);
-                        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV((255-i)/360.0, 1.0f, 0.5f));
-                        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV((255-i)/360.0,  1.0f, 0.5f));
-                        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV((255-i)/360.0,  1.0f, 0.5f));
-                        ImGui::Button("  ", ImVec2(20, 20));
-                        ImGui::PopStyleColor(3);
-                        ImGui::PopID();
-                        ImGui::SameLine();
-                    }
-                    
-                    ImGui::Text(stp.c_str());
+        ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
+        int sz = (min(modelManager->volumnCnt,4) + 0.75) * 20;
+        ImGui::BeginChild("ChildL", ImVec2(ImGui::GetContentRegionAvail().x, sz), ImGuiChildFlags_None, window_flags);
+        for(int i = 1; i<=255; i++){
+            if(modelManager->volumeIsoValueArray[i]){
+                int tp = i;
+                string stp;
+                while(tp){
+                    stp += tp%10 + '0';
+                    tp/=10;
+                }
+                reverse(stp.begin(),stp.end());
+                {
+                    ImGui::PushID(i);
+                    ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV((255-i)/360.0, 1.0f, 0.5f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV((255-i)/360.0,  1.0f, 0.5f));
+                    ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV((255-i)/360.0,  1.0f, 0.5f));
+                    ImGui::Button("", ImVec2(20, 20));
+                    ImGui::PopStyleColor(3);
+                    ImGui::PopID();
                     ImGui::SameLine();
-                    ImGui::SetCursorPosX(220);
-                    string btns = "delete##" + stp;
-                    if(ImGui::Button(btns.c_str(), ImVec2(btnSz, 20))){
-                        modelManager->delete_volume(i);
-                    }
+                }
+                
+                ImGui::Text(stp.c_str());
+                ImGui::SameLine();
+                ImGui::SetCursorPosX(220);
+                string btns = "delete##" + stp;
+                if(ImGui::Button(btns.c_str(), ImVec2(btnSz, 20))){
+                    modelManager->delete_volume(i);
                 }
             }
-            ImGui::EndChild();
         }
-
-        // for(int i = 1; i<=255; i++){
-        //     if(modelManager->volumeIsoValueArray[i]){
-        //         int tp = i;
-        //         string stp;
-        //         while(tp){
-        //             stp += tp%10 + '0';
-        //             tp/=10;
-        //         }
-        //         reverse(stp.begin(),stp.end());
-               
-        //         {
-        //             ImGui::PushID(i);
-        //             ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV((255-i)/360.0, 1.0f, 0.5f));
-        //             ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV((255-i)/360.0,  1.0f, 0.5f));
-        //             ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV((255-i)/360.0,  1.0f, 0.5f));
-        //             ImGui::Button("  ", ImVec2(20, 20));
-        //             ImGui::PopStyleColor(3);
-        //             ImGui::PopID();
-        //             ImGui::SameLine();
-        //         }
-                
-        //         ImGui::Text(stp.c_str());
-        //         ImGui::SameLine();
-        //         ImGui::SetCursorPosX(250);
-        //         string btns = "delete##" + stp;
-        //         if(ImGui::Button(btns.c_str(), ImVec2(btnSz, 20))){
-        //             modelManager->delete_volume(i);
-        //         }
-        //     }
-        // }
+        ImGui::EndChild();
         
         ImGui::TreePop();  // This is required at the end of the if block
     } 
@@ -144,6 +129,7 @@ void draw_iso_surface_gui(){
     ImGui::SliderFloat("##z",&modelManager->rotate.z,0,360); // ax + by + cz + d = 0
 
     ImGui::SameLine();
+    ImGui::SetCursorPosX(250);
     if(ImGui::Button("Auto rotate Y", ImVec2(btnSz, 20))){
         modelManager->autoRY ^= 1;
     }
@@ -164,11 +150,7 @@ void draw_iso_surface_gui(){
 
     ImGui::SetNextItemWidth(100);
     ImGui::SliderFloat(" = 0",&clipNormal.w,-150,150);
-
-    // if(ImGui::RadioButton("clipped section", enableCliped)){
-    //     enableCliped ^= 1;
-    // }
-
+    
     if(ImGui::Button("Cross section", ImVec2(btnSz, 20))){
         enableCliped ^= 1;
     }
@@ -185,15 +167,6 @@ void draw_iso_surface_gui(){
         modelManager->rotate = glm::vec3(0,0,0);
         enableCliped = 0;
     }
-    // ImGuiTreeNodeFlags flag = ImGuiTreeNodeFlags_DefaultOpen;
-    // if (ImGui::TreeNodeEx("Histogram", flag))
-    // {
-    //     ImGui::PlotHistogram("##iso_value", volume->data.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
-    //     int text_iso_value_len = ImGui::CalcTextSize("Iso-value").x;
-    //     ImGui::SetCursorPosX(100-text_iso_value_len/2.0);
-    //     ImGui::Text("Iso-value");
-    //     ImGui::TreePop();  // This is required at the end of the if block
-    // }  
     ImGui::End();
 
     //------histogram--------
@@ -248,11 +221,8 @@ int main(){
     string f = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.frag";
     shader = new Shader(v,f);
 
-    string inf = "D:\\school\\Visualization\\src\\asset\\Carp.inf";
-    string raw = "D:\\school\\Visualization\\src\\asset\\Carp.raw";
-
     camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
-    modelManager = new ModelManager(inf,raw,200);
+    modelManager = new ModelManager("carp",200);
     // modelManager->add_volume(30);
     //------------------
     // Setup Dear ImGui context

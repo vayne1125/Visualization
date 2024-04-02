@@ -1,23 +1,34 @@
 #include "./header/ModelManager.hpp"
-ModelManager::ModelManager(const string& infFile,const string& rawFile, int isoLevel){
+ModelManager::ModelManager(const string& modelName, int isoLevel){
     this -> rotate = glm::vec3(0,0,0);
     this -> autoRY = 1;
     this -> fixedRY = glm::mat4(1.0f);
-    volumeIsoValueArray.assign(255,0);
-    init(infFile,rawFile, isoLevel);
+    init(modelName, isoLevel);
 }
-void ModelManager::init(const string& infFile,const string& rawFile, int isoLevel){
-    this -> infFile = infFile;
-    this -> rawFile = rawFile;
+void ModelManager::init(const string& modelName, int isoLevel){
+    if(modelName == "carp")
+        modelID = CARP;
+    else if(modelName == "engine")
+        modelID = ENGINE;
+    
+    string dir = "D:\\school\\Visualization\\src\\asset\\";
+    this -> infFile = dir + modelName + ".inf";
+    this -> rawFile = dir + modelName + ".raw";
+    
+    delete_all_volume();
     isoValueDistributed.clear();
-    volumeArray.clear();
+    
     add_volume(isoLevel);
     isoValueDistributed = volumeArray[0].data;
+
+    volumnCnt = 1;
 }
+
 void ModelManager::add_volume(int isoLevel){
     if(volumeIsoValueArray[isoLevel]) return;
     volumeIsoValueArray[isoLevel] = 1;
-    
+    volumnCnt++;
+
     Volume voulme(infFile,rawFile,isoLevel);
     // voulme.data.clear();
 
@@ -26,6 +37,7 @@ void ModelManager::add_volume(int isoLevel){
 
 void ModelManager::delete_volume(int isoLevel){
     if(!volumeIsoValueArray[isoLevel]) return;
+    volumnCnt--;
     for(auto it = volumeArray.begin(); it != volumeArray.end(); ++it){
         if(abs(it->isoValue - isoLevel) < 0.0001){
             it->delete_VAO();
@@ -36,12 +48,21 @@ void ModelManager::delete_volume(int isoLevel){
     volumeIsoValueArray[isoLevel] = 0;
 }
 
+void ModelManager::delete_all_volume(){
+    for(auto it = volumeArray.begin(); it != volumeArray.end(); ++it){
+        it->delete_VAO();
+    }
+    volumeArray.clear();
+    volumeIsoValueArray.assign(255,0);
+}
+
 glm::mat4 ModelManager::GetModelMatrix(){
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(rotate.x), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotate.z), glm::vec3(1.0f, 0.0f, 1.0f));
-    model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    if(modelID == CARP)
+        model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     return model;
 }
 
