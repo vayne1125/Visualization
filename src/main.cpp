@@ -26,7 +26,7 @@ int addIsoValue = 128;
 Shader *shader;
 Camera *camera;
 ModelManager *modelManager;
-static int modelFileIndex = 0;
+static pair<int,int> modelFileIndex = {0,0};
 const char* modelFileList[] = { "carp", "engine"};
 // int CUR = 240;
 void draw_iso_surface_gui(){
@@ -38,17 +38,16 @@ void draw_iso_surface_gui(){
     ImGui::Begin("00957116 C. Y. Wang");
     // Load Model
     {
-        int tpIndex = 0;
         ImGui::Text("Load Model");
         ImGui::SetNextItemWidth(232);
-        if(ImGui::Combo("##loadfile", &tpIndex, modelFileList, IM_ARRAYSIZE(modelFileList)));
+        if(ImGui::Combo("##loadfile", &modelFileIndex.second, modelFileList, IM_ARRAYSIZE(modelFileList)));
         ImGui::SameLine();
         ImGui::SetCursorPosX(250);
         if(ImGui::Button("Load",ImVec2(btnSz, 20))){
-            if(tpIndex != modelFileIndex) 
-                modelManager->init(modelFileList[modelFileIndex], 200);
-            modelFileIndex = tpIndex;
-            // cout << modelFileList[modelFileIndex] << "\n";
+            if(modelFileIndex.second != modelFileIndex.first){
+                modelFileIndex.first = modelFileIndex.second;
+                modelManager->init(modelFileList[modelFileIndex.first], 200);
+            }
         }
     }
     ImGui::NewLine();
