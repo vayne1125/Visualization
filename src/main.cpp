@@ -215,9 +215,15 @@ int main(){
     glEnable(GL_DEPTH_TEST); 
     // glEnable(GL_BLEND);
     // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    string v,f;
+    #ifdef __linux__
+        v = "/home/yu/Desktop/school/Visualization/src/shaders/IsoSurface.vert";
+        f = "/home/yu/Desktop/school/Visualization/src/shaders/IsoSurface.frag";
+    #else
+        v = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.vert";
+        f = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.frag";
+    #endif
 
-    string v = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.vert";
-    string f = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.frag";
     shader = new Shader(v,f);
 
     camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);

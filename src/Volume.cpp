@@ -68,7 +68,8 @@ void Volume::read_raw(string file){
         for(int j=0;j<resolution[1];j++){
             for(int k=0;k<resolution[2];k++){
                 isoValueGrid[i][j][k] = buffer[index++];
-                data[isoValueGrid[i][j][k]]++;
+                if(isoValueGrid[i][j][k] > 0)
+                    data[isoValueGrid[i][j][k]]++;
             }
         }
     }

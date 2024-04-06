@@ -11,7 +11,13 @@ void ModelManager::init(const string& modelName, int isoLevel){
     else if(modelName == "engine")
         modelID = ENGINE;
     
-    string dir = "D:\\school\\Visualization\\src\\asset\\";
+    string dir;
+    #ifdef __linux__
+        dir = "/home/yu/Desktop/school/Visualization/src/asset/";
+    #else
+        dir = "D:\\school\\Visualization\\src\\asset\\";
+    #endif
+    
     this -> infFile = dir + modelName + ".inf";
     this -> rawFile = dir + modelName + ".raw";
     
