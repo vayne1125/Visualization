@@ -2,6 +2,9 @@
 #include <GLFW/glfw3.h>
 #include <bits/stdc++.h>
 #include <glm/glm.hpp>
+enum RAW_DATA_TYPE{
+    UNSIGNED_SHORT, UNSIGNED_CHAR
+};
 using namespace std;
 class Volume{
 public:
@@ -14,7 +17,7 @@ public:
     float isoValue;
 private:
     void read_inf(string file);
-    void read_raw(string file);
+    template<typename T> void read_raw(string file);
     void calc_mesh(float isoLevel);
     void cal_gradient();
     void set_VAO();
@@ -23,6 +26,7 @@ private:
     vector<vector<vector<float>>> isoValueGrid;
     vector<vector<vector<glm::vec3>>> gradient;
     glm::vec3 resolution;
+    int rawDataType = 0;
     vector<float> mesh;
     int vertexCnt = 0;
     unsigned int VAO;

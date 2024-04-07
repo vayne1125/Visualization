@@ -10,6 +10,11 @@ void ModelManager::init(const string& modelName, int isoLevel){
         modelID = CARP;
     else if(modelName == "engine")
         modelID = ENGINE;
+    else if(modelName == "golfball")
+        modelID = GOLFBALL;
+    else if(modelName == "teddybear")
+        modelID = TEDDYBEAR;
+    
     
     string dir;
     #ifdef __linux__
@@ -69,6 +74,10 @@ glm::mat4 ModelManager::GetModelMatrix(){
     model = glm::rotate(model, glm::radians(rotate.z), glm::vec3(1.0f, 0.0f, 1.0f));
     if(modelID == CARP)
         model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    else if(modelID == TEDDYBEAR){
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        model = glm::rotate(model, glm::radians(270.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    }
     return model;
 }
 

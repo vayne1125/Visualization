@@ -26,8 +26,8 @@ int addIsoValue = 128;
 Shader *shader;
 Camera *camera;
 ModelManager *modelManager;
-static pair<int,int> modelFileIndex = {0,0};
-const char* modelFileList[] = { "carp", "engine"};
+static pair<int,int> modelFileIndex = {3,3};
+const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
 // int CUR = 240;
 void draw_iso_surface_gui(){
     int btnSz = 130;
@@ -227,7 +227,7 @@ int main(){
     shader = new Shader(v,f);
 
     camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
-    modelManager = new ModelManager("carp",200);
+    modelManager = new ModelManager(modelFileList[modelFileIndex.first],200);
     // modelManager->add_volume(30);
     //------------------
     // Setup Dear ImGui context

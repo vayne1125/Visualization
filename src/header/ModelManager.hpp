@@ -2,8 +2,9 @@
 #include <string>
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
-#define CARP 0
-#define ENGINE 1
+enum MODEL_TYPE{
+    CARP, ENGINE, GOLFBALL, TEDDYBEAR
+};
 using namespace std;
 class ModelManager{
 public:

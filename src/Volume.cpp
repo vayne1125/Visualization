@@ -8,7 +8,12 @@ Volume::Volume(string infFile,string rawFile, float isoLevel){
     cout << "Volume.cpp\n";
     this -> isoValue = isoLevel;
     read_inf(infFile);
-    read_raw(rawFile);
+
+    if(rawDataType == UNSIGNED_CHAR)
+        read_raw<unsigned char>(rawFile);
+    else if(rawDataType == UNSIGNED_SHORT)
+        read_raw<unsigned short>(rawFile);
+    
     cal_gradient();
     calc_mesh(isoLevel);
     set_VAO();
@@ -43,7 +48,8 @@ void Volume::draw(){
     glDrawArrays(GL_TRIANGLES, 0, vertexCnt);
     glBindVertexArray(0);
 }
-void Volume::read_raw(string file){
+
+template<typename T> void Volume::read_raw(string file){
     std::ifstream inputFile(file, std::ios::binary);
     if (!inputFile.is_open()) {
         std::cerr << "Unable to open file." << std::endl;
@@ -54,7 +60,7 @@ void Volume::read_raw(string file){
     std::streampos fileSize = inputFile.tellg();
     inputFile.seekg(0, std::ios::beg);
 
-    std::vector<unsigned char> buffer(fileSize);
+    std::vector<T> buffer(fileSize);
 
     inputFile.read(reinterpret_cast<char*>(buffer.data()), fileSize);
 
@@ -83,16 +89,29 @@ void Volume::read_inf(string file){
     string line;
     while (getline(inputFile, line)){
         istringstream iss(line);
-        string key, value;
+        string key, value, tp;
         getline(iss, key, '=');
         getline(iss, value);
+        char separator;
+        
         if(key=="Resolution"){
-            char separator;
             istringstream iss(value);
             iss >> resolution.z >> separator >> resolution.y >> separator >> resolution.x;
         }
+        if(key == "Type"){
+            istringstream iss(value);
+            iss >> tp;
+            if(tp == "unsigned_char")
+                rawDataType = UNSIGNED_CHAR;
+            else if(tp == "unsigned_short")
+                rawDataType = UNSIGNED_SHORT;
+            else {
+                cerr << "Volume.cpp: read_inf: error raw data type!\n";
+            }
+        }
     }
     cout << "resolution: " << resolution[0] << " " <<  resolution[1] << " "<<  resolution[2] << "\n";
+    cout << "data type: " << this->rawDataType << "\n";
 }
 void Volume::calc_mesh(float isoLevel){
     glm::vec3 grid[8];
@@ -175,14 +194,7 @@ void Volume::calc_mesh(float isoLevel){
 glm::vec3 Volume::calc_interpolation(float isoLevel,glm::vec3 p1, glm::vec3 p2, float valp1, float valp2){
     float mu;
     glm::vec3 p;
-    // if (abs(isoLevel-valp1) < 0.00001)
-    //     return(p1);
-    // if (abs(isoLevel-valp2) < 0.00001)
-    //     return(p2);
-    // if (abs(valp1-valp2) < 0.00001)
-    //     return(p1);
     mu = (isoLevel - valp1) / (valp2 - valp1);
-    // p = p1 + mu * (p2 - p1);
     p.x = p1.x + mu * (p2.x - p1.x);
     p.y = p1.y + mu * (p2.y - p1.y);
     p.z = p1.z + mu * (p2.z - p1.z);
