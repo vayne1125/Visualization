@@ -1,19 +1,30 @@
 #include "./header/ModelManager.hpp"
-ModelManager::ModelManager(const string& modelName, int isoLevel){
+ModelManager::ModelManager(int method,const string& modelName, int isoLevel){
     this -> rotate = glm::vec3(0,0,0);
     this -> autoRY = 1;
     this -> fixedRY = glm::mat4(1.0f);
+    this -> rotateY = 0;
+    this -> method = method;
     init(modelName, isoLevel);
 }
-void ModelManager::init(const string& modelName, int isoLevel){
+ModelManager::ModelManager(int method,const string& modelName){
+    cout << "METHODS::VOLUME_RENDERING: ModelManager.cpp\n";
+    this -> rotate = glm::vec3(0,0,0);
+    this -> autoRY = 1;
+    this -> rotateY = 0;
+    this -> fixedRY = glm::mat4(1.0f);
+    this -> method = method;
+    init(modelName,-1);
+}
+void ModelManager::init(const string& modelName, int isoLevel){    
     if(modelName == "carp")
-        modelID = CARP;
+        modelID = MODEL_TYPE::CARP;
     else if(modelName == "engine")
-        modelID = ENGINE;
+        modelID = MODEL_TYPE::ENGINE;
     else if(modelName == "golfball")
-        modelID = GOLFBALL;
+        modelID = MODEL_TYPE::GOLFBALL;
     else if(modelName == "teddybear")
-        modelID = TEDDYBEAR;
+        modelID = MODEL_TYPE::TEDDYBEAR;
     
     
     string dir;
@@ -28,10 +39,16 @@ void ModelManager::init(const string& modelName, int isoLevel){
     
     delete_all_volume();
     isoValueDistributed.clear();
-    
-    add_volume(isoLevel);
-    isoValueDistributed = volumeArray[0].data;
-
+    if(this->method == METHODS::ISO_SURFACE){
+        if(isoLevel == -1){
+            cout << "ERROR: isoLevel = -1\n";
+        }
+        add_volume(isoLevel);
+        isoValueDistributed = volumeArray[0].data;
+    }else if(this->method == METHODS::VOLUME_RENDERING){
+        Volume voulme(this->method, infFile,rawFile);
+        volumeArray.push_back(voulme);
+    }
     volumnCnt = 1;
 }
 
@@ -40,7 +57,7 @@ void ModelManager::add_volume(int isoLevel){
     volumeIsoValueArray[isoLevel] = 1;
     volumnCnt++;
 
-    Volume voulme(infFile,rawFile,isoLevel);
+    Volume voulme(this->method, infFile,rawFile,isoLevel);
     // voulme.data.clear();
 
     volumeArray.push_back(voulme);
@@ -72,9 +89,10 @@ glm::mat4 ModelManager::GetModelMatrix(){
     model = glm::rotate(model, glm::radians(rotate.x), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotate.z), glm::vec3(1.0f, 0.0f, 1.0f));
-    if(modelID == CARP)
+    if(modelID == MODEL_TYPE::CARP)
         model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    else if(modelID == TEDDYBEAR){
+    else if(modelID == MODEL_TYPE::TEDDYBEAR){
+        // cout << "93\n";
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::rotate(model, glm::radians(270.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     }
@@ -84,7 +102,14 @@ glm::mat4 ModelManager::GetModelMatrix(){
 glm::mat4 ModelManager::GetFixedRYMatrix(){
     return fixedRY;
 }
-
+float ModelManager::getRotationY(){
+    return rotateY;
+}
 void ModelManager::updateFixedRY(){
-    fixedRY = glm::rotate(fixedRY, glm::radians(0.75f), glm::vec3(0.0f, 1.0f, 0.0f));
+    rotateY += 0.75;
+    if(rotateY >= 360)
+        rotateY -= 360;
+    // glm::mat4(1);
+    fixedRY = glm::rotate(glm::mat4(1.0f), glm::radians(rotateY), glm::vec3(0.0f, 1.0f, 0.0f));
+    // fixedRY = glm::rotate(fixedRY, glm::radians(0.75f), glm::vec3(0.0f, 1.0f, 0.0f));
 }

@@ -2,7 +2,7 @@ add_executable(Visualization
 "main.cpp"
 "Shader.cpp"
 "Volume.cpp"
-"Const.cpp"
+"constants.cpp"
 "Camera.cpp"
 "ModelManager.cpp"
 ) #列所有的cpp

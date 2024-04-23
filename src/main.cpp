@@ -8,6 +8,8 @@
 #include "./header/Shader.hpp"
 #include "./header/Camera.hpp"
 #include "./header/ModelManager.hpp"
+// #include "./header/constants.hpp"
+// #include "./header/Volume.hpp"
 
 #include <bits/stdc++.h>
 #define   PI   3.1415927
@@ -26,9 +28,10 @@ int addIsoValue = 128;
 Shader *shader;
 Camera *camera;
 ModelManager *modelManager;
-static pair<int,int> modelFileIndex = {3,3};
+static pair<int,int> modelFileIndex = {1,1};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
 // int CUR = 240;
+int method = METHODS::VOLUME_RENDERING;
 void draw_iso_surface_gui(){
     int btnSz = 130;
     ImGui::SetNextWindowBgAlpha(0.35f);
@@ -179,7 +182,87 @@ void draw_iso_surface_gui(){
     
     ImGui::ShowDemoWindow(); // Show demo window! :)
 }
+void draw_volume_rendering_gui(){
+    int btnSz = 130;
+    ImGui::SetNextWindowBgAlpha(0.35f);
+    ImGuiWindowFlags window_flags = 0;
+    // window_flags |= ImGuiWindowFlags_NoMove;
+    // ImGui::Begin("00957116 C. Y. Wang", 0, window_flags);
+    ImGui::Begin("00957116 C. Y. Wang");
+    // Load Model
+    {
+        ImGui::Text("Load Model");
+        ImGui::SetNextItemWidth(232);
+        if(ImGui::Combo("##loadfile", &modelFileIndex.second, modelFileList, IM_ARRAYSIZE(modelFileList)));
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(250);
+        if(ImGui::Button("Load",ImVec2(btnSz, 20))){
+            if(modelFileIndex.second != modelFileIndex.first){
+                modelFileIndex.first = modelFileIndex.second;
+                modelManager->init(modelFileList[modelFileIndex.first], -1);
+            }
+        }
+    }
+    ImGui::NewLine();
+    ImGui::Text("Rotate:");
+    ImGui::Text("X:");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("##x",&modelManager->rotate.x,0,360); // ax + by + cz + d = 0
 
+    ImGui::SameLine();
+    ImGui::Text("Y:");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("##y",&modelManager->rotate.y,0,360); // ax + by + cz + d = 0
+
+    ImGui::SameLine();
+    ImGui::Text("Z:");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("##z",&modelManager->rotate.z,0,360); // ax + by + cz + d = 0
+
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(250);
+    if(ImGui::Button("Auto rotate Y", ImVec2(btnSz, 20))){
+        modelManager->autoRY ^= 1;
+    }
+
+    ImGui::NewLine();
+    ImGui::Text("Clipped plane:");
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("x + ",&clipNormal.x,-1.0f,1.0f); // ax + by + cz + d = 0
+    ImGui::SameLine();
+
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("y + ",&clipNormal.y,-1.0f,1.0f);
+    ImGui::SameLine();
+
+    ImGui::SetNextItemWidth(50);
+    ImGui::SliderFloat("z + ",&clipNormal.z,-1.0f,1.0f);
+    ImGui::SameLine();
+
+    ImGui::SetNextItemWidth(100);
+    ImGui::SliderFloat(" = 0",&clipNormal.w,-150,150);
+    
+    if(ImGui::Button("Cross section", ImVec2(btnSz, 20))){
+        enableCliped ^= 1;
+    }
+    if(ImGui::IsItemHovered()){
+        if(enableCliped){
+            ImGui::SetTooltip("click to disable cross section");
+        }else{
+            ImGui::SetTooltip("click to enable cross section");
+        }
+    }
+    ImGui::SameLine();
+    if(ImGui::Button("Reset", ImVec2(btnSz, 20))){
+        clipNormal = glm::vec4(0,1,0,-150);
+        modelManager->rotate = glm::vec3(0,0,0);
+        enableCliped = 0;
+    }
+    ImGui::End();
+}
 int main(){
     // glfw: initialize and configure
     // ------------------------------
@@ -220,15 +303,24 @@ int main(){
         v = "/home/yu/Desktop/school/Visualization/src/shaders/IsoSurface.vert";
         f = "/home/yu/Desktop/school/Visualization/src/shaders/IsoSurface.frag";
     #else
-        v = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.vert";
-        f = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.frag";
+        // v = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.vert";
+        // f = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.frag";
+        v = "D:\\school\\Visualization\\src\\shaders\\volumeRendering.vert";
+        f = "D:\\school\\Visualization\\src\\shaders\\volumeRendering.frag";
     #endif
 
     shader = new Shader(v,f);
 
     camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
-    modelManager = new ModelManager(modelFileList[modelFileIndex.first],200);
-    // modelManager->add_volume(30);
+    // modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
+    modelManager = new ModelManager(METHODS::VOLUME_RENDERING, modelFileList[modelFileIndex.first]);
+    
+    // string dir = "D:\\school\\Visualization\\src\\asset\\";    
+    // string infFile = dir + modelFileList[modelFileIndex.first] + ".inf";
+    // string rawFile = dir + modelFileList[modelFileIndex.first] + ".raw";
+    // Volume* mv = new Volume(METHODS::VOLUME_RENDERING, infFile, rawFile);
+
+    // volume
     //------------------
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
@@ -252,46 +344,58 @@ int main(){
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        draw_iso_surface_gui();
-
+        if(method == METHODS::ISO_SURFACE)draw_iso_surface_gui();
+        else if(method == METHODS::VOLUME_RENDERING) draw_volume_rendering_gui();
         // input
         processInput(window);
 
         // render
         // clear the colorbuffer
+        // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader->use();
-    
+
         glm::mat4 projection;
-        projection = glm::perspective(glm::radians(camera->zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 2000.0f);
+        projection = glm::perspective(glm::radians(camera->zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.001f, 10000.0f);
         shader->set_uniform("projection",projection);
 
-        shader->set_uniform("model",modelManager->GetModelMatrix());        
-        if(modelManager->autoRY) modelManager->updateFixedRY();
-        shader->set_uniform("fixedRY",modelManager->GetFixedRYMatrix());
-
-        shader->set_uniform("clipNormal",clipNormal);
-        shader->set_uniform("enableCliped",enableCliped);
-        
         // camera/view transformation
         glm::mat4 view = camera->GetViewMatrix();//glm::lookAt(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0));
         shader->set_uniform("view", view);
         shader->set_uniform("viewPos", camera->position);
+        
+        shader->set_uniform("texture3d", 0);
+        shader->set_uniform("texture1d", 1);
+        // mv->draw();
+//--------------------------------------------------------------------------        
+        // glm::vec3 lightPos = glm::vec3(0,0,-300);
+        // shader->set_uniform("lightPos",lightPos);
 
-        glm::vec3 lightPos = glm::vec3(0,0,-300);
-        shader->set_uniform("lightPos",lightPos);
+        shader->set_uniform("model",modelManager->GetModelMatrix());    
+
+        if(modelManager->autoRY) modelManager->updateFixedRY();
+        shader->set_uniform("fixedRY",modelManager->GetFixedRYMatrix());
         
-        int sz = modelManager->volumeArray.size();
-        for(int i=0;i<sz;i++){
-            float isV = modelManager->volumeArray[i].isoValue;
-            shader->set_uniform("objectHSVColor",glm::vec3(255-isV, 1.0f, 0.5f));
-            modelManager->volumeArray[i].draw();
+        shader->set_uniform("clipNormal",clipNormal);
+        shader->set_uniform("enableCliped",enableCliped);
+
+        if(method == METHODS::ISO_SURFACE){
+            int sz = modelManager->volumeArray.size();
+            for(int i=0;i<sz;i++){
+                float isV = modelManager->volumeArray[i].isoValue;
+                shader->set_uniform("objectHSVColor",glm::vec3(255-isV, 1.0f, 0.5f));
+                modelManager->volumeArray[i].draw();
+            }
+        }else if(method == METHODS::VOLUME_RENDERING){
+            shader->set_uniform("maxMag",modelManager->volumeArray[0].maxMag);
+            shader->set_uniform("minMag",modelManager->volumeArray[0].minMag);
+            float rotationY = modelManager->getRotationY();
+            // cout << rotationY << "\n";
+            modelManager->volumeArray[0].draw(rotationY);
         }
-        // shader->set_uniform("objectColor",glm::vec4(0.5f, 0.5f, 0.5f,0.8f));
-        // modelManager->volumeArray[1].draw();
-        
+//--------------------------------------------------------------------------           
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
