@@ -9,13 +9,13 @@ uniform mat4 view;
 uniform mat4 projection;
 uniform vec4 clipNormal;
 
-// out vec3 fragPos; 
+out vec3 fragPos; 
 out float clipVal;
 out vec3 textureCord;
 void main()
 {
     mat4 finalModel = fixedRY * model;
-    // fragPos = vec3(finalModel * vec4(aPos, 1.0));
+    fragPos = vec3(finalModel * vec4(aPos, 1.0));
 
     vec3 clipNorm = normalize(vec3(clipNormal));
     clipVal = dot(vec3(model * vec4(aPos, 1.0)), clipNorm) + clipNormal.w;

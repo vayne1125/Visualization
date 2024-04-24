@@ -48,6 +48,7 @@ void ModelManager::init(const string& modelName, int isoLevel){
     }else if(this->method == METHODS::VOLUME_RENDERING){
         Volume voulme(this->method, infFile,rawFile);
         volumeArray.push_back(voulme);
+        isoValueDistributed = volumeArray[0].data;
     }
     volumnCnt = 1;
 }
@@ -84,7 +85,7 @@ void ModelManager::delete_all_volume(){
     volumeIsoValueArray.assign(255,0);
 }
 
-glm::mat4 ModelManager::GetModelMatrix(){
+glm::mat4 ModelManager::get_model_matrix(){
     glm::mat4 model = glm::mat4(1.0f);
     model = glm::rotate(model, glm::radians(rotate.x), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -99,7 +100,7 @@ glm::mat4 ModelManager::GetModelMatrix(){
     return model;
 }
 
-glm::mat4 ModelManager::GetFixedRYMatrix(){
+glm::mat4 ModelManager::get_fixedRY_matrix(){
     return fixedRY;
 }
 float ModelManager::getRotationY(){

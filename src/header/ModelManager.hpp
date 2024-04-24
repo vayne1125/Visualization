@@ -15,14 +15,15 @@ public:
     vector<Volume> volumeArray;
     ModelManager(int method,const string& modelName, int isoLevel);
     ModelManager(int method,const string& modelName);
+    
     void init(const string& modelName,int isoLevel);
     void add_volume(int isoLevel);
     void updateFixedRY();
     void delete_volume(int isoLevel);
     void delete_all_volume();
     float getRotationY();
-    glm::mat4 GetModelMatrix();
-    glm::mat4 GetFixedRYMatrix();
+    glm::mat4 get_model_matrix();
+    glm::mat4 get_fixedRY_matrix();
     vector<float> isoValueDistributed;
     glm::vec3 rotate;
     bool autoRY;

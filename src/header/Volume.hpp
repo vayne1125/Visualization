@@ -13,6 +13,7 @@ public:
     void delete_VAO();
     Volume(int method,string infFile, string rawFile, float isoLevel);
     Volume(int method,string infFile, string rawFile);
+    void create_1dtexture(const vector<float>& alpha);
     void draw();
     void draw(float rotationY);
     vector<float> data;
@@ -28,6 +29,7 @@ private:
     void create_1dtexture();
     void set_VAO();
     glm::vec3 calc_interpolation(float isoLevel,glm::vec3 p1, glm::vec3 p2, float valp1, float valp2);
+
 
     vector<vector<vector<float>>> isoValueGrid;
     vector<vector<vector<glm::vec3>>> gradient;

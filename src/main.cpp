@@ -32,6 +32,12 @@ static pair<int,int> modelFileIndex = {1,1};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
 // int CUR = 240;
 int method = METHODS::VOLUME_RENDERING;
+
+
+float testa1 = 100.0f,testa2 = 100;
+int iso1 = 100, iso2 = 100;
+
+
 void draw_iso_surface_gui(){
     int btnSz = 130;
     ImGui::SetNextWindowBgAlpha(0.35f);
@@ -182,6 +188,14 @@ void draw_iso_surface_gui(){
     
     ImGui::ShowDemoWindow(); // Show demo window! :)
 }
+vector<float> alpha;
+vector<bool> setter;
+void pppp(){
+    for(int i=0;i<256;i++) alpha.push_back(0.1);
+    setter.resize(256);
+    setter[0] = 1;
+    setter[255] = 1;
+}
 void draw_volume_rendering_gui(){
     int btnSz = 130;
     ImGui::SetNextWindowBgAlpha(0.35f);
@@ -261,9 +275,65 @@ void draw_volume_rendering_gui(){
         modelManager->rotate = glm::vec3(0,0,0);
         enableCliped = 0;
     }
+    // ImGui::End();
+    
+
+    //------histogram--------
+    // ImGui::SetNextWindowBgAlpha(0.35f);
+    // ImGui::Begin("Histogram");
+    // ImGui::PlotLines("Frame Times", modelManager->isoValueDistributed.data(), 256);
+    // ImGui::PlotHistogram("##iso_value", modelManager->isoValueDistributed.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
+    
+
+   
+    int text_len = ImGui::CalcTextSize("Iso-value").x;
+    ImGui::SetCursorPosX(100-text_len/2.0);
+    ImGui::Text("Iso-value");
+    // ImGui::MyPlotHistogram("##iso_value", modelManager->isoValueDistributed.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
+    ImGui::PlotHistogram("##iso_value", modelManager->isoValueDistributed.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
+    ImGui::PlotLines("##a", alpha.data(), 256, 0,  NULL, 0, 255, ImVec2(200, 50));
+    
+    ImGui::SetNextItemWidth(200);
+    ImGui::SliderInt("iso1",&iso1,0,255); 
+    
+    ImGui::SetNextItemWidth(200);
+    ImGui::SliderFloat("a1",&testa1,0,255); 
+    
+    ImGui::SetNextItemWidth(200);
+    ImGui::SliderInt("iso2",&iso2,0,255); 
+    
+    ImGui::SetNextItemWidth(200);
+    ImGui::SliderFloat("a2",&testa2,0,255); 
+
+    if(ImGui::Button("go", ImVec2(btnSz, 20))){
+        alpha[iso1] = testa1;
+        alpha[iso2] = testa2;
+        float delta = (testa2 - testa1)/(iso2-iso1);
+        
+        for(int i=iso1+1,j=0;i<iso2;i++,j++){
+            alpha[i] = testa1 + delta*j;
+        }
+        // int l = iso, r = iso;
+        // while(l && setter[--l] == 0); 
+        // while(r && setter[++r] == 0);
+        // float delta = (testa - alpha[l])/(iso-l);
+        // for(int i=l+1,j=0;i<=iso;i++,j++){
+        //     alpha[i] = alpha[l] + delta*j;
+        // } 
+        // delta = (alpha[r] - testa)/(r - iso);
+        // for(int i=iso+1,j=0;i<r;i++,j++){
+        //     alpha[i] = testa + delta*j;
+        // } 
+        // setter[iso] = 1;
+        modelManager->volumeArray[0].create_1dtexture(alpha);
+    }
+
     ImGui::End();
+    
+    ImGui::ShowDemoWindow();
 }
 int main(){
+    pppp();
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -312,6 +382,7 @@ int main(){
     shader = new Shader(v,f);
 
     camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
+    camera->set_projection_method(PROJECTION_METHODS::ORTHO);
     // modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
     modelManager = new ModelManager(METHODS::VOLUME_RENDERING, modelFileList[modelFileIndex.first]);
     
@@ -325,6 +396,7 @@ int main(){
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
@@ -351,32 +423,27 @@ int main(){
 
         // render
         // clear the colorbuffer
-        // glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         shader->use();
 
-        glm::mat4 projection;
-        projection = glm::perspective(glm::radians(camera->zoom),(float)SCR_WIDTH / (float)SCR_HEIGHT, 0.001f, 10000.0f);
+        // camera/projection/view transformation
+        glm::mat4 projection = camera->get_projection_matrix();
         shader->set_uniform("projection",projection);
-
-        // camera/view transformation
-        glm::mat4 view = camera->GetViewMatrix();//glm::lookAt(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0));
+        
+        glm::mat4 view = camera->get_view_matrix();//glm::lookAt(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0));
         shader->set_uniform("view", view);
         shader->set_uniform("viewPos", camera->position);
         
-        shader->set_uniform("texture3d", 0);
-        shader->set_uniform("texture1d", 1);
-        // mv->draw();
-//--------------------------------------------------------------------------        
-        // glm::vec3 lightPos = glm::vec3(0,0,-300);
-        // shader->set_uniform("lightPos",lightPos);
+        
+        glm::vec3 lightPos = glm::vec3(0,0,-300);
+        shader->set_uniform("lightPos",lightPos);
 
-        shader->set_uniform("model",modelManager->GetModelMatrix());    
+        shader->set_uniform("model",modelManager->get_model_matrix());    
 
         if(modelManager->autoRY) modelManager->updateFixedRY();
-        shader->set_uniform("fixedRY",modelManager->GetFixedRYMatrix());
+        shader->set_uniform("fixedRY",modelManager->get_fixedRY_matrix());
         
         shader->set_uniform("clipNormal",clipNormal);
         shader->set_uniform("enableCliped",enableCliped);
@@ -389,13 +456,13 @@ int main(){
                 modelManager->volumeArray[i].draw();
             }
         }else if(method == METHODS::VOLUME_RENDERING){
+            shader->set_uniform("texture3d", 0);
+            shader->set_uniform("texture1d", 1);
             shader->set_uniform("maxMag",modelManager->volumeArray[0].maxMag);
             shader->set_uniform("minMag",modelManager->volumeArray[0].minMag);
             float rotationY = modelManager->getRotationY();
-            // cout << rotationY << "\n";
             modelManager->volumeArray[0].draw(rotationY);
         }
-//--------------------------------------------------------------------------           
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -403,7 +470,7 @@ int main(){
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
+    ImGui::DestroyContext();
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
     glDeleteProgram(shader->ID);
@@ -422,8 +489,8 @@ void processInput(GLFWwindow *window){
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
     glViewport(0, 0, width, height);
+    camera -> set_screen_wh(width,height);
 }
-
 
 void mouse_callback(GLFWwindow* window, double xposIn, double yposIn){
 
