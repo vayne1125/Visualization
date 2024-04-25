@@ -56,7 +56,7 @@ void Volume::cal_slice(){
     int xMin = 0 - offsetX, xMax = resolution.x - offsetX;
     int yMin = 0 - offsetY, yMax = resolution.y - offsetY;
     int zMin = 0 - offsetZ, zMax = resolution.z - offsetZ;
-    float x,z,s;
+    float x,y,z,s;
     // 延 z 軸切 back_to_front
     for(int i=sliceNum-1;i>=0;i--){
         z = (float)i/(float)sliceNum*(float)resolution.z - offsetZ;
@@ -217,6 +217,88 @@ void Volume::cal_slice(){
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     mesh.clear();
+
+//-----------------------------------------------------------
+// y
+//-----------------------------------------------------------
+    // 延 y 軸切 back_to_front
+    for(int i=sliceNum-1;i>=0;i--){
+        y = (float)i/(float)sliceNum*(float)resolution.y - offsetY;
+        s = (y-yMin)/(yMax-yMin);
+        // P0
+        mesh.push_back(xMin); mesh.push_back(y); mesh.push_back(zMin);
+        mesh.push_back(0); mesh.push_back(s); mesh.push_back(0);
+
+        // P1
+        mesh.push_back(yMax); mesh.push_back(y); mesh.push_back(zMin);
+        mesh.push_back(1); mesh.push_back(s); mesh.push_back(0);
+
+        // P2
+        mesh.push_back(yMax); mesh.push_back(y); mesh.push_back(zMax);
+        mesh.push_back(1); mesh.push_back(s); mesh.push_back(1);
+
+        // P2
+        mesh.push_back(xMax); mesh.push_back(y); mesh.push_back(zMax);
+        mesh.push_back(1); mesh.push_back(s); mesh.push_back(1);
+
+        // P3
+        mesh.push_back(xMin); mesh.push_back(y); mesh.push_back(zMax);
+        mesh.push_back(0); mesh.push_back(s); mesh.push_back(1);
+
+        // P0
+        mesh.push_back(xMin); mesh.push_back(y); mesh.push_back(zMin);
+        mesh.push_back(0); mesh.push_back(s); mesh.push_back(0);
+    }
+
+    glGenVertexArrays(1, &slice_VAO[4]); 
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(slice_VAO[4]);     // 現在使用的VAO是誰
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);     // 現在使用的VBO是誰
+    glBufferData(GL_ARRAY_BUFFER,mesh.size() * sizeof(mesh[0]), mesh.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    mesh.clear();
+
+    // 延 y 軸切 front_to_back
+    for(int i=0;i<sliceNum;i++){
+        y = (float)i/(float)sliceNum*(float)resolution.y - offsetY;
+        s = (y-yMin)/(yMax-yMin);
+        // P0
+        mesh.push_back(xMin); mesh.push_back(y); mesh.push_back(zMin);
+        mesh.push_back(0); mesh.push_back(s); mesh.push_back(0);
+
+        // P1
+        mesh.push_back(xMax); mesh.push_back(y); mesh.push_back(zMin);
+        mesh.push_back(1); mesh.push_back(s); mesh.push_back(0);
+
+        // P2
+        mesh.push_back(xMax); mesh.push_back(y); mesh.push_back(zMax);
+        mesh.push_back(1); mesh.push_back(s); mesh.push_back(1);
+
+        // P2
+        mesh.push_back(xMax); mesh.push_back(y); mesh.push_back(zMax);
+        mesh.push_back(1); mesh.push_back(s); mesh.push_back(1);
+
+        // P3
+        mesh.push_back(xMin); mesh.push_back(y); mesh.push_back(zMax);
+        mesh.push_back(0); mesh.push_back(s); mesh.push_back(1);
+
+        // P0
+        mesh.push_back(xMin); mesh.push_back(y); mesh.push_back(zMin);
+        mesh.push_back(0); mesh.push_back(s); mesh.push_back(0);
+    }
+    glGenVertexArrays(1, &slice_VAO[5]); 
+    glGenBuffers(1, &VBO);
+    glBindVertexArray(slice_VAO[5]);     // 現在使用的VAO是誰
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);     // 現在使用的VBO是誰
+    glBufferData(GL_ARRAY_BUFFER,mesh.size() * sizeof(mesh[0]), mesh.data(), GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    mesh.clear();
 }
 void Volume::set_VAO(){
     //VAO VBO
@@ -267,20 +349,48 @@ void Volume::draw(){
     // glDrawArrays(GL_TRIANGLES, 0, vertexCnt);
     glBindVertexArray(0);
 }
-void Volume::draw(float rotationY){
+void Volume::draw(int v){
     if(method != METHODS::VOLUME_RENDERING) cout << "Volume::draw: method dismatch!\n";
     // cout << rotationY << " ";
 
     // glBindVertexArray(this->slice_VAO[3]);
-    if(rotationY <= 45 || rotationY >= 315){
-        glBindVertexArray(this->slice_VAO[0]);
-    }else if(rotationY <= 135){
-        glBindVertexArray(this->slice_VAO[3]);
-    }else if(rotationY <= 225){
-        glBindVertexArray(this->slice_VAO[1]);
-    }else if(rotationY <= 315){
-        glBindVertexArray(this->slice_VAO[2]);
-    }
+    // if(rotationY <= 45 || rotationY >= 315){
+    //     glBindVertexArray(this->slice_VAO[0]);
+    // }else if(rotationY <= 135){
+    //     glBindVertexArray(this->slice_VAO[3]);
+    // }else if(rotationY <= 225){
+    //     glBindVertexArray(this->slice_VAO[1]);
+    // }else if(rotationY <= 315){
+    //     glBindVertexArray(this->slice_VAO[2]);
+    // }
+
+    // for(int i=0;i<6;i++){
+    //     glBindVertexArray(this->slice_VAO[i]);
+    //     glDrawArrays(GL_TRIANGLES, 0, vertexCnt);
+    // }
+    // if(abs(w.x) >= abs(w.y) && abs(w.x) >= abs(w.z) ){
+    //     if(w.x >= 0){
+    //         glBindVertexArray(this->slice_VAO[3]);
+    //     }else{
+    //         glBindVertexArray(this->slice_VAO[2]);
+    //     }
+    // }else if(abs(w.z) >= abs(w.y) && abs(w.z) >= abs(w.x)){
+    //     if(w.z >= 0){
+    //         glBindVertexArray(this->slice_VAO[0]);
+    //     }else{
+    //         glBindVertexArray(this->slice_VAO[1]);
+    //     }
+    // }else if(abs(w.y) >= abs(w.x) && abs(w.y) >= abs(w.z) ){
+    //     if(w.y >= 0){
+    //         glBindVertexArray(this->slice_VAO[5]);
+    //     }else{
+    //         glBindVertexArray(this->slice_VAO[4]);
+    //     }
+    // }else{
+    //     std::cout << "ERROR:: cant not calc slice direction\n";
+    // }
+    glBindVertexArray(this->slice_VAO[v]);
+    
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, this->texture3DID);
     glActiveTexture(GL_TEXTURE1);

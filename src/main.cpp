@@ -8,6 +8,12 @@
 #include "./header/Shader.hpp"
 #include "./header/Camera.hpp"
 #include "./header/ModelManager.hpp"
+
+#include <glm/glm.hpp>
+#include <glm/mat4x4.hpp>
+#include <glm/mat3x3.hpp>
+#include <glm/vec3.hpp>
+#include <glm/gtx/quaternion.hpp>
 // #include "./header/constants.hpp"
 // #include "./header/Volume.hpp"
 
@@ -28,7 +34,7 @@ int addIsoValue = 128;
 Shader *shader;
 Camera *camera;
 ModelManager *modelManager;
-static pair<int,int> modelFileIndex = {1,1};
+static pair<int,int> modelFileIndex = {0,0};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
 // int CUR = 240;
 int method = METHODS::VOLUME_RENDERING;
@@ -429,6 +435,7 @@ int main(){
         shader->use();
 
         // camera/projection/view transformation
+        // camera->set_projection_method(PROJECTION_METHODS::PERSPECTIVE);
         glm::mat4 projection = camera->get_projection_matrix();
         shader->set_uniform("projection",projection);
         
@@ -460,8 +467,33 @@ int main(){
             shader->set_uniform("texture1d", 1);
             shader->set_uniform("maxMag",modelManager->volumeArray[0].maxMag);
             shader->set_uniform("minMag",modelManager->volumeArray[0].minMag);
-            float rotationY = modelManager->getRotationY();
-            modelManager->volumeArray[0].draw(rotationY);
+            // float rotationY = modelManager->getRotationY();
+            
+            glm::vec4 xyplane = modelManager->get_model_matrix() * glm::vec4(0.0f,0.0f,-100.0f,0.0f);
+            glm::vec4 _xyplane = modelManager->get_model_matrix() * glm::vec4(0.0f,0.0f,100.0f,0.0f);
+            glm::vec4 xzplane = modelManager->get_model_matrix() * glm::vec4(0.0f,-100.0f,0.0f,0.0f);
+            glm::vec4 _xzplane = modelManager->get_model_matrix() * glm::vec4(0.0f,100.0f,0.0f,0.0f);
+            glm::vec4 yzplane = modelManager->get_model_matrix() * glm::vec4(-100.0f,0.0f,0.0f,0.0f);
+            glm::vec4 _yzplane = modelManager->get_model_matrix() * glm::vec4(100.0f,0.0f,0.0f,0.0f);
+
+            xyplane = (modelManager->get_fixedRY_matrix() * xyplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
+            _xyplane = (modelManager->get_fixedRY_matrix() * _xyplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
+            xzplane = (modelManager->get_fixedRY_matrix() * xzplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
+            _xzplane = (modelManager->get_fixedRY_matrix() * _xzplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
+            yzplane = (modelManager->get_fixedRY_matrix() * yzplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
+            _yzplane = (modelManager->get_fixedRY_matrix() * _yzplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
+
+            vector<pair<float,int>> tpv;
+            tpv.push_back({glm::l2Norm(glm::vec3(xyplane.x,xyplane.y,xyplane.z)),0});
+            tpv.push_back({glm::l2Norm(glm::vec3(_xyplane.x,_xyplane.y,_xyplane.z)),1});
+            tpv.push_back({glm::l2Norm(glm::vec3(xzplane.x,xzplane.y,xzplane.z)),4});
+            tpv.push_back({glm::l2Norm(glm::vec3(_xzplane.x,_xzplane.y,_xzplane.z)),5});
+            tpv.push_back({glm::l2Norm(glm::vec3(yzplane.x,yzplane.y,yzplane.z)),2});
+            tpv.push_back({glm::l2Norm(glm::vec3(_yzplane.x,_yzplane.y,_yzplane.z)),3});
+
+            sort(tpv.begin(),tpv.end());
+
+            modelManager->volumeArray[0].draw(tpv[0].second);
         }
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

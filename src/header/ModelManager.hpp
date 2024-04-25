@@ -4,6 +4,11 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
+
+#include <glm/gtx/quaternion.hpp>
+#include <glm/vec3.hpp>
+#include <glm/mat4x4.hpp>
+
 #include "./constants.hpp"
 enum MODEL_TYPE{
     CARP, ENGINE, GOLFBALL, TEDDYBEAR

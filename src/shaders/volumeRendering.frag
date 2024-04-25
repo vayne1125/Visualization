@@ -3,9 +3,8 @@ out vec4 fragColor;
 
 uniform sampler3D texture3d;
 uniform sampler1D texture1d;
-// uniform vec3 objectHSVColor;
-// uniform vec3 viewPos;
-// uniform vec3 lightPos;
+uniform vec3 viewPos;
+uniform vec3 lightPos;
 uniform bool enableCliped;
 uniform float maxMag;
 uniform float minMag;
@@ -13,6 +12,7 @@ uniform float minMag;
 in float clipVal;
 in vec3 fragPos;
 in vec3 textureCord;
+in mat3 inverseModel;
 void main(){
     if(enableCliped && abs(clipVal) > 1.0){
         discard;
@@ -30,15 +30,16 @@ void main(){
     float alpha = (length(texture(texture3d,textureCord).xyz) - minMag)/(maxMag-minMag);
     vec4 color = texture(texture1d,val);
     
-    // fragColor = color;
-    // gradient = texture(texture3d,textureCord).rgb;
+    fragColor = color;
+    // vec3 gradient = texture(texture3d,textureCord).rgb;
     
     // for(int i = 0; i<3; i++)
     //     gradient[i] = 2.0 * gradient[i] - 1.0;
     
-    fragColor = color;
+    // gradient = inverseModel * gradient;
 
     // vec3 lightColor = vec3(1,1,1);
+    
 
     // vec3 norm = normalize(gradient);
     // vec3 lightDir = normalize(lightPos - fragPos);
@@ -63,6 +64,7 @@ void main(){
     // float spec = pow(max(dot(viewDir, reflectDir), 0.0), 32);
     // vec3 specular = specularStrength * spec * lightColor; 
 
-    // vec4 result = clamp(vec3(ambient + diffuse + specular), vec3(0.0), vec3(1.0)) * color.rgb;
+    // // fragColor = color;
+    // vec3 result = clamp(vec3(ambient + diffuse + specular), vec3(0.0), vec3(1.0)) * color.rgb;
     // fragColor = vec4(result,color.a);
 }

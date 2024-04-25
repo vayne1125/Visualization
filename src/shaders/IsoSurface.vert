@@ -17,7 +17,6 @@ void main()
 {
     mat4 finalModel = fixedRY * model;
     fragPos = vec3(finalModel * vec4(aPos, 1.0));
-    // gradient = aGradient;
     gradient = mat3(transpose(inverse(finalModel))) * aGradient; 
 
     vec3 clipNorm = normalize(vec3(clipNormal));

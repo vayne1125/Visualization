@@ -12,6 +12,7 @@ uniform vec4 clipNormal;
 out vec3 fragPos; 
 out float clipVal;
 out vec3 textureCord;
+out mat3 inverseModel;
 void main()
 {
     mat4 finalModel = fixedRY * model;
@@ -21,5 +22,7 @@ void main()
     clipVal = dot(vec3(model * vec4(aPos, 1.0)), clipNorm) + clipNormal.w;
 
     gl_Position = projection * view * finalModel * vec4(aPos, 1.0);
-    textureCord = aTextureCord;                                                              
+    textureCord = aTextureCord; 
+
+    inverseModel = mat3(transpose(inverse(finalModel)));                                                              
 }

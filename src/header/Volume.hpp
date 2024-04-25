@@ -15,7 +15,8 @@ public:
     Volume(int method,string infFile, string rawFile);
     void create_1dtexture(const vector<float>& alpha);
     void draw();
-    void draw(float rotationY);
+    // void draw(glm::vec3 w);
+    void draw(int v);
     vector<float> data;
     float maxMag = -1, minMag = 0x3f;
     float isoValue;

@@ -1,7 +1,7 @@
 #include "./header/ModelManager.hpp"
 ModelManager::ModelManager(int method,const string& modelName, int isoLevel){
     this -> rotate = glm::vec3(0,0,0);
-    this -> autoRY = 1;
+    this -> autoRY = 0;
     this -> fixedRY = glm::mat4(1.0f);
     this -> rotateY = 0;
     this -> method = method;
@@ -10,7 +10,7 @@ ModelManager::ModelManager(int method,const string& modelName, int isoLevel){
 ModelManager::ModelManager(int method,const string& modelName){
     cout << "METHODS::VOLUME_RENDERING: ModelManager.cpp\n";
     this -> rotate = glm::vec3(0,0,0);
-    this -> autoRY = 1;
+    this -> autoRY = 0;
     this -> rotateY = 0;
     this -> fixedRY = glm::mat4(1.0f);
     this -> method = method;
@@ -93,13 +93,11 @@ glm::mat4 ModelManager::get_model_matrix(){
     if(modelID == MODEL_TYPE::CARP)
         model = glm::rotate(model, glm::radians(270.0f), glm::vec3(1.0f, 0.0f, 0.0f));
     else if(modelID == MODEL_TYPE::TEDDYBEAR){
-        // cout << "93\n";
         model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         model = glm::rotate(model, glm::radians(270.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     }
     return model;
 }
-
 glm::mat4 ModelManager::get_fixedRY_matrix(){
     return fixedRY;
 }
@@ -107,9 +105,11 @@ float ModelManager::getRotationY(){
     return rotateY;
 }
 void ModelManager::updateFixedRY(){
-    rotateY += 0.75;
-    if(rotateY >= 360)
-        rotateY -= 360;
+    if(this -> autoRY){
+        rotateY += 0.75;
+        if(rotateY >= 360)
+            rotateY -= 360;
+    }
     // glm::mat4(1);
     fixedRY = glm::rotate(glm::mat4(1.0f), glm::radians(rotateY), glm::vec3(0.0f, 1.0f, 0.0f));
     // fixedRY = glm::rotate(fixedRY, glm::radians(0.75f), glm::vec3(0.0f, 1.0f, 0.0f));
