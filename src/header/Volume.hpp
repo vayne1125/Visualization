@@ -11,9 +11,11 @@ class Volume{
 public:
     Volume();
     void delete_VAO();
+    void delete_slice_VAO();
     Volume(int method,string infFile, string rawFile, float isoLevel);
     Volume(int method,string infFile, string rawFile);
     void create_1dtexture(const vector<float>& alpha);
+    void cal_slice(int sliceNum);
     void draw();
     // void draw(glm::vec3 w);
     void draw(int v);
@@ -25,7 +27,6 @@ private:
     template<typename T> void read_raw(string file);
     void calc_mesh(float isoLevel);
     void cal_gradient();
-    void cal_slice();
     void create_3dtexture();
     void create_1dtexture();
     void set_VAO();

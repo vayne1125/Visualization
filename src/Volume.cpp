@@ -6,7 +6,7 @@ Volume::Volume(){
     cout << "Volume.cpp\n";
 }
 Volume::Volume(int method,string infFile,string rawFile, float isoLevel){
-    cout << "Volume.cpp\n";
+    cout << "METHODS::ISO_SURFACE: Volume.cpp\n";
     this -> method = method;
     
     this -> isoValue = isoLevel;
@@ -20,10 +20,6 @@ Volume::Volume(int method,string infFile,string rawFile, float isoLevel){
     cal_gradient();
     if(this->method == METHODS::ISO_SURFACE){
         calc_mesh(isoLevel);
-    }else if(this->method == METHODS::VOLUME_RENDERING){
-        create_3dtexture();
-        create_1dtexture();
-        cal_slice();
     }
     set_VAO();
     cout << "vertexCnt: " << vertexCnt << "\n";
@@ -42,15 +38,15 @@ Volume::Volume(int method,string infFile,string rawFile){
     cal_gradient();
     create_3dtexture();
     create_1dtexture();
-    cal_slice();
+    cal_slice(512);
     // set_VAO();
     cout << "vertexCnt: " << vertexCnt << "\n";
 }
-void Volume::cal_slice(){
+void Volume::cal_slice(int sliceNum){
     this -> slice_VAO.assign(6,0);
     mesh.clear();
     
-    int sliceNum = 4096; //切片數
+    // int sliceNum = 4096; //切片數
     this -> vertexCnt = 6 * sliceNum;
     float offsetX = resolution.x/2,  offsetY = resolution.y/2, offsetZ = resolution.z/2;
     int xMin = 0 - offsetX, xMax = resolution.x - offsetX;
@@ -350,47 +346,9 @@ void Volume::draw(){
     glBindVertexArray(0);
 }
 void Volume::draw(int v){
+    // v決定了切片方向
     if(method != METHODS::VOLUME_RENDERING) cout << "Volume::draw: method dismatch!\n";
-    // cout << rotationY << " ";
-
-    // glBindVertexArray(this->slice_VAO[3]);
-    // if(rotationY <= 45 || rotationY >= 315){
-    //     glBindVertexArray(this->slice_VAO[0]);
-    // }else if(rotationY <= 135){
-    //     glBindVertexArray(this->slice_VAO[3]);
-    // }else if(rotationY <= 225){
-    //     glBindVertexArray(this->slice_VAO[1]);
-    // }else if(rotationY <= 315){
-    //     glBindVertexArray(this->slice_VAO[2]);
-    // }
-
-    // for(int i=0;i<6;i++){
-    //     glBindVertexArray(this->slice_VAO[i]);
-    //     glDrawArrays(GL_TRIANGLES, 0, vertexCnt);
-    // }
-    // if(abs(w.x) >= abs(w.y) && abs(w.x) >= abs(w.z) ){
-    //     if(w.x >= 0){
-    //         glBindVertexArray(this->slice_VAO[3]);
-    //     }else{
-    //         glBindVertexArray(this->slice_VAO[2]);
-    //     }
-    // }else if(abs(w.z) >= abs(w.y) && abs(w.z) >= abs(w.x)){
-    //     if(w.z >= 0){
-    //         glBindVertexArray(this->slice_VAO[0]);
-    //     }else{
-    //         glBindVertexArray(this->slice_VAO[1]);
-    //     }
-    // }else if(abs(w.y) >= abs(w.x) && abs(w.y) >= abs(w.z) ){
-    //     if(w.y >= 0){
-    //         glBindVertexArray(this->slice_VAO[5]);
-    //     }else{
-    //         glBindVertexArray(this->slice_VAO[4]);
-    //     }
-    // }else{
-    //     std::cout << "ERROR:: cant not calc slice direction\n";
-    // }
     glBindVertexArray(this->slice_VAO[v]);
-    
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, this->texture3DID);
     glActiveTexture(GL_TEXTURE1);
@@ -398,7 +356,6 @@ void Volume::draw(int v){
     glDrawArrays(GL_TRIANGLES, 0, vertexCnt);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    
     glBindVertexArray(0);
 }
 template<typename T> void Volume::read_raw(string file){
@@ -558,6 +515,12 @@ void Volume::delete_VAO(){
     cout << "IsoValue: " << (int)isoValue << " -> ";
     cout << "delete\n";
     glDeleteVertexArrays(1, &VAO);
+}
+void Volume::delete_slice_VAO(){
+    cout << "slice vao delete\n";
+    for(int i=0;i<slice_VAO.size();i++){
+        glDeleteVertexArrays(1, &this-> slice_VAO[i]);
+    }
 }
 void Volume::create_3dtexture(){
     // vector<vector<vector<vector<unsigned char>>>> texture3DData;

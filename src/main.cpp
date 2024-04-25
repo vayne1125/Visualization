@@ -9,11 +9,10 @@
 #include "./header/Camera.hpp"
 #include "./header/ModelManager.hpp"
 
-#include <glm/glm.hpp>
-#include <glm/mat4x4.hpp>
-#include <glm/mat3x3.hpp>
-#include <glm/vec3.hpp>
-#include <glm/gtx/quaternion.hpp>
+// #include <glm/glm.hpp>
+// #include <glm/mat4x4.hpp>
+// #include <glm/mat3x3.hpp>
+// #include <glm/vec3.hpp>
 // #include "./header/constants.hpp"
 // #include "./header/Volume.hpp"
 
@@ -36,9 +35,13 @@ Camera *camera;
 ModelManager *modelManager;
 static pair<int,int> modelFileIndex = {0,0};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
-// int CUR = 240;
-int method = METHODS::VOLUME_RENDERING;
 
+static pair<int,int> renderModeIndex = {1,1};
+const char* renderModeList[] = { "iso-surface method", "slice method"};
+int sliceNum = 512;
+// int CUR = 240;
+METHODS method;
+PROJECTION_METHODS projectMethod;
 
 float testa1 = 100.0f,testa2 = 100;
 int iso1 = 100, iso2 = 100;
@@ -46,25 +49,6 @@ int iso1 = 100, iso2 = 100;
 
 void draw_iso_surface_gui(){
     int btnSz = 130;
-    ImGui::SetNextWindowBgAlpha(0.35f);
-    ImGuiWindowFlags window_flags = 0;
-    // window_flags |= ImGuiWindowFlags_NoMove;
-    // ImGui::Begin("00957116 C. Y. Wang", 0, window_flags);
-    ImGui::Begin("00957116 C. Y. Wang");
-    // Load Model
-    {
-        ImGui::Text("Load Model");
-        ImGui::SetNextItemWidth(232);
-        if(ImGui::Combo("##loadfile", &modelFileIndex.second, modelFileList, IM_ARRAYSIZE(modelFileList)));
-        ImGui::SameLine();
-        ImGui::SetCursorPosX(250);
-        if(ImGui::Button("Load",ImVec2(btnSz, 20))){
-            if(modelFileIndex.second != modelFileIndex.first){
-                modelFileIndex.first = modelFileIndex.second;
-                modelManager->init(modelFileList[modelFileIndex.first], 200);
-            }
-        }
-    }
     ImGui::NewLine();
     // Add Iso Surface
     {
@@ -181,47 +165,22 @@ void draw_iso_surface_gui(){
         modelManager->rotate = glm::vec3(0,0,0);
         enableCliped = 0;
     }
-    ImGui::End();
-
-    //------histogram--------
-    ImGui::SetNextWindowBgAlpha(0.35f);
-    ImGui::Begin("Histogram");
-    ImGui::PlotHistogram("##iso_value", modelManager->isoValueDistributed.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
-    int text_len = ImGui::CalcTextSize("Iso-value").x;
-    ImGui::SetCursorPosX(100-text_len/2.0);
-    ImGui::Text("Iso-value");
-    ImGui::End();
-    
-    ImGui::ShowDemoWindow(); // Show demo window! :)
 }
 vector<float> alpha;
-vector<bool> setter;
-void pppp(){
-    for(int i=0;i<256;i++) alpha.push_back(0.1);
-    setter.resize(256);
-    setter[0] = 1;
-    setter[255] = 1;
-}
+
 void draw_volume_rendering_gui(){
     int btnSz = 130;
-    ImGui::SetNextWindowBgAlpha(0.35f);
-    ImGuiWindowFlags window_flags = 0;
-    // window_flags |= ImGuiWindowFlags_NoMove;
-    // ImGui::Begin("00957116 C. Y. Wang", 0, window_flags);
-    ImGui::Begin("00957116 C. Y. Wang");
-    // Load Model
+    ImGui::NewLine();
+    
     {
-        ImGui::Text("Load Model");
-        ImGui::SetNextItemWidth(232);
-        if(ImGui::Combo("##loadfile", &modelFileIndex.second, modelFileList, IM_ARRAYSIZE(modelFileList)));
+        ImGui::Text("Slice num");
+        if(ImGui::RadioButton("512", &sliceNum, 512)) modelManager->volumeArray[0].cal_slice(sliceNum);
         ImGui::SameLine();
-        ImGui::SetCursorPosX(250);
-        if(ImGui::Button("Load",ImVec2(btnSz, 20))){
-            if(modelFileIndex.second != modelFileIndex.first){
-                modelFileIndex.first = modelFileIndex.second;
-                modelManager->init(modelFileList[modelFileIndex.first], -1);
-            }
-        }
+        if(ImGui::RadioButton("1024", &sliceNum, 1024)) modelManager->volumeArray[0].cal_slice(sliceNum);
+        ImGui::SameLine();
+        if(ImGui::RadioButton("2048", &sliceNum, 2048)) modelManager->volumeArray[0].cal_slice(sliceNum);
+        ImGui::SameLine();
+        if(ImGui::RadioButton("4096", &sliceNum, 4096)) modelManager->volumeArray[0].cal_slice(sliceNum);
     }
     ImGui::NewLine();
     ImGui::Text("Rotate:");
@@ -283,15 +242,6 @@ void draw_volume_rendering_gui(){
     }
     // ImGui::End();
     
-
-    //------histogram--------
-    // ImGui::SetNextWindowBgAlpha(0.35f);
-    // ImGui::Begin("Histogram");
-    // ImGui::PlotLines("Frame Times", modelManager->isoValueDistributed.data(), 256);
-    // ImGui::PlotHistogram("##iso_value", modelManager->isoValueDistributed.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
-    
-
-   
     int text_len = ImGui::CalcTextSize("Iso-value").x;
     ImGui::SetCursorPosX(100-text_len/2.0);
     ImGui::Text("Iso-value");
@@ -319,27 +269,131 @@ void draw_volume_rendering_gui(){
         for(int i=iso1+1,j=0;i<iso2;i++,j++){
             alpha[i] = testa1 + delta*j;
         }
-        // int l = iso, r = iso;
-        // while(l && setter[--l] == 0); 
-        // while(r && setter[++r] == 0);
-        // float delta = (testa - alpha[l])/(iso-l);
-        // for(int i=l+1,j=0;i<=iso;i++,j++){
-        //     alpha[i] = alpha[l] + delta*j;
-        // } 
-        // delta = (alpha[r] - testa)/(r - iso);
-        // for(int i=iso+1,j=0;i<r;i++,j++){
-        //     alpha[i] = testa + delta*j;
-        // } 
-        // setter[iso] = 1;
         modelManager->volumeArray[0].create_1dtexture(alpha);
+    }   
+}
+void my_init(){
+
+    for(int i=0;i<256;i++) alpha.push_back(0.1);
+
+
+    method = METHODS::VOLUME_RENDERING;
+    projectMethod = PROJECTION_METHODS::ORTHO;
+    
+    string v,f;
+    #ifdef __linux__
+        // v = "/home/yu/Desktop/school/Visualization/src/shaders/IsoSurface.vert";
+        // f = "/home/yu/Desktop/school/Visualization/src/shaders/IsoSurface.frag";
+        v = "/home/yu/Desktop/school/Visualization/src/shaders/volumeRendering.vert";
+        f = "/home/yu/Desktop/school/Visualization/src/shaders/volumeRendering.frag";
+    #else
+        // v = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.vert";
+        // f = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.frag";
+        v = "D:\\school\\Visualization\\src\\shaders\\volumeRendering.vert";
+        f = "D:\\school\\Visualization\\src\\shaders\\volumeRendering.frag";
+    #endif
+
+    shader = new Shader(v,f);
+
+    camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
+    camera->set_projection_method(projectMethod);
+    
+    if(method == METHODS::ISO_SURFACE)
+        modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
+    else if(method == METHODS::VOLUME_RENDERING)
+        modelManager = new ModelManager(METHODS::VOLUME_RENDERING, modelFileList[modelFileIndex.first]);
+    else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
+
+    // string dir = "D:\\school\\Visualization\\src\\asset\\";    
+    // string infFile = dir + modelFileList[modelFileIndex.first] + ".inf";
+    // string rawFile = dir + modelFileList[modelFileIndex.first] + ".raw";
+    // Volume* mv = new Volume(METHODS::VOLUME_RENDERING, infFile, rawFile);
+}
+void draw_gui(){
+    int btnSz = 130;
+    ImGui::SetNextWindowBgAlpha(0.35f);
+    ImGuiWindowFlags window_flags = 0;
+    // window_flags |= ImGuiWindowFlags_NoMove;
+    // ImGui::Begin("00957116 C. Y. Wang", 0, window_flags);
+    ImGui::Begin("00957116 C. Y. Wang");
+    // render method
+    {
+        ImGui::Text("Render Mode");
+        ImGui::SetNextItemWidth(232);
+        if(ImGui::Combo("##loadrendermode", &renderModeIndex.second, renderModeList, IM_ARRAYSIZE(renderModeList)));
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(250);
+        if(ImGui::Button("GoGo",ImVec2(btnSz, 20))){
+            if(renderModeIndex.second != renderModeIndex.first){
+                renderModeIndex.first = renderModeIndex.second;
+
+                string v,f;
+                #ifdef __linux__
+                    v = "/home/yu/Desktop/school/Visualization/src/shaders/";
+                    f = "/home/yu/Desktop/school/Visualization/src/shaders/";
+                #else
+                    v = "D:\\school\\Visualization\\src\\shaders\\";
+                    f = "D:\\school\\Visualization\\src\\shaders\\";
+                #endif
+
+                
+                
+                if(renderModeIndex.first == METHODS::ISO_SURFACE){
+                    method =  METHODS::ISO_SURFACE;
+                    v += "IsoSurface.vert";
+                    f += "IsoSurface.frag";
+                    modelManager->init(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first], 200);
+                }else if(renderModeIndex.first == METHODS::VOLUME_RENDERING){
+                    sliceNum = 512;
+                    method =  METHODS::VOLUME_RENDERING;
+                    v += "volumeRendering.vert";
+                    f += "volumeRendering.frag";
+                    modelManager->init(METHODS::VOLUME_RENDERING, modelFileList[modelFileIndex.first]);
+                }else{
+                    cout << "ERROR: main.cpp draw_gui error!\n";
+                }
+                
+                shader = new Shader(v,f);
+            }
+        }
+    }
+    ImGui::NewLine();
+    // Load Model
+    {
+        ImGui::Text("Load Model");
+        ImGui::SetNextItemWidth(232);
+        if(ImGui::Combo("##loadfile", &modelFileIndex.second, modelFileList, IM_ARRAYSIZE(modelFileList)));
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(250);
+        if(ImGui::Button("Load",ImVec2(btnSz, 20))){
+            if(modelFileIndex.second != modelFileIndex.first){
+                modelFileIndex.first = modelFileIndex.second;
+                modelManager->init(method, modelFileList[modelFileIndex.first], 200);
+            }
+        }
     }
 
+    if(method == METHODS::ISO_SURFACE)
+        draw_iso_surface_gui();
+    else if(method == METHODS::VOLUME_RENDERING) 
+        draw_volume_rendering_gui();
+    
     ImGui::End();
     
-    ImGui::ShowDemoWindow();
+    if(method == METHODS::ISO_SURFACE){
+        //------histogram--------
+        ImGui::SetNextWindowBgAlpha(0.35f);
+        ImGui::Begin("Histogram");
+        ImGui::PlotHistogram("##iso_value", modelManager->isoValueDistributed.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
+        int text_len = ImGui::CalcTextSize("Iso-value").x;
+        ImGui::SetCursorPosX(100-text_len/2.0);
+        ImGui::Text("Iso-value");
+        ImGui::End();
+    }
+
+    ImGui::ShowDemoWindow(); // Show demo window! :)
 }
 int main(){
-    pppp();
     // glfw: initialize and configure
     // ------------------------------
     glfwInit();
@@ -372,33 +426,7 @@ int main(){
     }
 
     glEnable(GL_DEPTH_TEST); 
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    string v,f;
-    #ifdef __linux__
-        v = "/home/yu/Desktop/school/Visualization/src/shaders/IsoSurface.vert";
-        f = "/home/yu/Desktop/school/Visualization/src/shaders/IsoSurface.frag";
-    #else
-        // v = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.vert";
-        // f = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.frag";
-        v = "D:\\school\\Visualization\\src\\shaders\\volumeRendering.vert";
-        f = "D:\\school\\Visualization\\src\\shaders\\volumeRendering.frag";
-    #endif
-
-    shader = new Shader(v,f);
-
-    camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
-    camera->set_projection_method(PROJECTION_METHODS::ORTHO);
-    // modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
-    modelManager = new ModelManager(METHODS::VOLUME_RENDERING, modelFileList[modelFileIndex.first]);
     
-    // string dir = "D:\\school\\Visualization\\src\\asset\\";    
-    // string infFile = dir + modelFileList[modelFileIndex.first] + ".inf";
-    // string rawFile = dir + modelFileList[modelFileIndex.first] + ".raw";
-    // Volume* mv = new Volume(METHODS::VOLUME_RENDERING, infFile, rawFile);
-
-    // volume
-    //------------------
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -410,9 +438,9 @@ int main(){
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);          // Second param install_callback=true will install GLFW callbacks and chain to existing ones.
     ImGui_ImplOpenGL3_Init();
-    //------------------
 
-
+    
+    my_init();
     // render loop
     // -----------
     while(!glfwWindowShouldClose(window)){
@@ -422,8 +450,8 @@ int main(){
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        if(method == METHODS::ISO_SURFACE)draw_iso_surface_gui();
-        else if(method == METHODS::VOLUME_RENDERING) draw_volume_rendering_gui();
+        draw_gui();
+
         // input
         processInput(window);
 
@@ -435,14 +463,12 @@ int main(){
         shader->use();
 
         // camera/projection/view transformation
-        // camera->set_projection_method(PROJECTION_METHODS::PERSPECTIVE);
         glm::mat4 projection = camera->get_projection_matrix();
         shader->set_uniform("projection",projection);
         
         glm::mat4 view = camera->get_view_matrix();//glm::lookAt(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0));
         shader->set_uniform("view", view);
         shader->set_uniform("viewPos", camera->position);
-        
         
         glm::vec3 lightPos = glm::vec3(0,0,-300);
         shader->set_uniform("lightPos",lightPos);
@@ -467,8 +493,7 @@ int main(){
             shader->set_uniform("texture1d", 1);
             shader->set_uniform("maxMag",modelManager->volumeArray[0].maxMag);
             shader->set_uniform("minMag",modelManager->volumeArray[0].minMag);
-            // float rotationY = modelManager->getRotationY();
-            
+
             glm::vec4 xyplane = modelManager->get_model_matrix() * glm::vec4(0.0f,0.0f,-100.0f,0.0f);
             glm::vec4 _xyplane = modelManager->get_model_matrix() * glm::vec4(0.0f,0.0f,100.0f,0.0f);
             glm::vec4 xzplane = modelManager->get_model_matrix() * glm::vec4(0.0f,-100.0f,0.0f,0.0f);

@@ -5,7 +5,7 @@ ModelManager::ModelManager(int method,const string& modelName, int isoLevel){
     this -> fixedRY = glm::mat4(1.0f);
     this -> rotateY = 0;
     this -> method = method;
-    init(modelName, isoLevel);
+    init(method, modelName, isoLevel);
 }
 ModelManager::ModelManager(int method,const string& modelName){
     cout << "METHODS::VOLUME_RENDERING: ModelManager.cpp\n";
@@ -14,9 +14,10 @@ ModelManager::ModelManager(int method,const string& modelName){
     this -> rotateY = 0;
     this -> fixedRY = glm::mat4(1.0f);
     this -> method = method;
-    init(modelName,-1);
+    init(method, modelName);
 }
-void ModelManager::init(const string& modelName, int isoLevel){    
+void ModelManager::init(int method, const string& modelName, int isoLevel){    
+    this->method = method;
     if(modelName == "carp")
         modelID = MODEL_TYPE::CARP;
     else if(modelName == "engine")
@@ -80,6 +81,7 @@ void ModelManager::delete_volume(int isoLevel){
 void ModelManager::delete_all_volume(){
     for(auto it = volumeArray.begin(); it != volumeArray.end(); ++it){
         it->delete_VAO();
+        it->delete_slice_VAO();
     }
     volumeArray.clear();
     volumeIsoValueArray.assign(255,0);

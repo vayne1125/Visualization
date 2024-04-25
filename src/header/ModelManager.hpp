@@ -21,7 +21,7 @@ public:
     ModelManager(int method,const string& modelName, int isoLevel);
     ModelManager(int method,const string& modelName);
     
-    void init(const string& modelName,int isoLevel);
+    void init(int method, const string& modelName,int isoLevel = -1);
     void add_volume(int isoLevel);
     void updateFixedRY();
     void delete_volume(int isoLevel);
