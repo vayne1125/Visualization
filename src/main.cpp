@@ -33,7 +33,7 @@ int addIsoValue = 128;
 Shader *shader;
 Camera *camera;
 ModelManager *modelManager;
-static pair<int,int> modelFileIndex = {0,0};
+static pair<int,int> modelFileIndex = {3,3};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
 
 static pair<int,int> renderModeIndex = {1,1};
@@ -166,14 +166,16 @@ void draw_iso_surface_gui(){
         enableCliped = 0;
     }
 }
-vector<float> alpha;
-
+vector<float> alpha,R,G,B;
+static int rgba = 0;
 void draw_volume_rendering_gui(){
     int btnSz = 130;
     ImGui::NewLine();
     
     {
         ImGui::Text("Slice num");
+        if(ImGui::RadioButton("256", &sliceNum, 256)) modelManager->volumeArray[0].cal_slice(sliceNum);
+        ImGui::SameLine();
         if(ImGui::RadioButton("512", &sliceNum, 512)) modelManager->volumeArray[0].cal_slice(sliceNum);
         ImGui::SameLine();
         if(ImGui::RadioButton("1024", &sliceNum, 1024)) modelManager->volumeArray[0].cal_slice(sliceNum);
@@ -248,6 +250,9 @@ void draw_volume_rendering_gui(){
     // ImGui::MyPlotHistogram("##iso_value", modelManager->isoValueDistributed.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
     ImGui::PlotHistogram("##iso_value", modelManager->isoValueDistributed.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
     ImGui::PlotLines("##a", alpha.data(), 256, 0,  NULL, 0, 255, ImVec2(200, 50));
+    ImGui::PlotLines("##R", R.data(), 256, 0,  NULL, 0, 255, ImVec2(200, 50));
+    ImGui::PlotLines("##G", G.data(), 256, 0,  NULL, 0, 255, ImVec2(200, 50));
+    ImGui::PlotLines("##B", B.data(), 256, 0,  NULL, 0, 255, ImVec2(200, 50));
     
     ImGui::SetNextItemWidth(200);
     ImGui::SliderInt("iso1",&iso1,0,255); 
@@ -260,22 +265,57 @@ void draw_volume_rendering_gui(){
     
     ImGui::SetNextItemWidth(200);
     ImGui::SliderFloat("a2",&testa2,0,255); 
-
+    
+    // {
+    //     ImGui::RadioButton("r", &rgba, 0);ImGui::SameLine();
+    //     ImGui::RadioButton("g", &rgba, 1);ImGui::SameLine();
+    //     ImGui::RadioButton("b", &rgba, 2);ImGui::SameLine();
+    //     ImGui::RadioButton("a", &rgba, 3);
+    // }
     if(ImGui::Button("go", ImVec2(btnSz, 20))){
-        alpha[iso1] = testa1;
-        alpha[iso2] = testa2;
-        float delta = (testa2 - testa1)/(iso2-iso1);
-        
-        for(int i=iso1+1,j=0;i<iso2;i++,j++){
-            alpha[i] = testa1 + delta*j;
+        if(rgba == 3) {
+            alpha[iso1] = testa1;
+            alpha[iso2] = testa2;
+        }else if(rgba == 0){
+            R[iso1] = testa1;
+            R[iso2] = testa2;
+        }else if(rgba == 1){
+            G[iso1] = testa1;
+            G[iso2] = testa2;
+        }else if(rgba == 2){
+            B[iso1] = testa1;
+            B[iso2] = testa2;
         }
-        modelManager->volumeArray[0].create_1dtexture(alpha);
+        float delta = (testa2 - testa1)/(iso2-iso1);
+        for(int i=iso1+1,j=0;i<iso2;i++,j++){
+            if(rgba == 3) alpha[i] = testa1 + delta*j;
+            if(rgba == 0) R[i] = testa1 + delta*j;
+            if(rgba == 1) G[i] = testa1 + delta*j;
+            if(rgba == 2) B[i] = testa1 + delta*j;
+        }
+        modelManager->volumeArray[0].create_1dtexture(alpha,R,G,B);
     }   
+
+    {
+        static ImVec4 color = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+        ImGuiColorEditFlags flags = 0;
+        flags |= ImGuiColorEditFlags_AlphaPreviewHalf;
+        flags |= ImGuiColorEditFlags_AlphaBar;
+        flags |= ImGuiColorEditFlags_PickerHueWheel;
+        flags |= ImGuiColorEditFlags_NoInputs;       // Disable all RGB/HSV/Hex displays
+        float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.y) * 0.40f;
+        ImGui::SetNextItemWidth(w);
+        ImGui::ColorPicker4("MyColor##4", (float*)&color, flags, NULL);
+    }
 }
 void my_init(){
 
-    for(int i=0;i<256;i++) alpha.push_back(0.1);
-
+    for(int i=0;i<256;i++) {
+        alpha.push_back(0.1);
+        R.push_back(0);
+        G.push_back(0);
+        B.push_back(0);
+    }
 
     method = METHODS::VOLUME_RENDERING;
     projectMethod = PROJECTION_METHODS::ORTHO;
@@ -494,6 +534,10 @@ int main(){
             shader->set_uniform("maxMag",modelManager->volumeArray[0].maxMag);
             shader->set_uniform("minMag",modelManager->volumeArray[0].minMag);
 
+            glm::mat3 m3(1.0f);
+            glm::vec3 v3(0.0f,0.0f,-100.0f);
+            glm::vec3 v4 = m3 * v3;
+            
             glm::vec4 xyplane = modelManager->get_model_matrix() * glm::vec4(0.0f,0.0f,-100.0f,0.0f);
             glm::vec4 _xyplane = modelManager->get_model_matrix() * glm::vec4(0.0f,0.0f,100.0f,0.0f);
             glm::vec4 xzplane = modelManager->get_model_matrix() * glm::vec4(0.0f,-100.0f,0.0f,0.0f);

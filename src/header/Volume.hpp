@@ -14,7 +14,7 @@ public:
     void delete_slice_VAO();
     Volume(int method,string infFile, string rawFile, float isoLevel);
     Volume(int method,string infFile, string rawFile);
-    void create_1dtexture(const vector<float>& alpha);
+    void create_1dtexture(const vector<float>& alpha,const vector<float>& R,const vector<float>& G,const vector<float>& B);
     void cal_slice(int sliceNum);
     void draw();
     // void draw(glm::vec3 w);

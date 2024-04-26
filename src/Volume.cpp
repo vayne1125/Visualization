@@ -622,37 +622,13 @@ void Volume::create_1dtexture(){
         texture1DData
     );
 }
-void Volume::create_1dtexture(const vector<float>& alpha){
+void Volume::create_1dtexture(const vector<float>& alpha,const vector<float>& R,const vector<float>& G,const vector<float>& B){
     unsigned char (*texture1DData)[4] = new unsigned char[256][4];
     for(int i=0;i<256;i++){
-        {
-            // HSV to RGB
-            float h =  256-i;
-            float s =  1.0;
-            float l =  0.5;
-
-            float q = l + s - (l*s);
-            float p = 2 * l - q;
-            float hk = h/360.0;
-            // float tpR = hk + 1/3.0, tpG = hk, tpB = hk-1/3.0;
-            glm::vec3 tpRGB = glm::vec3(hk + 1/3.0, hk, hk-1/3.0);
-            glm::vec3 RGB;
-
-            for(int i=0;i<3;i++){
-                if(tpRGB[i] < 0) tpRGB[i] += 1.0;
-                else if(tpRGB[i] > 1) tpRGB[i] -= 1.0; 
-            }
-            for(int i=0;i<3;i++){
-                if(tpRGB[i] < 1/6.0) RGB[i] = p+(q-p)*6*tpRGB[i];
-                else if(1/6.0 <= tpRGB[i] && tpRGB[i] < 1/2.0) RGB[i] = q;
-                else if(1/2.0 <= tpRGB[i] && tpRGB[i] < 2/3.0) RGB[i] = p + (q-p)*6*(2/3.0 - tpRGB[i]);
-                else RGB[i] = p;
-            }
-            texture1DData[i][0] = RGB.r*255;
-            texture1DData[i][1] = RGB.g*255;
-            texture1DData[i][2] = RGB.b*255;
-            texture1DData[i][3] = alpha[i];
-        }
+        texture1DData[i][0] = R[i];
+        texture1DData[i][1] = G[i];
+        texture1DData[i][2] = B[i];
+        texture1DData[i][3] = alpha[i];
     }
     glGenTextures(1, &this->texture1DID);
     glBindTexture(GL_TEXTURE_1D, this->texture1DID);
