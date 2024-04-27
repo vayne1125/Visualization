@@ -5,6 +5,9 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include <implot.h>
+
+
 #include "./header/Shader.hpp"
 #include "./header/Camera.hpp"
 #include "./header/ModelManager.hpp"
@@ -43,13 +46,14 @@ int sliceNum = 512;
 METHODS method;
 PROJECTION_METHODS projectMethod;
 
-float testa1 = 100.0f,testa2 = 100;
-int iso1 = 100, iso2 = 100;
-
+// gui
+static vector<float> xs, bar;
+float testa1 = 0.0f,testa2 = 0.0;
+int iso1 = 0, iso2 = 0, iso3 = 0, iso4 = 0;
 
 void draw_iso_surface_gui(){
     int btnSz = 130;
-    ImGui::NewLine();
+    ImGui::Spacing();
     // Add Iso Surface
     {
         ImGui::Text("Add Iso Surface");
@@ -106,7 +110,7 @@ void draw_iso_surface_gui(){
         
         ImGui::TreePop();  // This is required at the end of the if block
     } 
-    ImGui::NewLine();
+    ImGui::Spacing();
     
     ImGui::Text("Rotate:");
     ImGui::Text("X:");
@@ -132,7 +136,7 @@ void draw_iso_surface_gui(){
         modelManager->autoRY ^= 1;
     }
 
-    ImGui::NewLine();
+    ImGui::Spacing();
     ImGui::Text("Clipped plane:");
     ImGui::SetNextItemWidth(50);
     ImGui::SliderFloat("x + ",&clipNormal.x,-1.0f,1.0f); // ax + by + cz + d = 0
@@ -166,12 +170,47 @@ void draw_iso_surface_gui(){
         enableCliped = 0;
     }
 }
-vector<float> alpha,R,G,B;
+vector<vector<float>> RGBA;
 static int rgba = 0;
+void reset_RGBA(){
+    cout << "reset RGBA\n";
+    for(int i=0;i<256;i++) {
+        // HSV to RGB
+        float h =  256-i;
+        float s =  1.0;
+        float l =  0.5;
+
+        float q = l + s - (l*s);
+        float p = 2 * l - q;
+        float hk = h/360.0;
+        // float tpR = hk + 1/3.0, tpG = hk, tpB = hk-1/3.0;
+        glm::vec3 tpRGB = glm::vec3(hk + 1/3.0, hk, hk-1/3.0);
+        glm::vec3 RGB;
+
+        for(int i=0;i<3;i++){
+            if(tpRGB[i] < 0) tpRGB[i] += 1.0;
+            else if(tpRGB[i] > 1) tpRGB[i] -= 1.0; 
+        }
+        for(int i=0;i<3;i++){
+            if(tpRGB[i] < 1/6.0) RGB[i] = p+(q-p)*6*tpRGB[i];
+            else if(1/6.0 <= tpRGB[i] && tpRGB[i] < 1/2.0) RGB[i] = q;
+            else if(1/2.0 <= tpRGB[i] && tpRGB[i] < 2/3.0) RGB[i] = p + (q-p)*6*(2/3.0 - tpRGB[i]);
+            else RGB[i] = p;
+        }
+        RGBA[0][i] = RGB.r;
+        RGBA[1][i] = RGB.g;
+        RGBA[2][i] = RGB.b;
+        RGBA[3][i] = 0.05;
+    }
+}
 void draw_volume_rendering_gui(){
     int btnSz = 130;
-    ImGui::NewLine();
-    
+    ImGui::Spacing();
+    {
+        ImGui::Text("Use Phong Shadding");ImGui::SameLine();
+        ImGui::RadioButton("Yes", &modelManager->openPhong, 1);ImGui::SameLine();
+        ImGui::RadioButton("No", &modelManager->openPhong, 0);
+    }
     {
         ImGui::Text("Slice num");
         if(ImGui::RadioButton("256", &sliceNum, 256)) modelManager->volumeArray[0].cal_slice(sliceNum);
@@ -184,22 +223,19 @@ void draw_volume_rendering_gui(){
         ImGui::SameLine();
         if(ImGui::RadioButton("4096", &sliceNum, 4096)) modelManager->volumeArray[0].cal_slice(sliceNum);
     }
-    ImGui::NewLine();
+    ImGui::Spacing();
     ImGui::Text("Rotate:");
-    ImGui::Text("X:");
-    ImGui::SameLine();
+    ImGui::Text("X:");ImGui::SameLine();
     ImGui::SetNextItemWidth(50);
     ImGui::SliderFloat("##x",&modelManager->rotate.x,0,360); // ax + by + cz + d = 0
 
     ImGui::SameLine();
-    ImGui::Text("Y:");
-    ImGui::SameLine();
+    ImGui::Text("Y:");ImGui::SameLine();
     ImGui::SetNextItemWidth(50);
     ImGui::SliderFloat("##y",&modelManager->rotate.y,0,360); // ax + by + cz + d = 0
 
     ImGui::SameLine();
-    ImGui::Text("Z:");
-    ImGui::SameLine();
+    ImGui::Text("Z:");ImGui::SameLine();
     ImGui::SetNextItemWidth(50);
     ImGui::SliderFloat("##z",&modelManager->rotate.z,0,360); // ax + by + cz + d = 0
 
@@ -208,114 +244,138 @@ void draw_volume_rendering_gui(){
     if(ImGui::Button("Auto rotate Y", ImVec2(btnSz, 20))){
         modelManager->autoRY ^= 1;
     }
+    ImGui::Spacing();
 
-    ImGui::NewLine();
-    ImGui::Text("Clipped plane:");
-    ImGui::SetNextItemWidth(50);
-    ImGui::SliderFloat("x + ",&clipNormal.x,-1.0f,1.0f); // ax + by + cz + d = 0
-    ImGui::SameLine();
-
-    ImGui::SetNextItemWidth(50);
-    ImGui::SliderFloat("y + ",&clipNormal.y,-1.0f,1.0f);
-    ImGui::SameLine();
-
-    ImGui::SetNextItemWidth(50);
-    ImGui::SliderFloat("z + ",&clipNormal.z,-1.0f,1.0f);
-    ImGui::SameLine();
-
-    ImGui::SetNextItemWidth(100);
-    ImGui::SliderFloat(" = 0",&clipNormal.w,-150,150);
-    
-    if(ImGui::Button("Cross section", ImVec2(btnSz, 20))){
-        enableCliped ^= 1;
-    }
-    if(ImGui::IsItemHovered()){
-        if(enableCliped){
-            ImGui::SetTooltip("click to disable cross section");
-        }else{
-            ImGui::SetTooltip("click to enable cross section");
-        }
-    }
-    ImGui::SameLine();
-    if(ImGui::Button("Reset", ImVec2(btnSz, 20))){
-        clipNormal = glm::vec4(0,1,0,-150);
-        modelManager->rotate = glm::vec3(0,0,0);
-        enableCliped = 0;
-    }
-    // ImGui::End();
-    
-    int text_len = ImGui::CalcTextSize("Iso-value").x;
-    ImGui::SetCursorPosX(100-text_len/2.0);
-    ImGui::Text("Iso-value");
-    // ImGui::MyPlotHistogram("##iso_value", modelManager->isoValueDistributed.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
-    ImGui::PlotHistogram("##iso_value", modelManager->isoValueDistributed.data(), 256, 0,  NULL, FLT_MAX, FLT_MAX, ImVec2(200, 130));
-    ImGui::PlotLines("##a", alpha.data(), 256, 0,  NULL, 0, 255, ImVec2(200, 50));
-    ImGui::PlotLines("##R", R.data(), 256, 0,  NULL, 0, 255, ImVec2(200, 50));
-    ImGui::PlotLines("##G", G.data(), 256, 0,  NULL, 0, 255, ImVec2(200, 50));
-    ImGui::PlotLines("##B", B.data(), 256, 0,  NULL, 0, 255, ImVec2(200, 50));
-    
-    ImGui::SetNextItemWidth(200);
-    ImGui::SliderInt("iso1",&iso1,0,255); 
-    
-    ImGui::SetNextItemWidth(200);
-    ImGui::SliderFloat("a1",&testa1,0,255); 
-    
-    ImGui::SetNextItemWidth(200);
-    ImGui::SliderInt("iso2",&iso2,0,255); 
-    
-    ImGui::SetNextItemWidth(200);
-    ImGui::SliderFloat("a2",&testa2,0,255); 
-    
-    // {
-    //     ImGui::RadioButton("r", &rgba, 0);ImGui::SameLine();
-    //     ImGui::RadioButton("g", &rgba, 1);ImGui::SameLine();
-    //     ImGui::RadioButton("b", &rgba, 2);ImGui::SameLine();
-    //     ImGui::RadioButton("a", &rgba, 3);
-    // }
-    if(ImGui::Button("go", ImVec2(btnSz, 20))){
-        if(rgba == 3) {
-            alpha[iso1] = testa1;
-            alpha[iso2] = testa2;
-        }else if(rgba == 0){
-            R[iso1] = testa1;
-            R[iso2] = testa2;
-        }else if(rgba == 1){
-            G[iso1] = testa1;
-            G[iso2] = testa2;
-        }else if(rgba == 2){
-            B[iso1] = testa1;
-            B[iso2] = testa2;
-        }
-        float delta = (testa2 - testa1)/(iso2-iso1);
-        for(int i=iso1+1,j=0;i<iso2;i++,j++){
-            if(rgba == 3) alpha[i] = testa1 + delta*j;
-            if(rgba == 0) R[i] = testa1 + delta*j;
-            if(rgba == 1) G[i] = testa1 + delta*j;
-            if(rgba == 2) B[i] = testa1 + delta*j;
-        }
-        modelManager->volumeArray[0].create_1dtexture(alpha,R,G,B);
-    }   
-
+    ImGui::SeparatorText("Color Editor");
     {
-        static ImVec4 color = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
-        ImGuiColorEditFlags flags = 0;
-        flags |= ImGuiColorEditFlags_AlphaPreviewHalf;
-        flags |= ImGuiColorEditFlags_AlphaBar;
-        flags |= ImGuiColorEditFlags_PickerHueWheel;
-        flags |= ImGuiColorEditFlags_NoInputs;       // Disable all RGB/HSV/Hex displays
-        float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.y) * 0.40f;
-        ImGui::SetNextItemWidth(w);
-        ImGui::ColorPicker4("MyColor##4", (float*)&color, flags, NULL);
+        ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+        if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)){
+            if (ImGui::BeginTabItem("editor1"))
+            {
+                ImGui::RadioButton("r", &rgba, 0);ImGui::SameLine();
+                ImGui::RadioButton("g", &rgba, 1);ImGui::SameLine();
+                ImGui::RadioButton("b", &rgba, 2);ImGui::SameLine();
+                ImGui::RadioButton("a", &rgba, 3);
+
+                ImGui::Text("iso1");ImGui::SameLine();
+                ImGui::SetNextItemWidth(146); ImGui::SliderInt("##iso1",&iso1,0,255); ImGui::SameLine();
+                ImGui::Text("val1");ImGui::SameLine(); 
+                ImGui::SetNextItemWidth(146);ImGui::SliderFloat("##a1",&testa1,0,1); 
+            
+                ImGui::Text("iso2");ImGui::SameLine();
+                ImGui::SetNextItemWidth(146); ImGui::SliderInt("##iso2",&iso2,0,255); ImGui::SameLine();
+                ImGui::Text("val2");ImGui::SameLine(); 
+                ImGui::SetNextItemWidth(146);ImGui::SliderFloat("##a2",&testa2,0,1);
+
+                ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::Spacing();
+                if(ImGui::Button("reset", ImVec2(btnSz/1.5, 18))){
+                    reset_RGBA();
+                    modelManager->volumeArray[0].create_1dtexture(RGBA); 
+                }
+                ImGui::SameLine();
+                if(ImGui::Button("reset to 0", ImVec2(btnSz/1.5, 18))){
+                    for(int i=0;i<256;i++){
+                        RGBA[0][i] = 0;
+                        RGBA[1][i] = 0;
+                        RGBA[2][i] = 0;
+                        RGBA[3][i] = 0;
+                    }
+                    modelManager->volumeArray[0].create_1dtexture(RGBA); 
+                }
+                ImGui::SameLine();
+                ImGui::SetCursorPosX(250);
+                if(ImGui::Button("go", ImVec2(btnSz, 18))){
+                    RGBA[rgba][iso1] = testa1;
+                    RGBA[rgba][iso2] = testa2;
+                    float delta = (testa2 - testa1)/(iso2-iso1);
+                    for(int i=iso1+1,j=0;i<iso2;i++,j++){
+                        RGBA[rgba][i] = testa1 + delta*j;
+                    }
+                    modelManager->volumeArray[0].create_1dtexture(RGBA); 
+                }
+                ImGui::EndTabItem();
+                
+            }
+            if (ImGui::BeginTabItem("editor2"))
+            {
+                static ImVec4 color = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+                ImGuiColorEditFlags flags = 0;
+                flags |= ImGuiColorEditFlags_AlphaPreviewHalf;
+                flags |= ImGuiColorEditFlags_AlphaBar;
+                flags |= ImGuiColorEditFlags_PickerHueWheel;
+                flags |= ImGuiColorEditFlags_NoInputs;       // Disable all RGB/HSV/Hex displays
+                // float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.y) * 0.40f;
+                ImGui::SetNextItemWidth(165);
+                ImGui::ColorPicker4("MyColor##4", (float*)&color, flags, NULL);
+
+                ImGui::SameLine(250);
+                ImGui::SetNextItemWidth(50);
+                ImGui::BeginGroup();
+                ImGui::Text("iso1");
+                ImGui::SetNextItemWidth(btnSz);ImGui::SliderInt("##iso3",&iso3,0,255);
+                ImGui::Text("iso2");
+                ImGui::SetNextItemWidth(btnSz);ImGui::SliderInt("##iso4",&iso4,0,255);
+                ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::Spacing();
+                if(ImGui::Button("go", ImVec2(btnSz, 18))){
+                    for(int i=iso3+1,j=0;i<iso4;i++,j++){ // for each iso
+                        RGBA[0][i] = color.x;
+                        RGBA[1][i] = color.y;
+                        RGBA[2][i] = color.z;
+                        RGBA[3][i] = color.w;
+                    }
+                    modelManager->volumeArray[0].create_1dtexture(RGBA); 
+                } 
+                ImGui::EndGroup();
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+    }
+
+    ImGui::SetCursorPosY(400);
+    {
+        if (ImPlot::BeginPlot("Palette")) {
+            ImPlot::SetupLegend(ImPlotLocation_NorthWest,ImPlotLegendFlags_Horizontal);
+            ImPlot::SetupAxis(ImAxis_X1, "intensity");
+            ImPlot::SetupAxisLimits(ImAxis_X1, 0, 256);
+            ImPlot::SetupAxis(ImAxis_Y1, "count");
+            ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 25);
+            ImPlot::SetupAxis(ImAxis_Y2, "RGBA value", ImPlotAxisFlags_AuxDefault);
+            ImPlot::SetupAxisLimits(ImAxis_Y2, -0.01, 1.01);
+
+            ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 0, 256);
+            ImPlot::SetupAxisLimitsConstraints(ImAxis_Y1, 0, 25);
+            ImPlot::SetupAxisLimitsConstraints(ImAxis_Y2, -0.01, 1.01);
+
+            ImPlot::PlotBars("log2(nums)", xs.data(), bar.data(), 256, 1.0f);
+
+            ImPlot::SetAxes(ImAxis_X1, ImAxis_Y2);
+            ImPlot::SetNextLineStyle(ImVec4(1,153/255.0,153/255.0,1), 2);
+            ImPlot::PlotLine("R", xs.data(), RGBA[0].data(), 256);
+
+            ImPlot::SetNextLineStyle(ImVec4(153/255.0,1,153/255.0,1), 2);
+            ImPlot::PlotLine("G", xs.data(), RGBA[1].data(), 256);
+            
+            ImPlot::SetNextLineStyle(ImVec4(153/255.0,153/255.0,1,1), 2);
+            ImPlot::PlotLine("B", xs.data(), RGBA[2].data(), 256);
+            
+            ImPlot::SetNextLineStyle(ImVec4(1,1,1,1), 2);
+            ImPlot::PlotLine("A", xs.data(), RGBA[3].data(), 256);
+
+            ImPlot::EndPlot();
+        }
     }
 }
 void my_init(){
-
-    for(int i=0;i<256;i++) {
-        alpha.push_back(0.1);
-        R.push_back(0);
-        G.push_back(0);
-        B.push_back(0);
-    }
+    RGBA.assign(4,vector<float>(256,0));
+    reset_RGBA();
 
     method = METHODS::VOLUME_RENDERING;
     projectMethod = PROJECTION_METHODS::ORTHO;
@@ -344,6 +404,12 @@ void my_init(){
         modelManager = new ModelManager(METHODS::VOLUME_RENDERING, modelFileList[modelFileIndex.first]);
     else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
 
+    xs.clear();
+    bar.clear();
+    for(int i=0;i<=256;i++){
+        xs.push_back(i);
+        bar.push_back(log2(modelManager->isoValueDistributed[i]));
+    }
     // string dir = "D:\\school\\Visualization\\src\\asset\\";    
     // string infFile = dir + modelFileList[modelFileIndex.first] + ".inf";
     // string rawFile = dir + modelFileList[modelFileIndex.first] + ".raw";
@@ -363,7 +429,7 @@ void draw_gui(){
         if(ImGui::Combo("##loadrendermode", &renderModeIndex.second, renderModeList, IM_ARRAYSIZE(renderModeList)));
         ImGui::SameLine();
         ImGui::SetCursorPosX(250);
-        if(ImGui::Button("GoGo",ImVec2(btnSz, 20))){
+        if(ImGui::Button("OK",ImVec2(btnSz, 20))){
             if(renderModeIndex.second != renderModeIndex.first){
                 renderModeIndex.first = renderModeIndex.second;
 
@@ -376,8 +442,6 @@ void draw_gui(){
                     f = "D:\\school\\Visualization\\src\\shaders\\";
                 #endif
 
-                
-                
                 if(renderModeIndex.first == METHODS::ISO_SURFACE){
                     method =  METHODS::ISO_SURFACE;
                     v += "IsoSurface.vert";
@@ -389,6 +453,7 @@ void draw_gui(){
                     v += "volumeRendering.vert";
                     f += "volumeRendering.frag";
                     modelManager->init(METHODS::VOLUME_RENDERING, modelFileList[modelFileIndex.first]);
+                    reset_RGBA();
                 }else{
                     cout << "ERROR: main.cpp draw_gui error!\n";
                 }
@@ -397,7 +462,7 @@ void draw_gui(){
             }
         }
     }
-    ImGui::NewLine();
+    ImGui::Spacing();
     // Load Model
     {
         ImGui::Text("Load Model");
@@ -409,10 +474,11 @@ void draw_gui(){
             if(modelFileIndex.second != modelFileIndex.first){
                 modelFileIndex.first = modelFileIndex.second;
                 modelManager->init(method, modelFileList[modelFileIndex.first], 200);
+                reset_RGBA();
             }
         }
     }
-
+    
     if(method == METHODS::ISO_SURFACE)
         draw_iso_surface_gui();
     else if(method == METHODS::VOLUME_RENDERING) 
@@ -432,6 +498,7 @@ void draw_gui(){
     }
 
     ImGui::ShowDemoWindow(); // Show demo window! :)
+    ImPlot::ShowDemoWindow();
 }
 int main(){
     // glfw: initialize and configure
@@ -470,6 +537,7 @@ int main(){
     // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
+    ImPlot::CreateContext();
 
     ImGuiIO& io = ImGui::GetIO();
     io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
@@ -533,35 +601,25 @@ int main(){
             shader->set_uniform("texture1d", 1);
             shader->set_uniform("maxMag",modelManager->volumeArray[0].maxMag);
             shader->set_uniform("minMag",modelManager->volumeArray[0].minMag);
-
-            glm::mat3 m3(1.0f);
-            glm::vec3 v3(0.0f,0.0f,-100.0f);
-            glm::vec3 v4 = m3 * v3;
+            shader->set_uniform("openPhong",modelManager->openPhong);
+            glm::mat3 model_3x3 = glm::mat3(modelManager->get_fixedRY_matrix()) * glm::mat3(modelManager->get_model_matrix());
             
-            glm::vec4 xyplane = modelManager->get_model_matrix() * glm::vec4(0.0f,0.0f,-100.0f,0.0f);
-            glm::vec4 _xyplane = modelManager->get_model_matrix() * glm::vec4(0.0f,0.0f,100.0f,0.0f);
-            glm::vec4 xzplane = modelManager->get_model_matrix() * glm::vec4(0.0f,-100.0f,0.0f,0.0f);
-            glm::vec4 _xzplane = modelManager->get_model_matrix() * glm::vec4(0.0f,100.0f,0.0f,0.0f);
-            glm::vec4 yzplane = modelManager->get_model_matrix() * glm::vec4(-100.0f,0.0f,0.0f,0.0f);
-            glm::vec4 _yzplane = modelManager->get_model_matrix() * glm::vec4(100.0f,0.0f,0.0f,0.0f);
-
-            xyplane = (modelManager->get_fixedRY_matrix() * xyplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
-            _xyplane = (modelManager->get_fixedRY_matrix() * _xyplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
-            xzplane = (modelManager->get_fixedRY_matrix() * xzplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
-            _xzplane = (modelManager->get_fixedRY_matrix() * _xzplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
-            yzplane = (modelManager->get_fixedRY_matrix() * yzplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
-            _yzplane = (modelManager->get_fixedRY_matrix() * _yzplane) - glm::vec4(0.0f,0.0f,-200.0f,0.0f);
-
+            glm::vec3 xyplane = (model_3x3 * glm::vec3(0.0f,0.0f,-100.0f)) - camera->position;
+            glm::vec3 _xyplane = (model_3x3 * glm::vec3(0.0f,0.0f,100.0f)) - camera->position;
+            glm::vec3 xzplane = (model_3x3 * glm::vec3(0.0f,-100.0f,0.0f)) - camera->position;
+            glm::vec3 _xzplane = (model_3x3 * glm::vec3(0.0f,100.0f,0.0f)) - camera->position;
+            glm::vec3 yzplane = (model_3x3 * glm::vec3(-100.0f,0.0f,0.0f)) - camera->position;
+            glm::vec3 _yzplane = (model_3x3 * glm::vec3(100.0f,0.0f,0.0f)) - camera->position;
+            
             vector<pair<float,int>> tpv;
-            tpv.push_back({glm::l2Norm(glm::vec3(xyplane.x,xyplane.y,xyplane.z)),0});
-            tpv.push_back({glm::l2Norm(glm::vec3(_xyplane.x,_xyplane.y,_xyplane.z)),1});
-            tpv.push_back({glm::l2Norm(glm::vec3(xzplane.x,xzplane.y,xzplane.z)),4});
-            tpv.push_back({glm::l2Norm(glm::vec3(_xzplane.x,_xzplane.y,_xzplane.z)),5});
-            tpv.push_back({glm::l2Norm(glm::vec3(yzplane.x,yzplane.y,yzplane.z)),2});
-            tpv.push_back({glm::l2Norm(glm::vec3(_yzplane.x,_yzplane.y,_yzplane.z)),3});
+            tpv.push_back({glm::l2Norm(xyplane),0});
+            tpv.push_back({glm::l2Norm(_xyplane),1});
+            tpv.push_back({glm::l2Norm(yzplane),2});
+            tpv.push_back({glm::l2Norm(_yzplane),3});
+            tpv.push_back({glm::l2Norm(xzplane),4});
+            tpv.push_back({glm::l2Norm(_xzplane),5});
 
             sort(tpv.begin(),tpv.end());
-
             modelManager->volumeArray[0].draw(tpv[0].second);
         }
         ImGui::Render();
@@ -572,6 +630,7 @@ int main(){
         glfwPollEvents();
     }
     ImGui::DestroyContext();
+    ImPlot::DestroyContext();
     // optional: de-allocate all resources once they've outlived their purpose:
     // ------------------------------------------------------------------------
     glDeleteProgram(shader->ID);

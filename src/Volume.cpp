@@ -603,7 +603,7 @@ void Volume::create_1dtexture(){
             texture1DData[i][0] = RGB.r*255;
             texture1DData[i][1] = RGB.g*255;
             texture1DData[i][2] = RGB.b*255;
-            texture1DData[i][3] = 0.1*255;
+            texture1DData[i][3] = 0.05*255;
         }
     }
     glGenTextures(1, &this->texture1DID);
@@ -622,13 +622,13 @@ void Volume::create_1dtexture(){
         texture1DData
     );
 }
-void Volume::create_1dtexture(const vector<float>& alpha,const vector<float>& R,const vector<float>& G,const vector<float>& B){
+void Volume::create_1dtexture(const vector<vector<float>>& RGBA){
     unsigned char (*texture1DData)[4] = new unsigned char[256][4];
     for(int i=0;i<256;i++){
-        texture1DData[i][0] = R[i];
-        texture1DData[i][1] = G[i];
-        texture1DData[i][2] = B[i];
-        texture1DData[i][3] = alpha[i];
+        texture1DData[i][0] = RGBA[0][i]*255;
+        texture1DData[i][1] = RGBA[1][i]*255;
+        texture1DData[i][2] = RGBA[2][i]*255;
+        texture1DData[i][3] = RGBA[3][i]*255;
     }
     glGenTextures(1, &this->texture1DID);
     glBindTexture(GL_TEXTURE_1D, this->texture1DID);

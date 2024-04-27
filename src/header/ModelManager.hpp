@@ -32,6 +32,7 @@ public:
     vector<float> isoValueDistributed;
     glm::vec3 rotate;
     bool autoRY;
+    int openPhong;
     float rotateY;
     int volumnCnt;
     int method;
