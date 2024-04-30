@@ -29,6 +29,11 @@ You should have CMake and a C++ compilation environment installed.<br>
 #### other model
 | engine  | teddybear | golf |
 |---|---|---|
-|<img src="/readmeimg/hw1_3_2.png" alt="hw1_3" title="hw1" height="250"/>|<img src="/readmeimg/hw1_4_2.png" alt="hw1_3" title="hw1" height="250"/>| <img src="/readmeimg/hw1_5_2.png" alt="hw1_3" title="hw1" height="250"/>|
+|<img src="/readmeimg/hw1_3_2.png" alt="hw1_3_2.png" title="hw1_3_2.png" height="250"/>|<img src="/readmeimg/hw1_4_2.png" alt="hw1_4_2.png" title="hw1_4_2.png" height="250"/>| <img src="/readmeimg/hw1_5_2.png" alt="hw1_5_2.png" title="hw1_5_2.png" height="250"/>|
 
+#### cross-section
+| original  | cross-section |
+|---|---|
+|<img src="/readmeimg/hw1_6.png" alt="hw1_6.png" title="hw1_6.png" height="300"/>|<img src="/readmeimg/hw1_6_cs.png" alt="hw1_6_cs.png" title="hw1_6_cs.png" height="300"/>|
+|<img src="/readmeimg/hw1_7.png" alt="hw1_7.png" title="hw1_7.png" height="300"/>|<img src="/readmeimg/hw1_7_cs.png" alt="hw1_7_cs.png" title="hw1_7_cs.png" height="300"/>|
 
