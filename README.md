@@ -37,3 +37,16 @@ You should have CMake and a C++ compilation environment installed.<br>
 |<img src="/readmeimg/hw1_6.png" alt="hw1_6.png" title="hw1_6.png" height="250"/>|<img src="/readmeimg/hw1_6_cs.png" alt="hw1_6_cs.png" title="hw1_6_cs.png" height="250"/>|
 |<img src="/readmeimg/hw1_7.png" alt="hw1_7.png" title="hw1_7.png" height="250"/>|<img src="/readmeimg/hw1_7_cs.png" alt="hw1_7_cs.png" title="hw1_7_cs.png" height="250"/>|
 
+### Implement Slice Method
+- 建立六個方向的切片(x/y/z + back-to-front/ front-to-back)
+- 利用內插計算每一片的texture coordinate
+- 計算正方體六個面到相機的距離，決定從哪個方向切片，以達到物體或相機旋轉的正常顯示
+- 用 gradient 和 iso-value 建立 3d texture
+- 利用 implot 建立自定義的 1d-texture 編輯器
+- 可以透過 GUI 選擇切片的數量
+
+#### other slice num with phong shading
+|   | 512 | 1024 | 4096 |
+|---|---|---|---|
+|dont use phong|<img src="/readmeimg/hw2_1_512.png" height="250"/>|<img src="/readmeimg/hw2_1_1024.png" height="250"/>|<img src="/readmeimg/hw2_1_4096.png" height="250"/>|
+|use phong|---|---|---|
