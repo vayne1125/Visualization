@@ -14,7 +14,7 @@ You should have CMake and a C++ compilation environment installed.<br>
 2. cd extern
 3. Clone imgui, glfw, and glm from their respective GitHub repositories.
 4. cd lib
-5. Unzip the include and put the include folder and CMakeLists.txt into the imgui folder.
+5. Unzip the include and put the include folder, CMakeLists.txt and 5 implot file into the imgui folder.
 ```
 ## Introduction and Show
 ### Implement Marching Cube Method
