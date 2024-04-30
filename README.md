@@ -45,6 +45,8 @@ You should have CMake and a C++ compilation environment installed.<br>
 - 利用 implot 建立自定義的 1d-texture 編輯器
 - 可以透過 GUI 選擇切片的數量
 
+<img src="/readmeimg/hw2_slice.png" alt="hw2_slice.png" title="hw2_slice.png"/>
+
 #### different slice num with phong shading
 || 512 | 1024 |
 |---|---|---|
@@ -59,6 +61,8 @@ You should have CMake and a C++ compilation environment installed.<br>
 - 用 gradient 和 iso-value 建立 3d texture
 - 利用 implot 建立自定義的 1d-texture 編輯器
 - 可以透過 GUI 選擇切片的數量
+
+<img src="/readmeimg/hw2_ray.png" alt="hw2_ray.png" title="hw2_ray.png"/>
 
 #### different gap between two sample point with phong shading
 || big gap | small gap |
