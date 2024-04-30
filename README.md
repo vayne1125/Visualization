@@ -27,5 +27,5 @@ You should have CMake and a C++ compilation environment installed.<br>
 
 <img src="/readmeimg/hw1_1.png" alt="hw1_1" title="hw1_1"/>
 
-<img src="/readmeimg/hw1_2.png" alt="hw1_2" title="hw1" height="210"/> <img src="/readmeimg/hw1_3.png" alt="hw1_3" title="hw1" height="210"/> <img src="/readmeimg/hw1_4.png" alt="hw1_3" title="hw1" height="210"/>
+<img src="/readmeimg/hw1_2.png" alt="hw1_2" title="hw1" height="200"/> <img src="/readmeimg/hw1_3.png" alt="hw1_3" title="hw1" height="200"/> <img src="/readmeimg/hw1_4.png" alt="hw1_3" title="hw1" height="200"/>
 
