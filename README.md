@@ -34,6 +34,6 @@ You should have CMake and a C++ compilation environment installed.<br>
 #### cross-section
 | original  | cross-section |
 |---|---|
-|<img src="/readmeimg/hw1_6.png" alt="hw1_6.png" title="hw1_6.png" height="300"/>|<img src="/readmeimg/hw1_6_cs.png" alt="hw1_6_cs.png" title="hw1_6_cs.png" height="300"/>|
-|<img src="/readmeimg/hw1_7.png" alt="hw1_7.png" title="hw1_7.png" height="300"/>|<img src="/readmeimg/hw1_7_cs.png" alt="hw1_7_cs.png" title="hw1_7_cs.png" height="300"/>|
+|<img src="/readmeimg/hw1_6.png" alt="hw1_6.png" title="hw1_6.png" height="250"/>|<img src="/readmeimg/hw1_6_cs.png" alt="hw1_6_cs.png" title="hw1_6_cs.png" height="250"/>|
+|<img src="/readmeimg/hw1_7.png" alt="hw1_7.png" title="hw1_7.png" height="250"/>|<img src="/readmeimg/hw1_7_cs.png" alt="hw1_7_cs.png" title="hw1_7_cs.png" height="250"/>|
 
