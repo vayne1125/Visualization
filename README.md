@@ -24,8 +24,11 @@ You should have CMake and a C++ compilation environment installed.<br>
 - 利用 HSV 色彩坐標系顯示不同硬度的顏色，越硬越紅
 - 利用資料結構維護不同硬度的顯示與渲染
 - 畫出長條圖(histogram)顯示硬度分布
-
 <img src="/readmeimg/hw1_1.png" alt="hw1_1" title="hw1_1"/>
 
-<img src="/readmeimg/hw1_2.png" alt="hw1_2" title="hw1" height="200"/> <img src="/readmeimg/hw1_3.png" alt="hw1_3" title="hw1" height="200"/> <img src="/readmeimg/hw1_4.png" alt="hw1_3" title="hw1" height="200"/>
+#### other model
+| engine  | teddybear | golf |
+|---|---|---|
+|<img src="/readmeimg/hw1_3.png" alt="hw1_3" title="hw1" height="300"/>|<img src="/readmeimg/hw1_4.png" alt="hw1_3" title="hw1" height="300"/>| |
+
 
