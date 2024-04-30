@@ -26,6 +26,7 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
 void mouse_button_callback(GLFWwindow* window, int button, int action, int mods);
+void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods);
 // settings
 const unsigned int SCR_WIDTH = 800;
 const unsigned int SCR_HEIGHT = 600;
@@ -36,12 +37,11 @@ int addIsoValue = 128;
 Shader *shader;
 Camera *camera;
 ModelManager *modelManager;
-static pair<int,int> modelFileIndex = {3,3};
+static pair<int,int> modelFileIndex = {1,1};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
 
-static pair<int,int> renderModeIndex = {1,1};
-const char* renderModeList[] = { "iso-surface method", "slice method"};
-int sliceNum = 512;
+static pair<int,int> renderModeIndex = {2,2};
+const char* renderModeList[] = { "iso-surface method", "slice method","ray casting"};
 // int CUR = 240;
 METHODS method;
 PROJECTION_METHODS projectMethod;
@@ -50,6 +50,7 @@ PROJECTION_METHODS projectMethod;
 static vector<float> xs, bar;
 float testa1 = 0.0f,testa2 = 0.0;
 int iso1 = 0, iso2 = 0, iso3 = 0, iso4 = 0;
+int sliceNum = 512;
 
 void draw_iso_surface_gui(){
     int btnSz = 130;
@@ -211,7 +212,7 @@ void draw_volume_rendering_gui(){
         ImGui::RadioButton("Yes", &modelManager->openPhong, 1);ImGui::SameLine();
         ImGui::RadioButton("No", &modelManager->openPhong, 0);
     }
-    {
+    if(method == METHODS::SLICE_METHOD){
         ImGui::Text("Slice num");
         if(ImGui::RadioButton("256", &sliceNum, 256)) modelManager->volumeArray[0].cal_slice(sliceNum);
         ImGui::SameLine();
@@ -222,28 +223,34 @@ void draw_volume_rendering_gui(){
         if(ImGui::RadioButton("2048", &sliceNum, 2048)) modelManager->volumeArray[0].cal_slice(sliceNum);
         ImGui::SameLine();
         if(ImGui::RadioButton("4096", &sliceNum, 4096)) modelManager->volumeArray[0].cal_slice(sliceNum);
+        
+        ImGui::Spacing();
+        ImGui::Text("Rotate:");
+        ImGui::Text("X:");ImGui::SameLine();
+        ImGui::SetNextItemWidth(50);
+        ImGui::SliderFloat("##x",&modelManager->rotate.x,0,360); // ax + by + cz + d = 0
+        ImGui::SameLine();
+        ImGui::Text("Y:");ImGui::SameLine();
+        ImGui::SetNextItemWidth(50);
+        ImGui::SliderFloat("##y",&modelManager->rotate.y,0,360); // ax + by + cz + d = 0
+
+        ImGui::SameLine();
+        ImGui::Text("Z:");ImGui::SameLine();
+        ImGui::SetNextItemWidth(50);
+        ImGui::SliderFloat("##z",&modelManager->rotate.z,0,360); // ax + by + cz + d = 0
+
+        ImGui::SameLine();
+        ImGui::SetCursorPosX(250);
+        if(ImGui::Button("Auto rotate Y", ImVec2(btnSz, 20))){
+            modelManager->autoRY ^= 1;
+        }
+    } //END IF 
+    else if(method == METHODS::RAY_CASTING){
+        ImGui::Text("Gap"); ImGui::SameLine();
+        ImGui::SetNextItemWidth(btnSz);
+        ImGui::SliderFloat("##gap",&modelManager->rayCastingGap,0.5f,0.01f);
     }
     ImGui::Spacing();
-    ImGui::Text("Rotate:");
-    ImGui::Text("X:");ImGui::SameLine();
-    ImGui::SetNextItemWidth(50);
-    ImGui::SliderFloat("##x",&modelManager->rotate.x,0,360); // ax + by + cz + d = 0
-
-    ImGui::SameLine();
-    ImGui::Text("Y:");ImGui::SameLine();
-    ImGui::SetNextItemWidth(50);
-    ImGui::SliderFloat("##y",&modelManager->rotate.y,0,360); // ax + by + cz + d = 0
-
-    ImGui::SameLine();
-    ImGui::Text("Z:");ImGui::SameLine();
-    ImGui::SetNextItemWidth(50);
-    ImGui::SliderFloat("##z",&modelManager->rotate.z,0,360); // ax + by + cz + d = 0
-
-    ImGui::SameLine();
-    ImGui::SetCursorPosX(250);
-    if(ImGui::Button("Auto rotate Y", ImVec2(btnSz, 20))){
-        modelManager->autoRY ^= 1;
-    }
     ImGui::Spacing();
 
     ImGui::SeparatorText("Color Editor");
@@ -267,7 +274,6 @@ void draw_volume_rendering_gui(){
                 ImGui::Text("val2");ImGui::SameLine(); 
                 ImGui::SetNextItemWidth(146);ImGui::SliderFloat("##a2",&testa2,0,1);
 
-                ImGui::Spacing();
                 ImGui::Spacing();
                 ImGui::Spacing();
                 ImGui::Spacing();
@@ -339,7 +345,8 @@ void draw_volume_rendering_gui(){
         }
     }
 
-    ImGui::SetCursorPosY(400);
+    if(method == METHODS::SLICE_METHOD)ImGui::SetCursorPosY(400);
+    else if(method == METHODS::RAY_CASTING) ImGui::SetCursorPosY(350);
     {
         if (ImPlot::BeginPlot("Palette")) {
             ImPlot::SetupLegend(ImPlotLocation_NorthWest,ImPlotLegendFlags_Horizontal);
@@ -377,7 +384,7 @@ void my_init(){
     RGBA.assign(4,vector<float>(256,0));
     reset_RGBA();
 
-    method = METHODS::VOLUME_RENDERING;
+    method = METHODS::RAY_CASTING;
     projectMethod = PROJECTION_METHODS::ORTHO;
     
     string v,f;
@@ -389,8 +396,10 @@ void my_init(){
     #else
         // v = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.vert";
         // f = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.frag";
-        v = "D:\\school\\Visualization\\src\\shaders\\volumeRendering.vert";
-        f = "D:\\school\\Visualization\\src\\shaders\\volumeRendering.frag";
+        // v = "D:\\school\\Visualization\\src\\shaders\\SliceMethod.vert";
+        // f = "D:\\school\\Visualization\\src\\shaders\\SliceMethod.frag";
+        v = "D:\\school\\Visualization\\src\\shaders\\RayCasting.vert";
+        f = "D:\\school\\Visualization\\src\\shaders\\RayCasting.frag";
     #endif
 
     shader = new Shader(v,f);
@@ -400,8 +409,10 @@ void my_init(){
     
     if(method == METHODS::ISO_SURFACE)
         modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
-    else if(method == METHODS::VOLUME_RENDERING)
-        modelManager = new ModelManager(METHODS::VOLUME_RENDERING, modelFileList[modelFileIndex.first]);
+    else if(method == METHODS::SLICE_METHOD)
+        modelManager = new ModelManager(METHODS::SLICE_METHOD, modelFileList[modelFileIndex.first]);
+    else if(method == METHODS::RAY_CASTING)
+        modelManager = new ModelManager(METHODS::RAY_CASTING, modelFileList[modelFileIndex.first]);
     else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
 
     xs.clear();
@@ -447,17 +458,22 @@ void draw_gui(){
                     v += "IsoSurface.vert";
                     f += "IsoSurface.frag";
                     modelManager->init(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first], 200);
-                }else if(renderModeIndex.first == METHODS::VOLUME_RENDERING){
-                    sliceNum = 512;
-                    method =  METHODS::VOLUME_RENDERING;
-                    v += "volumeRendering.vert";
-                    f += "volumeRendering.frag";
-                    modelManager->init(METHODS::VOLUME_RENDERING, modelFileList[modelFileIndex.first]);
+                }else if(renderModeIndex.first == METHODS::SLICE_METHOD){
+                    method =  METHODS::SLICE_METHOD;
+                    v += "SliceMethod.vert";
+                    f += "SliceMethod.frag";
+                    modelManager->init(METHODS::SLICE_METHOD, modelFileList[modelFileIndex.first]);
+                    reset_RGBA();
+                }else if(renderModeIndex.first == METHODS::RAY_CASTING){
+                    // sliceNum = 512;
+                    method =  METHODS::RAY_CASTING;
+                    v += "RayCasting.vert";
+                    f += "RayCasting.frag";
+                    modelManager->init(METHODS::RAY_CASTING, modelFileList[modelFileIndex.first]);
                     reset_RGBA();
                 }else{
                     cout << "ERROR: main.cpp draw_gui error!\n";
                 }
-                
                 shader = new Shader(v,f);
             }
         }
@@ -481,9 +497,20 @@ void draw_gui(){
     
     if(method == METHODS::ISO_SURFACE)
         draw_iso_surface_gui();
-    else if(method == METHODS::VOLUME_RENDERING) 
+    else if(method == METHODS::SLICE_METHOD || method == METHODS::RAY_CASTING) 
         draw_volume_rendering_gui();
     
+
+    // 排版
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::SetCursorPosX(250);
+    
+    if(ImGui::Button("Reset Camera",ImVec2(btnSz, 20))){
+        camera -> reset();
+    }
+
+
     ImGui::End();
     
     if(method == METHODS::ISO_SURFACE){
@@ -522,6 +549,8 @@ int main(){
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
     glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetKeyCallback(window,keyboard_callback);
+
     // tell GLFW to capture our mouse
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 
@@ -577,31 +606,35 @@ int main(){
         glm::mat4 view = camera->get_view_matrix();//glm::lookAt(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0));
         shader->set_uniform("view", view);
         shader->set_uniform("viewPos", camera->position);
-        
-        glm::vec3 lightPos = glm::vec3(0,0,-300);
-        shader->set_uniform("lightPos",lightPos);
-
-        shader->set_uniform("model",modelManager->get_model_matrix());    
-
-        if(modelManager->autoRY) modelManager->updateFixedRY();
-        shader->set_uniform("fixedRY",modelManager->get_fixedRY_matrix());
-        
-        shader->set_uniform("clipNormal",clipNormal);
-        shader->set_uniform("enableCliped",enableCliped);
+        shader->set_uniform("lightPos",camera->position);
 
         if(method == METHODS::ISO_SURFACE){
+            shader->set_uniform("model",modelManager->get_model_matrix());    
+
+            if(modelManager->autoRY) modelManager->updateFixedRY();
+            shader->set_uniform("fixedRY",modelManager->get_fixedRY_matrix());
+
+            shader->set_uniform("clipNormal",clipNormal);
+            shader->set_uniform("enableCliped",enableCliped);
             int sz = modelManager->volumeArray.size();
             for(int i=0;i<sz;i++){
                 float isV = modelManager->volumeArray[i].isoValue;
                 shader->set_uniform("objectHSVColor",glm::vec3(255-isV, 1.0f, 0.5f));
                 modelManager->volumeArray[i].draw();
             }
-        }else if(method == METHODS::VOLUME_RENDERING){
+        }else if(method == METHODS::SLICE_METHOD){
+
+            shader->set_uniform("model",modelManager->get_model_matrix());    
+
+            if(modelManager->autoRY) modelManager->updateFixedRY();
+            shader->set_uniform("fixedRY",modelManager->get_fixedRY_matrix());
+            
             shader->set_uniform("texture3d", 0);
             shader->set_uniform("texture1d", 1);
             shader->set_uniform("maxMag",modelManager->volumeArray[0].maxMag);
             shader->set_uniform("minMag",modelManager->volumeArray[0].minMag);
             shader->set_uniform("openPhong",modelManager->openPhong);
+            // shader->set_uniform("sliceNum",modelManager->volumeArray[0].sliceNum);
             glm::mat3 model_3x3 = glm::mat3(modelManager->get_fixedRY_matrix()) * glm::mat3(modelManager->get_model_matrix());
             
             glm::vec3 xyplane = (model_3x3 * glm::vec3(0.0f,0.0f,-100.0f)) - camera->position;
@@ -621,6 +654,12 @@ int main(){
 
             sort(tpv.begin(),tpv.end());
             modelManager->volumeArray[0].draw(tpv[0].second);
+        }else if(method == METHODS::RAY_CASTING){
+            shader->set_uniform("texture3d", 0);
+            shader->set_uniform("texture1d", 1);
+            shader->set_uniform("gap", modelManager->rayCastingGap);
+            shader->set_uniform("openPhong",modelManager->openPhong);
+            modelManager->volumeArray[0].draw();
         }
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -643,9 +682,15 @@ int main(){
 
 
 void processInput(GLFWwindow *window){
-    // if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS);   
+    // if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS);
+
 }
 
+void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
+    // cout << action << "\n";
+    if(action == 2)
+        camera->ProcessKeyDown(key);
+}
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
     glViewport(0, 0, width, height);

@@ -1,20 +1,22 @@
 #include "./header/ModelManager.hpp"
 ModelManager::ModelManager(int method,const string& modelName, int isoLevel){
     this -> rotate = glm::vec3(0,0,0);
-    this -> autoRY = 0;
+    this -> autoRY = 1;
     this -> fixedRY = glm::mat4(1.0f);
     this -> rotateY = 0;
     this -> method = method;
-    this -> openPhong = 0;
     init(method, modelName, isoLevel);
 }
 ModelManager::ModelManager(int method,const string& modelName){
     cout << "METHODS::VOLUME_RENDERING: ModelManager.cpp\n";
     this -> rotate = glm::vec3(0,0,0);
-    this -> autoRY = 0;
+    this -> autoRY = 1;
     this -> rotateY = 0;
     this -> fixedRY = glm::mat4(1.0f);
     this -> method = method;
+    if(this -> method == METHODS::RAY_CASTING) {
+        this -> rayCastingGap = 0.1;
+    }
     this -> openPhong = 0;
     init(method, modelName);
 }
@@ -47,12 +49,11 @@ void ModelManager::init(int method, const string& modelName, int isoLevel){
             cout << "ERROR: isoLevel = -1\n";
         }
         add_volume(isoLevel);
-        isoValueDistributed = volumeArray[0].data;
-    }else if(this->method == METHODS::VOLUME_RENDERING){
+    }else if(this->method == METHODS::SLICE_METHOD || this->method == METHODS::RAY_CASTING){
         Volume voulme(this->method, infFile,rawFile);
         volumeArray.push_back(voulme);
-        isoValueDistributed = volumeArray[0].data;
     }
+    isoValueDistributed = volumeArray[0].data;
     volumnCnt = 1;
 }
 
@@ -91,6 +92,9 @@ void ModelManager::delete_all_volume(){
 
 glm::mat4 ModelManager::get_model_matrix(){
     glm::mat4 model = glm::mat4(1.0f);
+    if(this->method == METHODS::RAY_CASTING){
+        return model; // ray 轉物體會爛
+    }
     model = glm::rotate(model, glm::radians(rotate.x), glm::vec3(1.0f, 0.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotate.y), glm::vec3(0.0f, 1.0f, 0.0f));
     model = glm::rotate(model, glm::radians(rotate.z), glm::vec3(1.0f, 0.0f, 1.0f));
@@ -103,6 +107,9 @@ glm::mat4 ModelManager::get_model_matrix(){
     return model;
 }
 glm::mat4 ModelManager::get_fixedRY_matrix(){
+    if(this->method == METHODS::RAY_CASTING){
+        return glm::mat4(1.0f); // ray 轉物體會爛
+    }
     return fixedRY;
 }
 float ModelManager::getRotationY(){

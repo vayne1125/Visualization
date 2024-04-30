@@ -5,24 +5,15 @@ uniform sampler3D texture3d;
 uniform sampler1D texture1d;
 uniform vec3 viewPos;
 uniform vec3 lightPos;
-uniform bool enableCliped;
 uniform float maxMag;
 uniform float minMag;
 uniform bool openPhong;
+// uniform int sliceNum;
 
-in float clipVal;
 in vec3 fragPos;
 in vec3 textureCord;
 in mat3 inverseModel;
-void main(){
-    if(enableCliped && abs(clipVal) > 1.0){
-        discard;
-    }
-    
-    if(clipVal > 0.0){
-        discard;
-    }
-    
+void main(){    
     float val = texture(texture3d,textureCord).a;
     if(val <= 0.1)
         discard;
@@ -30,7 +21,11 @@ void main(){
     fragColor = vec4(0,0,0,0);
     float alpha = (length(texture(texture3d,textureCord).xyz) - minMag)/(maxMag-minMag);
     vec4 color = texture(texture1d,val);
-    color.a = color.a * (1+3*alpha);
+    // color.a = color.a * (512.0/sliceNum);
+    if(alpha > 0.8)
+        color.a = color.a * (1+3*alpha);
+    else
+        color.a = color.a * (1 - alpha);
     if(!openPhong)    
         fragColor = color;
     else{

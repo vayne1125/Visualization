@@ -22,6 +22,7 @@ public:
     vector<float> data;
     float maxMag = -1, minMag = 0x3f;
     float isoValue;
+    int sliceNum = 512;
 private:
     void read_inf(string file);
     template<typename T> void read_raw(string file);
@@ -30,6 +31,7 @@ private:
     void create_3dtexture();
     void create_1dtexture();
     void set_VAO();
+    void cal_ray_casting_aabb();
     glm::vec3 calc_interpolation(float isoLevel,glm::vec3 p1, glm::vec3 p2, float valp1, float valp2);
 
 

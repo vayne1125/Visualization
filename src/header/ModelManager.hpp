@@ -33,7 +33,7 @@ public:
     glm::vec3 rotate;
     bool autoRY;
     int openPhong;
-    float rotateY;
+    float rotateY, rayCastingGap;
     int volumnCnt;
     int method;
 private:

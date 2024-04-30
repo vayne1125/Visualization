@@ -24,7 +24,6 @@ Volume::Volume(int method,string infFile,string rawFile, float isoLevel){
     set_VAO();
     cout << "vertexCnt: " << vertexCnt << "\n";
 }
-
 Volume::Volume(int method,string infFile,string rawFile){
     cout << "METHODS::VOLUME_RENDERING: Volume.cpp\n";
     this -> method = method;
@@ -38,11 +37,76 @@ Volume::Volume(int method,string infFile,string rawFile){
     cal_gradient();
     create_3dtexture();
     create_1dtexture();
-    cal_slice(512);
-    // set_VAO();
+    if(this->method == METHODS::SLICE_METHOD)
+        cal_slice(512);
+    else if(this->method == METHODS::RAY_CASTING){
+        cal_ray_casting_aabb();
+        set_VAO();
+        cout << "METHODS::RAY_CASTING\n";
+    }else{
+        cout << "ERROR: Volume.cpp dismatch method.\n";
+    }
     cout << "vertexCnt: " << vertexCnt << "\n";
 }
+void Volume::cal_ray_casting_aabb(){
+    const float vertices[6 * 36] = {
+        127.5f, -127.5f, 127.5f, 1.0f, 0.0f, 1.0f,
+        127.5f, 127.5f, 127.5f, 1.0f, 1.0f, 1.0f,
+        -127.5f, -127.5f, 127.5f, 0.0f, 0.0f, 1.0f,
+
+        -127.5f, -127.5f, 127.5f, 0.0f, 0.0f, 1.0f,
+        127.5f, 127.5f, 127.5f, 1.0f, 1.0f, 1.0f,
+        -127.5f, 127.5f, 127.5f, 0.0f, 1.0f, 1.0f,
+
+        127.5f, -127.5f, -127.5f, 1.0f, 0.0f, 0.0f,
+        -127.5f, -127.5f, -127.5f, 0.0f, 0.0f, 0.0f,
+        127.5f, 127.5f, -127.5f, 1.0f, 1.0f, 0.0f,
+
+        127.5f, 127.5f, -127.5f, 1.0f, 1.0f, 0.0f,
+        -127.5f, -127.5f, -127.5f, 0.0f, 0.0f, 0.0f,
+        -127.5f, 127.5f, -127.5f, 0.0f, 1.0f, 0.0f,
+
+        -127.5f, -127.5f, -127.5f, 0.0f, 0.0f, 0.0f,
+        -127.5f, -127.5f, 127.5f, 0.0f, 0.0f, 1.0f,
+        -127.5f, 127.5f, -127.5f, 0.0f, 1.0f, 0.0f,
+
+        -127.5f, 127.5f, -127.5f, 0.0f, 1.0f, 0.0f,
+        -127.5f, -127.5f, 127.5f, 0.0f, 0.0f, 1.0f,
+        -127.5f, 127.5f, 127.5f, 0.0f, 1.0f, 1.0f,
+
+        127.5f, -127.5f, -127.5f, 1.0f, 0.0f, 0.0f,
+        127.5f, 127.5f, -127.5f, 1.0f, 1.0f, 0.0f,
+        127.5f, -127.5f, 127.5f, 1.0f, 0.0f, 1.0f,
+
+        127.5f, -127.5f, 127.5f, 1.0f, 0.0f, 1.0f,
+        127.5f, 127.5f, -127.5f, 1.0f, 1.0f, 0.0f,
+        127.5f, 127.5f, 127.5f, 1.0f, 1.0f, 1.0f,
+// 上
+        127.5f, 127.5f, 127.5f, 1.0f, 1.0f, 1.0f,
+        -127.5f, 127.5f, 127.5f, 0.0f, 1.0f, 1.0f,
+        127.5f, 127.5f, -127.5f, 1.0f, 1.0f, 0.0f,
+
+        -127.5f, 127.5f, 127.5f, 0.0f, 1.0f, 1.0f,
+        127.5f, 127.5f, -127.5f, 1.0f, 1.0f, 0.0f,
+        -127.5f, 127.5f, -127.5f, 0.0f, 1.0f, 0.0f,
+// 下
+        127.5f, -127.5f, 127.5f, 1.0f, 0.0f, 1.0f,
+        -127.5f, -127.5f, 127.5f, 0.0f, 0.0f, 1.0f,
+        127.5f, -127.5f, -127.5f, 1.0f, 0.0f, 0.0f,
+
+        127.5f, -127.5f, -127.5f, 1.0f, 0.0f, 0.0f,
+        -127.5f, -127.5f, -127.5f, 0.0f, 0.0f, 0.0f,
+        -127.5f, -127.5f, 127.5f, 0.0f, 0.0f, 1.0f,
+    };
+    mesh.clear();
+    // // mesh = vertices;
+    for(int i=0;i<6*36;i++){
+        mesh.push_back(vertices[i]);
+    }
+    vertexCnt =  mesh.size()/6;
+}
 void Volume::cal_slice(int sliceNum){
+    this -> sliceNum = sliceNum;
     this -> slice_VAO.assign(6,0);
     mesh.clear();
     
@@ -323,9 +387,9 @@ void Volume::set_VAO(){
 void Volume::draw(){
     glBindVertexArray(this->VAO);
     if(this->method == METHODS::ISO_SURFACE){
-        // glBindVertexArray(this->VAO);
         glDrawArrays(GL_TRIANGLES, 0, vertexCnt);
-    }else if(this->method == METHODS::VOLUME_RENDERING){
+    }else if(this->method == METHODS::RAY_CASTING){
+        // cout << "390\n";
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_3D, this->texture3DID);
         glActiveTexture(GL_TEXTURE1);
@@ -334,8 +398,7 @@ void Volume::draw(){
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // glBindVertexArray(this->VAO);
-        // glDisable(GL_CULL_FACE);
+        glDisable(GL_CULL_FACE);
         // glCullFace(GL_NONE);
         // glEnable(GL_CULL_FACE);
         // glCullFace(GL_FRONT);
@@ -347,7 +410,7 @@ void Volume::draw(){
 }
 void Volume::draw(int v){
     // v決定了切片方向
-    if(method != METHODS::VOLUME_RENDERING) cout << "Volume::draw: method dismatch!\n";
+    if(method != METHODS::SLICE_METHOD) cout << "Volume::draw: method dismatch!\n";
     glBindVertexArray(this->slice_VAO[v]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_3D, this->texture3DID);
@@ -603,9 +666,16 @@ void Volume::create_1dtexture(){
             texture1DData[i][0] = RGB.r*255;
             texture1DData[i][1] = RGB.g*255;
             texture1DData[i][2] = RGB.b*255;
-            texture1DData[i][3] = 0.05*255;
+            // texture1DData[i][3] = 1;
+            texture1DData[i][3] = (i<25 ? 0 : 0.01) * 255;
         }
     }
+    // for(int i=0;i<256;i++){
+    //     texture1DData[i][0] = 0;
+    //     texture1DData[i][1] = 128;
+    //     texture1DData[i][2] = 255 - i;
+    //     texture1DData[i][3] = (!i || (i % 60)? 0 : 100 - i / 60 * 2);
+    // }
     glGenTextures(1, &this->texture1DID);
     glBindTexture(GL_TEXTURE_1D, this->texture1DID);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);
@@ -628,7 +698,7 @@ void Volume::create_1dtexture(const vector<vector<float>>& RGBA){
         texture1DData[i][0] = RGBA[0][i]*255;
         texture1DData[i][1] = RGBA[1][i]*255;
         texture1DData[i][2] = RGBA[2][i]*255;
-        texture1DData[i][3] = RGBA[3][i]*255;
+        texture1DData[i][3] = (i<25 ? 0 : RGBA[3][i]) * 255;;
     }
     glGenTextures(1, &this->texture1DID);
     glBindTexture(GL_TEXTURE_1D, this->texture1DID);
