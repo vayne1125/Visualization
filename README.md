@@ -45,8 +45,31 @@ You should have CMake and a C++ compilation environment installed.<br>
 - 利用 implot 建立自定義的 1d-texture 編輯器
 - 可以透過 GUI 選擇切片的數量
 
-#### other slice num with phong shading
-|   | 512 | 1024 | 4096 |
-|---|---|---|---|
-|dont use phong|<img src="/readmeimg/hw2_1_512.png" height="250"/>|<img src="/readmeimg/hw2_1_1024.png" height="250"/>|<img src="/readmeimg/hw2_1_4096.png" height="250"/>|
-|use phong|---|---|---|
+#### different slice num with phong shading
+|| 512 | 1024 |
+|---|---|---|
+|dont<br>use<br>phong|<img src="/readmeimg/hw2_1_512.png" height="250"/>|<img src="/readmeimg/hw2_1_1024.png" height="250"/>|
+|use<br>phong|<img src="/readmeimg/hw2_1_512_ph.png" height="250"/>|<img src="/readmeimg/hw2_1_1024_ph.png" height="250"/>|
+
+
+### Implement Raycasting Method
+- 建立正方體六個面(12個三角形)的VAO
+- 計算對應的texture coordinate (xmin,ymin,zmin) -> (0,0,0)
+- Ray的方向為眼睛看向物體的方向
+- 用 gradient 和 iso-value 建立 3d texture
+- 利用 implot 建立自定義的 1d-texture 編輯器
+- 可以透過 GUI 選擇切片的數量
+
+#### different gap between two sample point with phong shading
+|| big gap | small gap |
+|---|---|---|
+|dont<br>use<br>phong|<img src="/readmeimg/hw2_2_1.png" height="250"/>|<img src="/readmeimg/hw2_2_2.png" height="250"/>|
+|use<br>phong|<img src="/readmeimg/hw2_2_1_ph.png" height="250"/>|<img src="/readmeimg/hw2_2_2_ph.png" height="250"/>|
+
+#### 在相同 1d texture及取樣比率接近的情況下兩種方法之比較
+- teddybear resolution: 128
+- slice: 512 (= 0.255)
+
+| slice | raycasting |
+|---|---|
+|<img src="/readmeimg/hw2_3_slice.png" height="250"/>|<img src="/readmeimg/hw2_3_ray.png" height="250"/>|
