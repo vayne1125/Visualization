@@ -323,14 +323,14 @@ void draw_volume_rendering_gui(){
                 ImGui::SetNextItemWidth(50);
                 ImGui::BeginGroup();
                 ImGui::Text("iso1");
-                ImGui::SetNextItemWidth(btnSz);ImGui::SliderInt("##iso3",&iso3,0,255);
+                ImGui::SetNextItemWidth(btnSz);ImGui::SliderInt("##iso3",&iso1,0,255);
                 ImGui::Text("iso2");
-                ImGui::SetNextItemWidth(btnSz);ImGui::SliderInt("##iso4",&iso4,0,255);
+                ImGui::SetNextItemWidth(btnSz);ImGui::SliderInt("##iso4",&iso2,0,255);
                 ImGui::Spacing();
                 ImGui::Spacing();
                 ImGui::Spacing();
                 if(ImGui::Button("go", ImVec2(btnSz, 18))){
-                    for(int i=iso3+1,j=0;i<iso4;i++,j++){ // for each iso
+                    for(int i=iso1+1,j=0;i<iso2;i++,j++){ // for each iso
                         RGBA[0][i] = color.x;
                         RGBA[1][i] = color.y;
                         RGBA[2][i] = color.z;
