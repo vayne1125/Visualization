@@ -25,7 +25,7 @@ You should have CMake and a C++ compilation environment installed.<br>
 - 利用資料結構維護不同硬度的顯示與渲染
 - 畫出長條圖(histogram)顯示硬度分布
 
-<center class = "half">
-  <img src="/readmeimg/hw1_1.png" alt="hw1_1" title="hw1_1"/>
-  <img src="/readmeimg/hw1_2.png" alt="hw1_2" title="hw1_2", height="200"/><img src="/readmeimg/hw1_3.png" alt="hw1_3" title="hw1_3", height="200"/><img src="/readmeimg/hw1_4.png" alt="hw1_3" title="hw1_4", height="200"/>
-</center>
+<img src="/readmeimg/hw1_1.png" alt="hw1_1" title="hw1_1"/>
+
+<img src="/readmeimg/hw1_2.png" alt="hw1_2" title="hw1" height="210"/> <img src="/readmeimg/hw1_3.png" alt="hw1_3" title="hw1" height="210"/> <img src="/readmeimg/hw1_4.png" alt="hw1_3" title="hw1" height="210"/>
+
