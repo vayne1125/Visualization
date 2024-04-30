@@ -29,7 +29,7 @@ You should have CMake and a C++ compilation environment installed.<br>
 #### other model
 | engine  | teddybear | golf |
 |---|---|---|
-|<img src="/readmeimg/hw1_3_2.png" alt="hw1_3_2.png" title="hw1_3_2.png" height="250"/>|<img src="/readmeimg/hw1_4_2.png" alt="hw1_4_2.png" title="hw1_4_2.png" height="250"/>| <img src="/readmeimg/hw1_5_2.png" alt="hw1_5_2.png" title="hw1_5_2.png" height="250"/>|
+|<img src="/readmeimg/hw1_3.png" alt="hw1_3.png" title="hw1_3.png" height="250"/>|<img src="/readmeimg/hw1_4.png" alt="hw1_4.png" title="hw1_4.png" height="250"/>| <img src="/readmeimg/hw1_5.png" alt="hw1_5.png" title="hw1_5.png" height="250"/>|
 
 #### cross-section
 | original  | cross-section |
