@@ -98,6 +98,8 @@ void Volume::cal_ray_casting_aabb(){
         -127.5f, -127.5f, -127.5f, 0.0f, 0.0f, 0.0f,
         -127.5f, -127.5f, 127.5f, 0.0f, 0.0f, 1.0f,
     };
+
+
     mesh.clear();
     // // mesh = vertices;
     for(int i=0;i<6*36;i++){
@@ -388,6 +390,7 @@ void Volume::draw(){
     glBindVertexArray(this->VAO);
     if(this->method == METHODS::ISO_SURFACE){
         glDrawArrays(GL_TRIANGLES, 0, vertexCnt);
+        glDisable(GL_CULL_FACE);
     }else if(this->method == METHODS::RAY_CASTING){
         // cout << "390\n";
         glActiveTexture(GL_TEXTURE0);
@@ -398,11 +401,11 @@ void Volume::draw(){
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glDisable(GL_CULL_FACE);
+        // glDisable(GL_CULL_FACE);
         // glCullFace(GL_NONE);
         // glEnable(GL_CULL_FACE);
         // glCullFace(GL_FRONT);
-        // glFrontFace(GL_CCW);
+        // glCullFace(GL_BACK);
     }
     // glBindVertexArray(this->VAO);
     // glDrawArrays(GL_TRIANGLES, 0, vertexCnt);
@@ -589,7 +592,6 @@ void Volume::create_3dtexture(){
     // vector<vector<vector<vector<unsigned char>>>> texture3DData;
     // texture3DData.assign(this->resolution.x,vector<vector<vector<unsigned char>>>(this->resolution.y,vector<vector<unsigned char>>(this->resolution.z,vector<unsigned char>(4,0))));
     
-
     int N,M,K;
     N = resolution[0];
     M = resolution[1];
@@ -670,12 +672,6 @@ void Volume::create_1dtexture(){
             texture1DData[i][3] = (i<25 ? 0 : 0.01) * 255;
         }
     }
-    // for(int i=0;i<256;i++){
-    //     texture1DData[i][0] = 0;
-    //     texture1DData[i][1] = 128;
-    //     texture1DData[i][2] = 255 - i;
-    //     texture1DData[i][3] = (!i || (i % 60)? 0 : 100 - i / 60 * 2);
-    // }
     glGenTextures(1, &this->texture1DID);
     glBindTexture(GL_TEXTURE_1D, this->texture1DID);
     glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_CLAMP);

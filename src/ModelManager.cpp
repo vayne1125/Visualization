@@ -14,9 +14,6 @@ ModelManager::ModelManager(int method,const string& modelName){
     this -> rotateY = 0;
     this -> fixedRY = glm::mat4(1.0f);
     this -> method = method;
-    if(this -> method == METHODS::RAY_CASTING) {
-        this -> rayCastingGap = 0.1;
-    }
     this -> openPhong = 0;
     init(method, modelName);
 }

@@ -78,4 +78,3 @@ void main()
     fragcolor = vec4(color, min(T, 1.0f));
     // fragcolor = vec4(1,0,0,1);
 }
-

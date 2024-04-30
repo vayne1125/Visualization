@@ -40,7 +40,7 @@ ModelManager *modelManager;
 static pair<int,int> modelFileIndex = {1,1};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
 
-static pair<int,int> renderModeIndex = {2,2};
+static pair<int,int> renderModeIndex = {1,1};
 const char* renderModeList[] = { "iso-surface method", "slice method","ray casting"};
 // int CUR = 240;
 METHODS method;
@@ -49,8 +49,9 @@ PROJECTION_METHODS projectMethod;
 // gui
 static vector<float> xs, bar;
 float testa1 = 0.0f,testa2 = 0.0;
-int iso1 = 0, iso2 = 0, iso3 = 0, iso4 = 0;
+int iso1 = 0, iso2 = 0;
 int sliceNum = 512;
+float rayCastingGap = 0.3;
 
 void draw_iso_surface_gui(){
     int btnSz = 130;
@@ -248,7 +249,7 @@ void draw_volume_rendering_gui(){
     else if(method == METHODS::RAY_CASTING){
         ImGui::Text("Gap"); ImGui::SameLine();
         ImGui::SetNextItemWidth(btnSz);
-        ImGui::SliderFloat("##gap",&modelManager->rayCastingGap,0.5f,0.01f);
+        ImGui::SliderFloat("##gap",&rayCastingGap,0.5f,0.01f);
     }
     ImGui::Spacing();
     ImGui::Spacing();
@@ -384,36 +385,37 @@ void my_init(){
     RGBA.assign(4,vector<float>(256,0));
     reset_RGBA();
 
-    method = METHODS::RAY_CASTING;
+    method = METHODS::SLICE_METHOD;
     projectMethod = PROJECTION_METHODS::ORTHO;
     
-    string v,f;
+    string v,f,dir;
     #ifdef __linux__
-        // v = "/home/yu/Desktop/school/Visualization/src/shaders/IsoSurface.vert";
-        // f = "/home/yu/Desktop/school/Visualization/src/shaders/IsoSurface.frag";
-        v = "/home/yu/Desktop/school/Visualization/src/shaders/volumeRendering.vert";
-        f = "/home/yu/Desktop/school/Visualization/src/shaders/volumeRendering.frag";
+        dir = "/home/yu/Desktop/school/Visualization/src/shaders/";
     #else
-        // v = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.vert";
-        // f = "D:\\school\\Visualization\\src\\shaders\\IsoSurface.frag";
-        // v = "D:\\school\\Visualization\\src\\shaders\\SliceMethod.vert";
-        // f = "D:\\school\\Visualization\\src\\shaders\\SliceMethod.frag";
-        v = "D:\\school\\Visualization\\src\\shaders\\RayCasting.vert";
-        f = "D:\\school\\Visualization\\src\\shaders\\RayCasting.frag";
+        dir = "D:\\school\\Visualization\\src\\shaders\\";
     #endif
+
+
+    if(method == METHODS::ISO_SURFACE){
+        modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
+        v = dir + "IsoSurface.vert"; 
+        f = dir + "IsoSurface.frag"; 
+    }else if(method == METHODS::SLICE_METHOD){
+        modelManager = new ModelManager(METHODS::SLICE_METHOD, modelFileList[modelFileIndex.first]);
+        v = dir + "SliceMethod.vert"; 
+        f = dir + "SliceMethod.frag"; 
+    }else if(method == METHODS::RAY_CASTING){
+        modelManager = new ModelManager(METHODS::RAY_CASTING, modelFileList[modelFileIndex.first]);
+        v = dir + "RayCasting.vert"; 
+        f = dir + "RayCasting.frag"; 
+    }else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
 
     shader = new Shader(v,f);
 
     camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
     camera->set_projection_method(projectMethod);
     
-    if(method == METHODS::ISO_SURFACE)
-        modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
-    else if(method == METHODS::SLICE_METHOD)
-        modelManager = new ModelManager(METHODS::SLICE_METHOD, modelFileList[modelFileIndex.first]);
-    else if(method == METHODS::RAY_CASTING)
-        modelManager = new ModelManager(METHODS::RAY_CASTING, modelFileList[modelFileIndex.first]);
-    else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
+    
 
     xs.clear();
     bar.clear();
@@ -491,6 +493,11 @@ void draw_gui(){
                 modelFileIndex.first = modelFileIndex.second;
                 modelManager->init(method, modelFileList[modelFileIndex.first], 200);
                 reset_RGBA();
+
+                bar.clear();
+                for(int i=0;i<=256;i++){
+                    bar.push_back(log2(modelManager->isoValueDistributed[i]));
+                }
             }
         }
     }
@@ -594,8 +601,8 @@ int main(){
 
         // render
         // clear the colorbuffer
-        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
         shader->use();
 
@@ -657,7 +664,7 @@ int main(){
         }else if(method == METHODS::RAY_CASTING){
             shader->set_uniform("texture3d", 0);
             shader->set_uniform("texture1d", 1);
-            shader->set_uniform("gap", modelManager->rayCastingGap);
+            shader->set_uniform("gap", rayCastingGap);
             shader->set_uniform("openPhong",modelManager->openPhong);
             modelManager->volumeArray[0].draw();
         }
@@ -679,7 +686,6 @@ int main(){
     glfwTerminate();
     return 0;
 }
-
 
 void processInput(GLFWwindow *window){
     // if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS);
