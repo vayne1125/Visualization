@@ -7,19 +7,14 @@
 
 #include <implot.h>
 
+#include <bits/stdc++.h>
 
 #include "./header/Shader.hpp"
 #include "./header/Camera.hpp"
 #include "./header/ModelManager.hpp"
+#include "./header/Streamline.hpp"
 
-// #include <glm/glm.hpp>
-// #include <glm/mat4x4.hpp>
-// #include <glm/mat3x3.hpp>
-// #include <glm/vec3.hpp>
-// #include "./header/constants.hpp"
-// #include "./header/Volume.hpp"
 
-#include <bits/stdc++.h>
 #define   PI   3.1415927
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -37,21 +32,30 @@ int addIsoValue = 128;
 Shader *shader;
 Camera *camera;
 ModelManager *modelManager;
+Streamline *streamline;
 static pair<int,int> modelFileIndex = {1,1};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
 
-static pair<int,int> renderModeIndex = {1,1};
-const char* renderModeList[] = { "iso-surface method", "slice method","ray casting"};
-// int CUR = 240;
+static pair<int,int> vecFileIndex = {0,0};
+const char* vecFileList[] = { "1.vec", "2.vec","3.vec", "4.vec", "5.vec", "6.vec", "7.vec", "8.vec", "9.vec", "10.vec", "11.vec", "12.vec", "13.vec", "14.vec", "15.vec", "16.vec", "17.vec", "18.vec", "19.vec", "20.vec", "21.vec", "22.vec", "23.vec", "rect1.vec", "rect2.vec", "step5_velocity.vec", "test_not_unit.vec", "test_unit.vec"};
+
+// todo
+// vec 陣列
+static pair<int,int> renderModeIndex = {0,0};
+const char* renderModeList[] = { "iso-surface method", "slice method","ray casting method","streamline(RK2 method)"};
 METHODS method;
 PROJECTION_METHODS projectMethod;
 
 // gui
-static vector<float> xs, bar;
-float testa1 = 0.0f,testa2 = 0.0;
+vector<float> xs, bar;
+float val1 = 0.0f,val2 = 0.0f;
 int iso1 = 0, iso2 = 0;
 int sliceNum = 512;
 float rayCastingGap = 0.3;
+vector<vector<float>> RGBA;
+static int rgba = 0;
+static float streamline_h, streamline_density, streamline_gap;
+static int streamline_pointsthreshold1, streamline_pointsthreshold2;
 
 void draw_iso_surface_gui(){
     int btnSz = 130;
@@ -172,8 +176,6 @@ void draw_iso_surface_gui(){
         enableCliped = 0;
     }
 }
-vector<vector<float>> RGBA;
-static int rgba = 0;
 void reset_RGBA(){
     cout << "reset RGBA\n";
     for(int i=0;i<256;i++) {
@@ -268,12 +270,12 @@ void draw_volume_rendering_gui(){
                 ImGui::Text("iso1");ImGui::SameLine();
                 ImGui::SetNextItemWidth(146); ImGui::SliderInt("##iso1",&iso1,0,255); ImGui::SameLine();
                 ImGui::Text("val1");ImGui::SameLine(); 
-                ImGui::SetNextItemWidth(146);ImGui::SliderFloat("##a1",&testa1,0,1); 
+                ImGui::SetNextItemWidth(146);ImGui::SliderFloat("##a1",&val1,0,1); 
             
                 ImGui::Text("iso2");ImGui::SameLine();
                 ImGui::SetNextItemWidth(146); ImGui::SliderInt("##iso2",&iso2,0,255); ImGui::SameLine();
                 ImGui::Text("val2");ImGui::SameLine(); 
-                ImGui::SetNextItemWidth(146);ImGui::SliderFloat("##a2",&testa2,0,1);
+                ImGui::SetNextItemWidth(146);ImGui::SliderFloat("##a2",&val2,0,1);
 
                 ImGui::Spacing();
                 ImGui::Spacing();
@@ -297,11 +299,11 @@ void draw_volume_rendering_gui(){
                 ImGui::SameLine();
                 ImGui::SetCursorPosX(250);
                 if(ImGui::Button("go", ImVec2(btnSz, 18))){
-                    RGBA[rgba][iso1] = testa1;
-                    RGBA[rgba][iso2] = testa2;
-                    float delta = (testa2 - testa1)/(iso2-iso1);
+                    RGBA[rgba][iso1] = val1;
+                    RGBA[rgba][iso2] = val2;
+                    float delta = (val2 - val1)/(iso2-iso1);
                     for(int i=iso1+1,j=0;i<iso2;i++,j++){
-                        RGBA[rgba][i] = testa1 + delta*j;
+                        RGBA[rgba][i] = val1 + delta*j;
                     }
                     modelManager->volumeArray[0].create_1dtexture(RGBA); 
                 }
@@ -381,11 +383,67 @@ void draw_volume_rendering_gui(){
         }
     }
 }
+void draw_streamline_gui(){
+    int btnSz = 130;
+    ImGui::Text("Load File");
+    ImGui::SetNextItemWidth(232);
+    if(ImGui::Combo("##loadvecfile", &vecFileIndex.second, vecFileList, IM_ARRAYSIZE(vecFileList)));
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(250);
+    if(ImGui::Button("Load",ImVec2(btnSz, 20))){
+        if(vecFileIndex.second != vecFileIndex.first){
+            vecFileIndex.first = vecFileIndex.second;
+            delete streamline;
+            streamline = new Streamline(vecFileList[vecFileIndex.first],streamline_h,streamline_density,streamline_gap,streamline_pointsthreshold1,streamline_pointsthreshold2);
+            // todo
+            // 設置 rgba
+        }
+    }
+    ImGui::SeparatorText("Set Parameter");
+    // ImGui::SameLine();
+
+    int text_len = ImGui::CalcTextSize("Forward Distance").x; 
+    
+    ImGui::Text("Forward Distance");
+    ImGui::SetNextItemWidth(232);
+    ImGui::SliderFloat("##streamline_h",&streamline_h,0.1,1);
+    ImGui::Spacing();
+
+    ImGui::Text("Line Density ");
+    ImGui::SetNextItemWidth(232);
+    ImGui::SliderFloat("##streamline_density",&streamline_density,0.1,5);
+    ImGui::Spacing();
+
+    ImGui::Text("Gap between two line");
+    ImGui::SetNextItemWidth(232);
+    ImGui::SliderFloat("##streamline_gap",&streamline_gap,0.1,10);
+    ImGui::Spacing();
+
+    ImGui::Text("Minimum sampling points (per line)");
+    ImGui::SetNextItemWidth(232);
+    ImGui::SliderInt("##streamline_pointsthreshold1",&streamline_pointsthreshold1,10,100);
+    ImGui::Spacing();
+
+    ImGui::Text("Maximum sampling points (per line)");
+    ImGui::SetNextItemWidth(232);
+    ImGui::SliderInt("##streamline_pointsthreshold2",&streamline_pointsthreshold2,100,2000);
+    
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(250);
+    if(ImGui::Button("GOGO",ImVec2(btnSz, 20))){
+        cout << "load\n";
+        delete streamline;
+        streamline = new Streamline(vecFileList[vecFileIndex.first],streamline_h,streamline_density,streamline_gap,streamline_pointsthreshold1,streamline_pointsthreshold2);
+        // todo
+        // 設置 rgba
+    }
+}
 void my_init(){
     RGBA.assign(4,vector<float>(256,0));
     reset_RGBA();
 
-    method = METHODS::SLICE_METHOD;
+    // method = METHODS::ISO_SURFACE;
+    method = METHODS::STREAMLINE;
     projectMethod = PROJECTION_METHODS::ORTHO;
     
     string v,f,dir;
@@ -395,20 +453,34 @@ void my_init(){
         dir = "D:\\school\\Visualization\\src\\shaders\\";
     #endif
 
+    streamline_h = 0.1;
+    streamline_density = 1;
+    streamline_gap = 1;
+    streamline_pointsthreshold1 = 50;
+    streamline_pointsthreshold2 = 1000;
 
     if(method == METHODS::ISO_SURFACE){
+        renderModeIndex = {0,0};
         modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
         v = dir + "IsoSurface.vert"; 
         f = dir + "IsoSurface.frag"; 
     }else if(method == METHODS::SLICE_METHOD){
+        renderModeIndex = {1,1};
         modelManager = new ModelManager(METHODS::SLICE_METHOD, modelFileList[modelFileIndex.first]);
         v = dir + "SliceMethod.vert"; 
         f = dir + "SliceMethod.frag"; 
     }else if(method == METHODS::RAY_CASTING){
+        renderModeIndex = {2,2};
         modelManager = new ModelManager(METHODS::RAY_CASTING, modelFileList[modelFileIndex.first]);
         v = dir + "RayCasting.vert"; 
         f = dir + "RayCasting.frag"; 
-    }else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
+    }else if(method == METHODS::STREAMLINE){
+        renderModeIndex = {3,3};
+        v = dir + "Streamline.vert"; 
+        f = dir + "Streamline.frag"; 
+        streamline = new Streamline("1.vec",streamline_h,streamline_density,streamline_gap,streamline_pointsthreshold1,streamline_pointsthreshold2);
+    }
+    else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
 
     shader = new Shader(v,f);
 
@@ -419,9 +491,11 @@ void my_init(){
 
     xs.clear();
     bar.clear();
-    for(int i=0;i<=256;i++){
-        xs.push_back(i);
-        bar.push_back(log2(modelManager->isoValueDistributed[i]));
+    if(method == METHODS::SLICE_METHOD || method == METHODS::RAY_CASTING){
+        for(int i=0;i<=256;i++){
+            xs.push_back(i);
+            bar.push_back(log2(modelManager->isoValueDistributed[i]));
+        }
     }
     // string dir = "D:\\school\\Visualization\\src\\asset\\";    
     // string infFile = dir + modelFileList[modelFileIndex.first] + ".inf";
@@ -429,7 +503,7 @@ void my_init(){
     // Volume* mv = new Volume(METHODS::VOLUME_RENDERING, infFile, rawFile);
 }
 void draw_gui(){
-    int btnSz = 130;
+    static int btnSz = 130;
     ImGui::SetNextWindowBgAlpha(0.35f);
     ImGuiWindowFlags window_flags = 0;
     // window_flags |= ImGuiWindowFlags_NoMove;
@@ -459,30 +533,61 @@ void draw_gui(){
                     method =  METHODS::ISO_SURFACE;
                     v += "IsoSurface.vert";
                     f += "IsoSurface.frag";
-                    modelManager->init(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first], 200);
+                    delete modelManager;
+                    modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
+                    // modelManager->init(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first], 200);
                 }else if(renderModeIndex.first == METHODS::SLICE_METHOD){
                     method =  METHODS::SLICE_METHOD;
                     v += "SliceMethod.vert";
                     f += "SliceMethod.frag";
-                    modelManager->init(METHODS::SLICE_METHOD, modelFileList[modelFileIndex.first]);
+                    delete modelManager;
+                    modelManager = new ModelManager(METHODS::SLICE_METHOD, modelFileList[modelFileIndex.first]);
+                    // modelManager->init(METHODS::SLICE_METHOD, modelFileList[modelFileIndex.first]);
                     reset_RGBA();
+
+                    xs.clear();
+                    bar.clear();
+                    if(method == METHODS::SLICE_METHOD || method == METHODS::RAY_CASTING){
+                        for(int i=0;i<=256;i++){
+                            xs.push_back(i);
+                            bar.push_back(log2(modelManager->isoValueDistributed[i]));
+                        }
+                    }
+
                 }else if(renderModeIndex.first == METHODS::RAY_CASTING){
-                    // sliceNum = 512;
                     method =  METHODS::RAY_CASTING;
                     v += "RayCasting.vert";
                     f += "RayCasting.frag";
-                    modelManager->init(METHODS::RAY_CASTING, modelFileList[modelFileIndex.first]);
+                    // modelManager->init(METHODS::RAY_CASTING, modelFileList[modelFileIndex.first]);
+                    delete modelManager;
+                    modelManager = new ModelManager(METHODS::RAY_CASTING, modelFileList[modelFileIndex.first]);
+                    
                     reset_RGBA();
+
+                    xs.clear();
+                    bar.clear();
+                    if(method == METHODS::SLICE_METHOD || method == METHODS::RAY_CASTING){
+                        for(int i=0;i<=256;i++){
+                            xs.push_back(i);
+                            bar.push_back(log2(modelManager->isoValueDistributed[i]));
+                        }
+                    }
+
+                }else if(renderModeIndex.first == METHODS::STREAMLINE){
+                    method =  METHODS::STREAMLINE;
+                    v += "Streamline.vert";
+                    f += "Streamline.frag";
                 }else{
                     cout << "ERROR: main.cpp draw_gui error!\n";
                 }
+                delete shader;
                 shader = new Shader(v,f);
             }
         }
     }
     ImGui::Spacing();
     // Load Model
-    {
+    if(method == METHODS::ISO_SURFACE || method == METHODS::RAY_CASTING || method == METHODS::SLICE_METHOD){
         ImGui::Text("Load Model");
         ImGui::SetNextItemWidth(232);
         if(ImGui::Combo("##loadfile", &modelFileIndex.second, modelFileList, IM_ARRAYSIZE(modelFileList)));
@@ -492,11 +597,15 @@ void draw_gui(){
             if(modelFileIndex.second != modelFileIndex.first){
                 modelFileIndex.first = modelFileIndex.second;
                 modelManager->init(method, modelFileList[modelFileIndex.first], 200);
-                reset_RGBA();
 
-                bar.clear();
-                for(int i=0;i<=256;i++){
-                    bar.push_back(log2(modelManager->isoValueDistributed[i]));
+                if(method == METHODS::SLICE_METHOD || method == METHODS::RAY_CASTING){
+                    reset_RGBA();
+                    bar.clear();
+                    xs.clear();
+                    for(int i=0;i<=256;i++){
+                        xs.push_back(i);
+                        bar.push_back(log2(modelManager->isoValueDistributed[i]));
+                    }
                 }
             }
         }
@@ -506,18 +615,19 @@ void draw_gui(){
         draw_iso_surface_gui();
     else if(method == METHODS::SLICE_METHOD || method == METHODS::RAY_CASTING) 
         draw_volume_rendering_gui();
-    
+    else if(method == METHODS::STREAMLINE)
+        draw_streamline_gui();
 
     // 排版
-    ImGui::Spacing();
-    ImGui::Spacing();
-    ImGui::SetCursorPosX(250);
-    
-    if(ImGui::Button("Reset Camera",ImVec2(btnSz, 20))){
-        camera -> reset();
+    if(method == METHODS::ISO_SURFACE || method == METHODS::RAY_CASTING || method == METHODS::SLICE_METHOD){
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::SetCursorPosX(250);
+        
+        if(ImGui::Button("Reset Camera",ImVec2(btnSz, 20))){
+            camera -> reset();
+        }
     }
-
-
     ImGui::End();
     
     if(method == METHODS::ISO_SURFACE){
@@ -606,16 +716,13 @@ int main(){
 
         shader->use();
 
-        // camera/projection/view transformation
-        glm::mat4 projection = camera->get_projection_matrix();
-        shader->set_uniform("projection",projection);
-        
-        glm::mat4 view = camera->get_view_matrix();//glm::lookAt(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0));
-        shader->set_uniform("view", view);
-        shader->set_uniform("viewPos", camera->position);
-        shader->set_uniform("lightPos",camera->position);
-
         if(method == METHODS::ISO_SURFACE){
+
+            shader->set_uniform("projection", camera->get_projection_matrix());
+            shader->set_uniform("view", camera->get_view_matrix());
+            shader->set_uniform("viewPos", camera->position);
+            shader->set_uniform("lightPos",camera->position);
+
             shader->set_uniform("model",modelManager->get_model_matrix());    
 
             if(modelManager->autoRY) modelManager->updateFixedRY();
@@ -630,6 +737,10 @@ int main(){
                 modelManager->volumeArray[i].draw();
             }
         }else if(method == METHODS::SLICE_METHOD){
+            shader->set_uniform("projection", camera->get_projection_matrix());
+            shader->set_uniform("view", camera->get_view_matrix());
+            shader->set_uniform("viewPos", camera->position);
+            shader->set_uniform("lightPos",camera->position);
 
             shader->set_uniform("model",modelManager->get_model_matrix());    
 
@@ -662,11 +773,28 @@ int main(){
             sort(tpv.begin(),tpv.end());
             modelManager->volumeArray[0].draw(tpv[0].second);
         }else if(method == METHODS::RAY_CASTING){
+
+            // camera/projection/view transformation
+            shader->set_uniform("projection", camera->get_projection_matrix());
+            shader->set_uniform("view", camera->get_view_matrix());
+            shader->set_uniform("viewPos", camera->position);
+            shader->set_uniform("lightPos",camera->position);
+
             shader->set_uniform("texture3d", 0);
             shader->set_uniform("texture1d", 1);
             shader->set_uniform("gap", rayCastingGap);
             shader->set_uniform("openPhong",modelManager->openPhong);
             modelManager->volumeArray[0].draw();
+        }else if(method == METHODS::STREAMLINE){
+ 
+            shader->set_uniform("projection", camera->get_projection_matrix());
+            shader->set_uniform("view", camera->get_view_matrix());
+            shader->set_uniform("maxMagnitude", streamline->maxMagnitude);
+            shader->set_uniform("minMagnitude", streamline->minMagnitude);
+            shader->set_uniform("texture1d", 0);
+
+            streamline -> draw();
+
         }
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -695,7 +823,8 @@ void processInput(GLFWwindow *window){
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     // cout << action << "\n";
     if(action == 2)
-        camera->ProcessKeyDown(key);
+        if(method == METHODS::ISO_SURFACE || method == METHODS::RAY_CASTING || method == METHODS::SLICE_METHOD)
+            camera->ProcessKeyDown(key);
 }
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){

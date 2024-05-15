@@ -5,6 +5,7 @@ ModelManager::ModelManager(int method,const string& modelName, int isoLevel){
     this -> fixedRY = glm::mat4(1.0f);
     this -> rotateY = 0;
     this -> method = method;
+    this -> openPhong = 0;
     init(method, modelName, isoLevel);
 }
 ModelManager::ModelManager(int method,const string& modelName){
@@ -16,6 +17,11 @@ ModelManager::ModelManager(int method,const string& modelName){
     this -> method = method;
     this -> openPhong = 0;
     init(method, modelName);
+}
+ModelManager::~ModelManager(){
+    cout << "free ModelManager\n";
+    delete_all_volume();
+    isoValueDistributed.clear();
 }
 void ModelManager::init(int method, const string& modelName, int isoLevel){    
     this->method = method;

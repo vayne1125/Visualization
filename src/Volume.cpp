@@ -361,6 +361,9 @@ void Volume::cal_slice(int sliceNum){
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     mesh.clear();
+
+    glDeleteBuffers(1, &VBO);
+
 }
 void Volume::set_VAO(){
     //VAO VBO
@@ -385,6 +388,8 @@ void Volume::set_VAO(){
     isoValueGrid.clear();
     gradient.clear();
     glBindVertexArray(0);
+    glDeleteBuffers(1, &VBO);
+
 }
 void Volume::draw(){
     glBindVertexArray(this->VAO);

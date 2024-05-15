@@ -20,6 +20,7 @@ public:
     vector<Volume> volumeArray;
     ModelManager(int method,const string& modelName, int isoLevel);
     ModelManager(int method,const string& modelName);
+    ~ModelManager();
     
     void init(int method, const string& modelName,int isoLevel = -1);
     void add_volume(int isoLevel);

@@ -19,7 +19,7 @@ Shader::Shader(){
 
 }
 void Shader::init(string vertexPath, string fragmentPath){
-    cout << vertexPath << " " << fragmentPath << "\n";
+    // cout << vertexPath << " " << fragmentPath << "\n";
     // 1. retrieve the vertex/fragment source code from filePath
     std::string vertexCode;
     std::string fragmentCode;
