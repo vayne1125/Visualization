@@ -1,6 +1,6 @@
 # Visualization
 
-1132 NTOU Visualization class <br>
+1122 NTOU Visualization class <br>
 You can read pdf in ./hw_doc to know my project. <br>
 This project implements various visualization methods, including the marching cube method (iso-surface method), slice method, and raycasting method. Additionally, it utilizes imgui and implot to create GUI interfaces.
 
@@ -64,7 +64,7 @@ You should have CMake and a C++ compilation environment installed.<br>
 
 <img src="/readmeimg/hw2_ray.png" alt="hw2_ray.png" title="hw2_ray.png"/>
 
-#### different gap between two sample point with phong shading
+#### Different gap between two sample point with phong shading
 || big gap | small gap |
 |---|---|---|
 |dont<br>use<br>phong|<img src="/readmeimg/hw2_2_1.png" height="250"/>|<img src="/readmeimg/hw2_2_2.png" height="250"/>|
