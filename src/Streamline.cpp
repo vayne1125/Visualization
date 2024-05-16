@@ -89,8 +89,9 @@ glm::dvec2 Streamline::calc_vec_interpolation(glm::dvec2 pos){
 // density: 疏密度，越大線越密
 void Streamline::cal_streamline(double h, double density, double gap, int pointsThreshold1, int pointsThreshold2){
     vector<vector<bool>> vis(this->resolution.x * density,vector<bool>(this->resolution.y * density));
+    int newResolutionX = this->resolution.x * density;
+    int newResolutionY = this->resolution.y * density;
     double offsetX = resolution.x/2.0, offsetY = resolution.y/2.0;
-    // double gap = 1.0/density;
     maxMagnitude = 0;
     minMagnitude = 0x3f;
     for(double i=0; i < this->resolution.x; i += gap){
@@ -102,6 +103,7 @@ void Streamline::cal_streamline(double h, double density, double gap, int points
             // 最多 pointsThreshold2 次
             for(int k=0; k<pointsThreshold2; k++){
                 if(pos.x < 0 || pos.x >= resolution.x - 1 || pos.y < 0 || pos.y >= resolution.y - 1) break;
+                if(pos.x * density > newResolutionX || pos.y * density > newResolutionY) break;
                 if(vis[int(pos.x * density)][int(pos.y * density)]) break;
                 visPoint.push_back({int(pos.x * density),int(pos.y * density)});
                 
@@ -115,6 +117,7 @@ void Streamline::cal_streamline(double h, double density, double gap, int points
                 glm::dvec2 newPos = pos + (h/2.0)*(glm::normalize(K1)+glm::normalize(K2));
 
                 if(newPos.x < 0 || newPos.x >= resolution.x - 1 || newPos.y < 0 || newPos.y >= resolution.y - 1) break;
+                if(newPos.x * density > newResolutionX || newPos.y * density > newResolutionY) break;
                 if(vis[int(newPos.x * density)][int(newPos.y * density)]) break;
 
                 lines.push_back(pos.x - offsetX); 
@@ -149,7 +152,7 @@ void Streamline::cal_streamline(double h, double density, double gap, int points
             }
         }
     }
-    cout << minMagnitude << " " << maxMagnitude << "\n";
+    // cout << minMagnitude << " " << maxMagnitude << "\n";
     vertexCnt = lines.size()/3;
     cout << "vertexCnt: " << vertexCnt << "\n";
 }
