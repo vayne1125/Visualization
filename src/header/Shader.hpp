@@ -4,7 +4,8 @@
 using namespace std;
 class Shader{
 public:
-    Shader(const string &vertexPath, const string &fragmentPath);
+    // Shader(const string &vertexPath, const string &fragmentPath);
+    Shader(const char* vertexPath, const char* fragmentPath, const char* geometryPath = nullptr);
     Shader();
     unsigned int ID;
     // activate the shader

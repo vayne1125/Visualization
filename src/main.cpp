@@ -37,7 +37,7 @@ static pair<int,int> modelFileIndex = {1,1};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
 
 static pair<int,int> vecFileIndex = {0,0};
-const char* vecFileList[] = { "1.vec", "2.vec","3.vec", "4.vec", "5.vec", "6.vec", "7.vec", "8.vec", "9.vec", "10.vec", "11.vec", "12.vec", "13.vec", "14.vec", "15.vec", "16.vec", "17.vec", "18.vec", "19.vec", "20.vec", "21.vec", "22.vec", "23.vec", "rect1.vec", "rect2.vec", "step5_velocity.vec", "test_not_unit.vec", "test_unit.vec"};
+const char* vecFileList[] = { "1.vec", "2.vec","3.vec", "4.vec", "5.vec", "6.vec", "7.vec", "8.vec", "9.vec", "10.vec", "11.vec", "12.vec", "13.vec", "14.vec", "15.vec", "16.vec", "19.vec", "20.vec", "21.vec", "22.vec", "23.vec", "rect1.vec", "rect2.vec", "step5_velocity.vec", "test_not_unit.vec", "test_unit.vec"};
 
 // todo
 // vec 陣列
@@ -207,6 +207,15 @@ void reset_RGBA(){
         RGBA[3][i] = 0.05;
     }
 }
+void reset_RGBA_to_white(){
+    cout << "reset RGBA to White\n";
+    for(int i=0;i<256;i++){
+        RGBA[0][i] = 1;
+        RGBA[1][i] = 1;
+        RGBA[2][i] = 1;
+        RGBA[3][i] = 1;
+    }
+}
 void draw_volume_rendering_gui(){
     int btnSz = 130;
     ImGui::Spacing();
@@ -350,37 +359,36 @@ void draw_volume_rendering_gui(){
 
     if(method == METHODS::SLICE_METHOD)ImGui::SetCursorPosY(400);
     else if(method == METHODS::RAY_CASTING) ImGui::SetCursorPosY(350);
-    {
-        if (ImPlot::BeginPlot("Palette")) {
-            ImPlot::SetupLegend(ImPlotLocation_NorthWest,ImPlotLegendFlags_Horizontal);
-            ImPlot::SetupAxis(ImAxis_X1, "intensity");
-            ImPlot::SetupAxisLimits(ImAxis_X1, 0, 256);
-            ImPlot::SetupAxis(ImAxis_Y1, "count");
-            ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 25);
-            ImPlot::SetupAxis(ImAxis_Y2, "RGBA value", ImPlotAxisFlags_AuxDefault);
-            ImPlot::SetupAxisLimits(ImAxis_Y2, -0.01, 1.01);
+    
+    if (ImPlot::BeginPlot("Palette")) {
+        ImPlot::SetupLegend(ImPlotLocation_NorthWest,ImPlotLegendFlags_Horizontal);
+        ImPlot::SetupAxis(ImAxis_X1, "intensity");
+        ImPlot::SetupAxisLimits(ImAxis_X1, 0, 256);
+        ImPlot::SetupAxis(ImAxis_Y1, "count");
+        ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 25);
+        ImPlot::SetupAxis(ImAxis_Y2, "RGBA value", ImPlotAxisFlags_AuxDefault);
+        ImPlot::SetupAxisLimits(ImAxis_Y2, -0.01, 1.01);
 
-            ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 0, 256);
-            ImPlot::SetupAxisLimitsConstraints(ImAxis_Y1, 0, 25);
-            ImPlot::SetupAxisLimitsConstraints(ImAxis_Y2, -0.01, 1.01);
+        ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 0, 256);
+        ImPlot::SetupAxisLimitsConstraints(ImAxis_Y1, 0, 25);
+        ImPlot::SetupAxisLimitsConstraints(ImAxis_Y2, -0.01, 1.01);
 
-            ImPlot::PlotBars("log2(nums)", xs.data(), bar.data(), 256, 1.0f);
+        ImPlot::PlotBars("log2(nums)", xs.data(), bar.data(), 256, 1.0f);
 
-            ImPlot::SetAxes(ImAxis_X1, ImAxis_Y2);
-            ImPlot::SetNextLineStyle(ImVec4(1,153/255.0,153/255.0,1), 2);
-            ImPlot::PlotLine("R", xs.data(), RGBA[0].data(), 256);
+        ImPlot::SetAxes(ImAxis_X1, ImAxis_Y2);
+        ImPlot::SetNextLineStyle(ImVec4(1,153/255.0,153/255.0,1), 2);
+        ImPlot::PlotLine("R", xs.data(), RGBA[0].data(), 256);
 
-            ImPlot::SetNextLineStyle(ImVec4(153/255.0,1,153/255.0,1), 2);
-            ImPlot::PlotLine("G", xs.data(), RGBA[1].data(), 256);
-            
-            ImPlot::SetNextLineStyle(ImVec4(153/255.0,153/255.0,1,1), 2);
-            ImPlot::PlotLine("B", xs.data(), RGBA[2].data(), 256);
-            
-            ImPlot::SetNextLineStyle(ImVec4(1,1,1,1), 2);
-            ImPlot::PlotLine("A", xs.data(), RGBA[3].data(), 256);
+        ImPlot::SetNextLineStyle(ImVec4(153/255.0,1,153/255.0,1), 2);
+        ImPlot::PlotLine("G", xs.data(), RGBA[1].data(), 256);
+        
+        ImPlot::SetNextLineStyle(ImVec4(153/255.0,153/255.0,1,1), 2);
+        ImPlot::PlotLine("B", xs.data(), RGBA[2].data(), 256);
+        
+        ImPlot::SetNextLineStyle(ImVec4(1,1,1,1), 2);
+        ImPlot::PlotLine("A", xs.data(), RGBA[3].data(), 256);
 
-            ImPlot::EndPlot();
-        }
+        ImPlot::EndPlot();
     }
 }
 void draw_streamline_gui(){
@@ -395,12 +403,11 @@ void draw_streamline_gui(){
             vecFileIndex.first = vecFileIndex.second;
             delete streamline;
             streamline = new Streamline(vecFileList[vecFileIndex.first],streamline_h,streamline_density,streamline_gap,streamline_pointsthreshold1,streamline_pointsthreshold2);
-            // todo
-            // 設置 rgba
+            // 沿用上次的rgba設定
+            streamline->create_1dtexture(RGBA);
         }
     }
     ImGui::SeparatorText("Set Parameter");
-    // ImGui::SameLine();
 
     int text_len = ImGui::CalcTextSize("Forward Distance").x; 
     
@@ -428,31 +435,153 @@ void draw_streamline_gui(){
     ImGui::SetNextItemWidth(232);
     ImGui::SliderInt("##streamline_pointsthreshold2",&streamline_pointsthreshold2,100,2000);
     
-    ImGui::SameLine();
-    ImGui::SetCursorPosX(250);
+    ImGui::Spacing();
     if(ImGui::Button("GOGO",ImVec2(btnSz, 20))){
         cout << "load\n";
         delete streamline;
         streamline = new Streamline(vecFileList[vecFileIndex.first],streamline_h,streamline_density,streamline_gap,streamline_pointsthreshold1,streamline_pointsthreshold2);
-        // todo
-        // 設置 rgba
+        streamline->create_1dtexture(RGBA); 
+    }
+
+    ImGui::SameLine();
+    if(ImGui::Button("reset all",ImVec2(btnSz, 20))){
+        streamline_h = 0.1;
+        streamline_density = 1;
+        streamline_gap = 1;
+        streamline_pointsthreshold1 = 50;
+        streamline_pointsthreshold2 = 1000;
+        streamline = new Streamline(vecFileList[vecFileIndex.first],streamline_h,streamline_density,streamline_gap,streamline_pointsthreshold1,streamline_pointsthreshold2);
+        streamline->create_1dtexture(RGBA);
+    }
+
+
+    ImGui::SeparatorText("Color Editor");
+    {
+        ImGuiTabBarFlags tab_bar_flags = ImGuiTabBarFlags_None;
+        if (ImGui::BeginTabBar("MyTabBar", tab_bar_flags)){
+            if (ImGui::BeginTabItem("editor1"))
+            {
+                ImGui::RadioButton("r", &rgba, 0);ImGui::SameLine();
+                ImGui::RadioButton("g", &rgba, 1);ImGui::SameLine();
+                ImGui::RadioButton("b", &rgba, 2);
+
+                ImGui::Text("velocity1");ImGui::SameLine();
+                ImGui::SetNextItemWidth(128); ImGui::SliderInt("##v1",&iso1,0,255); ImGui::SameLine();
+                ImGui::Text("val1");ImGui::SameLine(); 
+                ImGui::SetNextItemWidth(128);ImGui::SliderFloat("##a1",&val1,0,1); 
+            
+                ImGui::Text("velocity2");ImGui::SameLine();
+                ImGui::SetNextItemWidth(128); ImGui::SliderInt("##v2",&iso2,0,255); ImGui::SameLine();
+                ImGui::Text("val2");ImGui::SameLine(); 
+                ImGui::SetNextItemWidth(128);ImGui::SliderFloat("##a2",&val2,0,1);
+
+                ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::Spacing();
+                if(ImGui::Button("reset", ImVec2(btnSz/2, 18))){
+                    reset_RGBA();
+                    streamline->create_1dtexture(RGBA); 
+                }
+                ImGui::SameLine();
+                if(ImGui::Button("reset to white", ImVec2(btnSz, 18))){
+                    reset_RGBA_to_white();
+                    streamline->create_1dtexture(RGBA); 
+                }
+                ImGui::SameLine();
+                ImGui::SetCursorPosX(250);
+                if(ImGui::Button("Apply", ImVec2(btnSz, 18))){
+                    // RGBA[rgba][iso1] = val1;
+                    // RGBA[rgba][iso2] = val2;
+                    // float delta = (val2 - val1)/(iso2-iso1);
+                    // for(int i=iso1+1,j=0;i<iso2;i++,j++){
+                    //     RGBA[rgba][i] = val1 + delta*j;
+                    // }
+                    // streamline -> create_1dtexture(RGBA); 
+                }
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("editor2"))
+            {
+                static ImVec4 color = ImVec4(114.0f / 255.0f, 144.0f / 255.0f, 154.0f / 255.0f, 200.0f / 255.0f);
+                ImGuiColorEditFlags flags = 0;
+                flags |= ImGuiColorEditFlags_AlphaPreviewHalf;
+                flags |= ImGuiColorEditFlags_AlphaBar;
+                flags |= ImGuiColorEditFlags_PickerHueWheel;
+                flags |= ImGuiColorEditFlags_NoInputs;       // Disable all RGB/HSV/Hex displays
+                // float w = (ImGui::GetContentRegionAvail().x - ImGui::GetStyle().ItemSpacing.y) * 0.40f;
+                ImGui::SetNextItemWidth(165);
+                ImGui::ColorPicker4("MyColor##4", (float*)&color, flags, NULL);
+
+                ImGui::SameLine(250);
+                ImGui::SetNextItemWidth(50);
+                ImGui::BeginGroup();
+                ImGui::Text("iso1");
+                ImGui::SetNextItemWidth(btnSz);ImGui::SliderInt("##iso3",&iso1,0,255);
+                ImGui::Text("iso2");
+                ImGui::SetNextItemWidth(btnSz);ImGui::SliderInt("##iso4",&iso2,0,255);
+                ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::Spacing();
+                if(ImGui::Button("go", ImVec2(btnSz, 18))){
+                    for(int i=iso1+1,j=0;i<iso2;i++,j++){ // for each iso
+                        RGBA[0][i] = color.x;
+                        RGBA[1][i] = color.y;
+                        RGBA[2][i] = color.z;
+                        RGBA[3][i] = color.w;
+                    }
+                    streamline->create_1dtexture(RGBA); 
+                } 
+                ImGui::EndGroup();
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+    }
+
+    ImGui::SetCursorPosY(550);
+    if (ImPlot::BeginPlot("Palette")) {
+        ImPlot::SetupLegend(ImPlotLocation_NorthWest,ImPlotLegendFlags_Horizontal);
+        ImPlot::SetupAxis(ImAxis_X1, "intensity");
+        ImPlot::SetupAxisLimits(ImAxis_X1, 0, 256);
+        ImPlot::SetupAxis(ImAxis_Y1, "count");
+        ImPlot::SetupAxisLimits(ImAxis_Y1, 0, 25);
+        ImPlot::SetupAxis(ImAxis_Y2, "RGBA value", ImPlotAxisFlags_AuxDefault);
+        ImPlot::SetupAxisLimits(ImAxis_Y2, -0.01, 1.01);
+
+        ImPlot::SetupAxisLimitsConstraints(ImAxis_X1, 0, 256);
+        ImPlot::SetupAxisLimitsConstraints(ImAxis_Y1, 0, 25);
+        ImPlot::SetupAxisLimitsConstraints(ImAxis_Y2, -0.01, 1.01);
+
+        // ImPlot::PlotBars("log2(nums)", xs.data(), bar.data(), 256, 1.0f);
+
+        ImPlot::SetAxes(ImAxis_X1, ImAxis_Y2);
+        ImPlot::SetNextLineStyle(ImVec4(1,153/255.0,153/255.0,1), 2);
+        ImPlot::PlotLine("R", xs.data(), RGBA[0].data(), 256);
+
+        ImPlot::SetNextLineStyle(ImVec4(153/255.0,1,153/255.0,1), 2);
+        ImPlot::PlotLine("G", xs.data(), RGBA[1].data(), 256);
+        
+        ImPlot::SetNextLineStyle(ImVec4(153/255.0,153/255.0,1,1), 2);
+        ImPlot::PlotLine("B", xs.data(), RGBA[2].data(), 256);
+
+        ImPlot::EndPlot();
     }
 }
 void my_init(){
     RGBA.assign(4,vector<float>(256,0));
-    reset_RGBA();
 
     // method = METHODS::ISO_SURFACE;
     method = METHODS::STREAMLINE;
     projectMethod = PROJECTION_METHODS::ORTHO;
     
-    string v,f,dir;
+    string v,f,g,dir;
     #ifdef __linux__
         dir = "/home/yu/Desktop/school/Visualization/src/shaders/";
     #else
         dir = "D:\\school\\Visualization\\src\\shaders\\";
     #endif
 
+    reset_RGBA();
     streamline_h = 0.1;
     streamline_density = 1;
     streamline_gap = 1;
@@ -464,25 +593,31 @@ void my_init(){
         modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
         v = dir + "IsoSurface.vert"; 
         f = dir + "IsoSurface.frag"; 
+        shader = new Shader(v.c_str(),f.c_str());
     }else if(method == METHODS::SLICE_METHOD){
         renderModeIndex = {1,1};
         modelManager = new ModelManager(METHODS::SLICE_METHOD, modelFileList[modelFileIndex.first]);
         v = dir + "SliceMethod.vert"; 
         f = dir + "SliceMethod.frag"; 
+        shader = new Shader(v.c_str(),f.c_str());
     }else if(method == METHODS::RAY_CASTING){
         renderModeIndex = {2,2};
         modelManager = new ModelManager(METHODS::RAY_CASTING, modelFileList[modelFileIndex.first]);
         v = dir + "RayCasting.vert"; 
         f = dir + "RayCasting.frag"; 
+        shader = new Shader(v.c_str(),f.c_str());
     }else if(method == METHODS::STREAMLINE){
         renderModeIndex = {3,3};
         v = dir + "Streamline.vert"; 
         f = dir + "Streamline.frag"; 
+        g = dir + "Streamline.geom";
+
         streamline = new Streamline("1.vec",streamline_h,streamline_density,streamline_gap,streamline_pointsthreshold1,streamline_pointsthreshold2);
+        streamline->create_1dtexture(RGBA);
+
+        shader = new Shader(v.c_str(),f.c_str(),g.c_str());
     }
     else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
-
-    shader = new Shader(v,f);
 
     camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
     camera->set_projection_method(projectMethod);
@@ -495,6 +630,10 @@ void my_init(){
         for(int i=0;i<=256;i++){
             xs.push_back(i);
             bar.push_back(log2(modelManager->isoValueDistributed[i]));
+        }
+    }else if(method == METHODS::STREAMLINE){
+        for(int i=0;i<=256;i++){
+            xs.push_back(i);
         }
     }
     // string dir = "D:\\school\\Visualization\\src\\asset\\";    
@@ -520,13 +659,16 @@ void draw_gui(){
             if(renderModeIndex.second != renderModeIndex.first){
                 renderModeIndex.first = renderModeIndex.second;
 
-                string v,f;
+                string v,f,g;
                 #ifdef __linux__
                     v = "/home/yu/Desktop/school/Visualization/src/shaders/";
                     f = "/home/yu/Desktop/school/Visualization/src/shaders/";
+                    g = "/home/yu/Desktop/school/Visualization/src/shaders/";
+
                 #else
                     v = "D:\\school\\Visualization\\src\\shaders\\";
                     f = "D:\\school\\Visualization\\src\\shaders\\";
+                    g = "D:\\school\\Visualization\\src\\shaders\\";
                 #endif
 
                 if(renderModeIndex.first == METHODS::ISO_SURFACE){
@@ -535,7 +677,8 @@ void draw_gui(){
                     f += "IsoSurface.frag";
                     delete modelManager;
                     modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
-                    // modelManager->init(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first], 200);
+                    delete shader;
+                    shader = new Shader(v.c_str(),f.c_str());
                 }else if(renderModeIndex.first == METHODS::SLICE_METHOD){
                     method =  METHODS::SLICE_METHOD;
                     v += "SliceMethod.vert";
@@ -553,7 +696,8 @@ void draw_gui(){
                             bar.push_back(log2(modelManager->isoValueDistributed[i]));
                         }
                     }
-
+                    delete shader;
+                    shader = new Shader(v.c_str(),f.c_str());
                 }else if(renderModeIndex.first == METHODS::RAY_CASTING){
                     method =  METHODS::RAY_CASTING;
                     v += "RayCasting.vert";
@@ -573,15 +717,21 @@ void draw_gui(){
                         }
                     }
 
+                    delete shader;
+                    shader = new Shader(v.c_str(),f.c_str());
+
                 }else if(renderModeIndex.first == METHODS::STREAMLINE){
                     method =  METHODS::STREAMLINE;
                     v += "Streamline.vert";
                     f += "Streamline.frag";
+                    g += "Streamline.geom";
+                    // reset_RGBA_to_white();
+                    reset_RGBA();
+                    delete shader;
+                    shader = new Shader(v.c_str(),f.c_str(),g.c_str());
                 }else{
                     cout << "ERROR: main.cpp draw_gui error!\n";
                 }
-                delete shader;
-                shader = new Shader(v,f);
             }
         }
     }

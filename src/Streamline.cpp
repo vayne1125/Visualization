@@ -98,7 +98,10 @@ void Streamline::cal_streamline(double h, double density, double gap, int points
         for(double j=0; j < this->resolution.y; j+= gap){
             glm::dvec2 pos(i,j);
             vector<pair<int,int>> visPoint;
-            vector<float> magnitude;
+            vector<float> magnitudeS;
+            vector<float> magnitudeE;
+            vector<glm::dvec2> start;
+            vector<glm::dvec2> end;
             int cnt = 0;
             // 最多 pointsThreshold2 次
             for(int k=0; k<pointsThreshold2; k++){
@@ -120,40 +123,71 @@ void Streamline::cal_streamline(double h, double density, double gap, int points
                 if(newPos.x * density > newResolutionX || newPos.y * density > newResolutionY) break;
                 if(vis[int(newPos.x * density)][int(newPos.y * density)]) break;
 
-                lines.push_back(pos.x - offsetX); 
-                lines.push_back(pos.y - offsetY);
-                lines.push_back(glm::length(K1));
+                start.push_back(glm::dvec2(pos.x,pos.y));
+                magnitudeS.push_back(glm::length(K1));
 
-                magnitude.push_back(glm::length(K1));
-
-                lines.push_back(newPos.x - offsetX); 
-                lines.push_back(newPos.y - offsetY);
                 K1 = calc_vec_interpolation(newPos);
-                lines.push_back(glm::length(K1));
+                
+                end.push_back(glm::dvec2(newPos.x,newPos.y));
+                magnitudeE.push_back(glm::length(K1));
 
-                magnitude.push_back(glm::length(K1));
+                // lines.push_back(pos.x - offsetX); 
+                // lines.push_back(pos.y - offsetY);
+                // lines.push_back(glm::length(K1));
+
+                // magnitude.push_back(glm::length(K1));
+
+                // lines.push_back(newPos.x - offsetX); 
+                // lines.push_back(newPos.y - offsetY);
+                // K1 = calc_vec_interpolation(newPos);
+                // lines.push_back(glm::length(K1));
+
+                // magnitude.push_back(glm::length(K1));
                 
                 cnt++;
                 pos = newPos;
             }         
 
-            if(cnt < pointsThreshold1){
-                for(int k=0; k < cnt * 2 * 3; k++){
-                    lines.pop_back();
-                }
-            }else{
+            if(cnt >= pointsThreshold1){
+                // 設置走過
                 for(auto k: visPoint){
                     vis[k.first][k.second] = 1;
                 }
-                for(auto k: magnitude){
-                    maxMagnitude = fmax(k,maxMagnitude);
-                    minMagnitude = fmin(k,minMagnitude);
+
+                // 放入 line
+                for(int k=0;k<cnt;k++){
+                    lines.push_back(start[k].x - offsetX);
+                    lines.push_back(start[k].y - offsetY);
+                    lines.push_back(magnitudeS[k]);
+                    
+                    double ratio = (double)(cnt-k)/(cnt);
+                    ratio = fmax(ratio,0.3);
+                    ratio = fmin(ratio,0.7);
+                    lines.push_back(ratio);
+                    // lines.push_back((double)(cnt-k)/(cnt));
+
+                    lines.push_back(end[k].x - offsetX);
+                    lines.push_back(end[k].y - offsetY);
+                    lines.push_back(magnitudeE[k]);
+
+                    ratio = (double)(cnt-k-1)/(cnt);
+                    ratio = fmax(ratio,0.3);
+                    ratio = fmin(ratio,0.7);
+                    lines.push_back(ratio);
+                    // lines.push_back((double)(cnt-k-1)/(cnt));
+
+                    // 更新最大最小值
+                    maxMagnitude = fmax(magnitudeS[k], maxMagnitude);
+                    maxMagnitude = fmax(magnitudeE[k], maxMagnitude);
+                    
+                    minMagnitude = fmin(magnitudeS[k], minMagnitude);
+                    minMagnitude = fmin(magnitudeE[k], minMagnitude);
                 }
             }
         }
     }
     // cout << minMagnitude << " " << maxMagnitude << "\n";
-    vertexCnt = lines.size()/3;
+    vertexCnt = lines.size()/4;
     cout << "vertexCnt: " << vertexCnt << "\n";
 }
 void Streamline::set_VAO(){
@@ -164,10 +198,14 @@ void Streamline::set_VAO(){
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER,lines.size() * sizeof(lines[0]), lines.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2,  GL_DOUBLE, GL_FALSE, 3 * sizeof(double), 0);
+    glVertexAttribPointer(0, 2,  GL_DOUBLE, GL_FALSE, 4 * sizeof(double), 0);
 
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 1, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void*)(2 * sizeof(double)));
+    glVertexAttribPointer(1, 1, GL_DOUBLE, GL_FALSE, 4 * sizeof(double), (void*)(2 * sizeof(double)));
+    
+    glEnableVertexAttribArray(2);
+    glVertexAttribPointer(2, 1, GL_DOUBLE, GL_FALSE, 4 * sizeof(double), (void*)(3 * sizeof(double)));
+
     glBindVertexArray(0);
     glDeleteBuffers(1, &VBO);
 }
@@ -196,9 +234,9 @@ void Streamline::create_1dtexture(){
                 else if(1/2.0 <= tpRGB[i] && tpRGB[i] < 2/3.0) RGB[i] = p + (q-p)*6*(2/3.0 - tpRGB[i]);
                 else RGB[i] = p;
             }
-            texture1DData[i][0] = 255;//RGB.r*255;
-            texture1DData[i][1] = 255;//RGB.g*255;
-            texture1DData[i][2] = 255;//RGB.b*255;
+            texture1DData[i][0] = RGB.r*255;
+            texture1DData[i][1] = RGB.g*255;
+            texture1DData[i][2] = RGB.b*255;
             texture1DData[i][3] = 255;
         }
     }
