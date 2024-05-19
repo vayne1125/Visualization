@@ -77,3 +77,12 @@ You should have CMake and a C++ compilation environment installed.<br>
 | slice | raycasting |
 |---|---|
 |<img src="/readmeimg/hw2_3_slice.png" height="250"/>|<img src="/readmeimg/hw2_3_ray.png" height="250"/>|
+
+### Implement RK2 Method(Streamline)
+- 計算當前點的方向和預計位置的方向取平均作為前進的方向-
+- 利用內插計算格子點中的準確速度
+- 紀錄流線的遍歷位置，避免重複走到或是交錯
+- 使用幾何著色器，將原本的線條繪製成梯形，達到頭粗尾細的效果
+- 將速度分布標準化到0-1之間，並根據速度大小決定顏色
+- 可以透過GUI調整前進距離、線密度、兩線的間距、至多至少取樣點數量、線的粗細參數以及速度分布的顏色圖
+
