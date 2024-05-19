@@ -26,7 +26,8 @@ public:
     glm::mat4 get_view_matrix();
     void set_position(glm::vec3 pos);
     void ProcessMouseScroll(float yoffset);
-    void ProcessKeyDown(int key);
+    void ProcessKeyDown3D(int key);
+    void ProcessKeyDown2D(int key);
     void reset();
     void update();
 private:

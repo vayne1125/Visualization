@@ -109,6 +109,7 @@ void Volume::cal_ray_casting_aabb(){
 }
 void Volume::cal_slice(int sliceNum){
     this -> sliceNum = sliceNum;
+    this->delete_slice_VAO();
     this -> slice_VAO.assign(6,0);
     mesh.clear();
     

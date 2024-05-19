@@ -14,6 +14,7 @@ public:
     void test();
     float maxMagnitude, minMagnitude;
     void create_1dtexture(const vector<vector<float>>& RGBA);
+    glm::vec2 get_resolution();
 private:
     unsigned int VAO;
     // 讀入的資料

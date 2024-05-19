@@ -14,7 +14,26 @@ void Camera::ProcessMouseScroll(float yoffset){
         std::cout << "ERROR: PROJECTION_METHODS not found!\n";
     }
 }
-void Camera::ProcessKeyDown(int key){
+void Camera::ProcessKeyDown2D(int key){
+    std::cout << "in2\n";
+
+    float delta = 0.5;
+    if(key == GLFW_KEY_A){
+        position.x += delta;
+        target.x += delta;
+    }else if(key == GLFW_KEY_D){
+        position.x -= delta;
+        target.x -= delta;
+    }else if(key == GLFW_KEY_W){
+        position.y += delta;
+        target.y += delta;
+    }else if(key == GLFW_KEY_S){
+        position.y -= delta;
+        target.y -= delta;
+    }
+}
+void Camera::ProcessKeyDown3D(int key){
+        std::cout << "in\n";
     float w = 10;
     if(key == GLFW_KEY_A){
         polarAngle += w * 0.1f;
@@ -42,6 +61,8 @@ void Camera::update(){
 void Camera::reset(){
     polarAngle = 180.0f;
     azimuthAngle = 0.0f;
+    position.x = position.y = 0;
+    target.x = target.y = 0;
     update();
 }
 void Camera::set_position(glm::vec3 pos){

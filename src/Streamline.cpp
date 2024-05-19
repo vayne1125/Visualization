@@ -20,7 +20,14 @@ Streamline::~Streamline(){
     cout << "free Streamline\n";
     glDeleteVertexArrays(1, &this->VAO);
 }
+glm::vec2 Streamline::get_resolution(){
+    return this->resolution;
+}
 void Streamline::draw(){
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     glBindVertexArray(VAO);
 
     glActiveTexture(GL_TEXTURE0);
@@ -130,19 +137,6 @@ void Streamline::cal_streamline(double h, double density, double gap, int points
                 
                 end.push_back(glm::dvec2(newPos.x,newPos.y));
                 magnitudeE.push_back(glm::length(K1));
-
-                // lines.push_back(pos.x - offsetX); 
-                // lines.push_back(pos.y - offsetY);
-                // lines.push_back(glm::length(K1));
-
-                // magnitude.push_back(glm::length(K1));
-
-                // lines.push_back(newPos.x - offsetX); 
-                // lines.push_back(newPos.y - offsetY);
-                // K1 = calc_vec_interpolation(newPos);
-                // lines.push_back(glm::length(K1));
-
-                // magnitude.push_back(glm::length(K1));
                 
                 cnt++;
                 pos = newPos;
@@ -156,25 +150,18 @@ void Streamline::cal_streamline(double h, double density, double gap, int points
 
                 // 放入 line
                 for(int k=0;k<cnt;k++){
+                    double wRatio = (double)(cnt-k)/(cnt);
                     lines.push_back(start[k].x - offsetX);
                     lines.push_back(start[k].y - offsetY);
                     lines.push_back(magnitudeS[k]);
-                    
-                    double ratio = (double)(cnt-k)/(cnt);
-                    ratio = fmax(ratio,0.3);
-                    ratio = fmin(ratio,0.7);
-                    lines.push_back(ratio);
-                    // lines.push_back((double)(cnt-k)/(cnt));
+                    lines.push_back(wRatio);
 
+
+                    wRatio = (double)(cnt-k-1)/(cnt);
                     lines.push_back(end[k].x - offsetX);
                     lines.push_back(end[k].y - offsetY);
                     lines.push_back(magnitudeE[k]);
-
-                    ratio = (double)(cnt-k-1)/(cnt);
-                    ratio = fmax(ratio,0.3);
-                    ratio = fmin(ratio,0.7);
-                    lines.push_back(ratio);
-                    // lines.push_back((double)(cnt-k-1)/(cnt));
+                    lines.push_back(wRatio);
 
                     // 更新最大最小值
                     maxMagnitude = fmax(magnitudeS[k], maxMagnitude);
@@ -186,7 +173,6 @@ void Streamline::cal_streamline(double h, double density, double gap, int points
             }
         }
     }
-    // cout << minMagnitude << " " << maxMagnitude << "\n";
     vertexCnt = lines.size()/4;
     cout << "vertexCnt: " << vertexCnt << "\n";
 }
@@ -205,7 +191,7 @@ void Streamline::set_VAO(){
     
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 1, GL_DOUBLE, GL_FALSE, 4 * sizeof(double), (void*)(3 * sizeof(double)));
-
+    
     glBindVertexArray(0);
     glDeleteBuffers(1, &VBO);
 }
