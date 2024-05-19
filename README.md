@@ -85,4 +85,19 @@ You should have CMake and a C++ compilation environment installed.<br>
 - 使用幾何著色器，將原本的線條繪製成梯形，達到頭粗尾細的效果
 - 將速度分布標準化到0-1之間，並根據速度大小決定顏色
 - 可以透過GUI調整前進距離、線密度、兩線的間距、至多至少取樣點數量、線的粗細參數以及速度分布的顏色圖
+<img src="/readmeimg/hw3_1.png"/>
 
+#### 全白
+| 1.vec | 8.vec |14.vec |
+|---|---|---|
+|<img src="/readmeimg/hw3_2_1.png" height="250"/>|<img src="/readmeimg/hw3_2_8.png" height="250"/>|<img src="/readmeimg/hw3_2_10.png" height="250"/>|
+
+#### 考慮速度(紅快藍慢)
+| 7.vec | 19.vec | rect2.vec|
+|---|---|---|
+|<img src="/readmeimg/hw3_3_7.png" height="250"/>|<img src="/readmeimg/hw3_3_19.png" height="250"/>|<img src="/readmeimg/hw3_3_rect2.png" height="250"/>|
+
+#### 較大的圖(512 x 512)
+| test_not_unit.vec | test_unit.vec |
+|---|---|
+|<img src="/readmeimg/hw3_4_test_not_unit.png" height="320"/>|<img src="/readmeimg/hw3_4_test_unit.png" height="320"/>|
