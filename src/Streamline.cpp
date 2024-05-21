@@ -173,6 +173,7 @@ void Streamline::cal_streamline(double h, double density, double gap, int points
             }
         }
     }
+
     vertexCnt = lines.size()/4;
     cout << "vertexCnt: " << vertexCnt << "\n";
 }
