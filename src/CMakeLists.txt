@@ -6,6 +6,7 @@ add_executable(Visualization
 "constants.cpp"
 "Camera.cpp"
 "ModelManager.cpp"
+"Sammon.cpp"
 ) #列所有的cpp
 target_link_libraries(Visualization
 # OpenGL::GL

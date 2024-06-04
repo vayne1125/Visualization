@@ -13,9 +13,8 @@
 #include "./header/Camera.hpp"
 #include "./header/ModelManager.hpp"
 #include "./header/Streamline.hpp"
+#include "./header/Sammon.hpp"
 
-
-#define   PI   3.1415927
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
@@ -32,6 +31,7 @@ Shader *shader;
 Camera *camera;
 ModelManager *modelManager;
 Streamline *streamline;
+Sammon *sammon;
 
 pair<int,int> modelFileIndex = {1,1};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
@@ -39,25 +39,28 @@ const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
 pair<int,int> vecFileIndex = {0,0};
 const char* vecFileList[] = { "1.vec", "2.vec","3.vec", "4.vec", "5.vec", "6.vec", "7.vec", "8.vec", "9.vec", "10.vec", "11.vec", "12.vec", "13.vec", "14.vec", "15.vec", "16.vec", "19.vec", "20.vec", "21.vec", "22.vec", "23.vec", "rect1.vec", "rect2.vec", "step5_velocity.vec", "test_not_unit.vec", "test_unit.vec"};
 
-pair<int,int> renderModeIndex = {0,0};
-const char* renderModeList[] = { "iso-surface method", "slice method","ray casting method","streamline(RK2 method)"};
+pair<int,int> renderModeIndex;
+const char* renderModeList[] = { "iso-surface method", "slice method","ray casting method","streamline(RK2 method)", "sammon mapping"};
 
 // iso-surface
-int isosurface_enablecliped = 0;
-glm::vec4 isosurface_clipnormal = glm::vec4(0,1,0,-150);
+int isosurface_enablecliped;
+glm::vec4 isosurface_clipnormal;
 
 // ray
-float raycasting_gap = 0.3;
+float raycasting_gap;
 
 // gui
 vector<float> gui_xs, gui_bar;
 vector<vector<float>> gui_RGBA;
-static int gui_rgba = 0;
+static int gui_rgba;
 
 // streamline
 static float streamline_h, streamline_density, streamline_gap;
 static int streamline_points_threshold1, streamline_points_threshold2;
 static float streamline_width_ratio_clamp_m, streamline_width_ratio_clamp_M;
+
+// sammon mapping
+static int sammon_N;
 
 void reset_RGBA(){
     cout << "reset gui_RGBA\n";
@@ -705,6 +708,9 @@ void draw_gui(){
                     }
                     delete shader;
                     shader = new Shader(v.c_str(),f.c_str(),g.c_str());
+
+                    streamline = new Streamline("1.vec",streamline_h,streamline_density,streamline_gap,streamline_points_threshold1,streamline_points_threshold2);
+                    streamline->create_1dtexture(gui_RGBA);
                 }else{
                     cout << "ERROR: main.cpp draw_gui error!\n";
                 }
@@ -772,10 +778,6 @@ void draw_gui(){
 void my_init(){
     gui_RGBA.assign(4,vector<float>(256,0));
 
-    // method = METHODS::ISO_SURFACE;
-    method = METHODS::STREAMLINE;
-    projectMethod = PROJECTION_METHODS::ORTHO;
-    
     string v,f,g,dir;
     #ifdef __linux__
         dir = "/home/yu/Desktop/school/Visualization/src/shaders/";
@@ -784,6 +786,11 @@ void my_init(){
     #endif
 
     reset_RGBA();
+    
+    // init varibale
+    method = METHODS::SAMMON_MAPPING;
+    projectMethod = PROJECTION_METHODS::ORTHO;
+    
     streamline_h = 0.1;
     streamline_density = 1;
     streamline_gap = 1;
@@ -792,7 +799,20 @@ void my_init(){
     streamline_width_ratio_clamp_m = 0.3;
     streamline_width_ratio_clamp_M = 0.7;
     
+    raycasting_gap = 0.3;
+    
+    sammon_N = 40;
+    
+    isosurface_enablecliped = 0;
+    isosurface_clipnormal = glm::vec4(0,1,0,-150);
 
+    gui_rgba = 0;
+
+    // init camera
+    camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
+    camera->set_projection_method(projectMethod);
+
+    // init model
     if(method == METHODS::ISO_SURFACE){
         renderModeIndex = {0,0};
         modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
@@ -821,11 +841,21 @@ void my_init(){
         streamline->create_1dtexture(gui_RGBA);
 
         shader = new Shader(v.c_str(),f.c_str(),g.c_str());
+
+    }else if(method == METHODS::SAMMON_MAPPING){
+        renderModeIndex = {4,4};
+        v = dir + "Sammon.vert"; 
+        f = dir + "Sammon.frag";
+        g = dir + "Sammon.geom";
+
+        sammon = new Sammon("creditcard.dat",sammon_N);
+        shader = new Shader(v.c_str(),f.c_str(),g.c_str());
+
+
     }
     else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
 
-    camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
-    camera->set_projection_method(projectMethod);
+    
 
     gui_xs.clear();
     gui_bar.clear();
@@ -996,7 +1026,13 @@ int main(){
             shader->set_uniform("widthRatioClamp_M",streamline_width_ratio_clamp_M);
             streamline -> draw();
 
-        }
+        }else if(method == METHODS::SAMMON_MAPPING){
+            shader->set_uniform("projection", camera->get_projection_matrix());
+            shader->set_uniform("view", camera->get_view_matrix());
+            shader->set_uniform("screenW", (float)camera->screenW);
+            shader->set_uniform("screenH", (float)camera->screenH);
+            sammon -> draw();
+        }else cout << "error in display func!!\n";
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 

@@ -79,9 +79,15 @@ glm::mat4 Camera::get_projection_matrix(){
         return glm::perspective(glm::radians(zoom),(float)screenW / (float)screenH, 0.001f, 10000.0f);
     }else if(this->projectionMethod == PROJECTION_METHODS::ORTHO){
         if(screenW > screenH)
-            return glm::ortho( -256 - offset, 256 + offset, (-256 - offset)*((float) screenH / screenW), (256 + offset) * ((float) screenH / screenW), 0.0001f, 10000.0f);
+            return glm::ortho( 
+                -256 - offset                              ,  256 + offset, 
+                (-256 - offset)*((float) screenH / screenW), (256 + offset) * ((float) screenH / screenW),
+                0.0001f                                    , 10000.0f);
         else
-            return glm::ortho( (-256 - offset)*((float) screenW / screenH), (256 + offset)*((float) screenW / screenH), -256 - offset, 256 + offset, 0.0001f, 10000.0f);
+            return glm::ortho( 
+                (-256 - offset)*((float) screenW / screenH) , (256 + offset)*((float) screenW / screenH), 
+                -256 - offset                               ,  256 + offset, 
+                0.0001f                                     , 10000.0f);
     }
 }
 void Camera::set_screen_wh(int width,int heigth){
