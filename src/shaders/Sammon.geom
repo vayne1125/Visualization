@@ -4,6 +4,7 @@ layout (triangle_strip, max_vertices = 180) out;
 
 uniform float screenW;
 uniform float screenH;
+uniform float ballSizeRatio;
 
 out float flabel;
 
@@ -13,7 +14,7 @@ in VS_OUT {
 
 void main() {    
     float PI = 3.1425926f;
-    float rad = 0.01;
+    float rad = 0.02 * ballSizeRatio;
     float N = 180;
     
     for(int i=0;i<N/2;i++){

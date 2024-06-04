@@ -12,36 +12,18 @@ Sammon::Sammon(string file,int N){
     read_data(dir + file);
     calc_2d_point(N);
     set_VAO();
+
+    // test();
 }
 Sammon::Sammon(){
     cout << "Sammon.cpp -------- test --------\n";
     test();
 }
 Sammon::~Sammon(){
-
+    cout << "free Sammon\n";
+    glDeleteVertexArrays(1, &this->VAO);
+    glDeleteVertexArrays(1, &this->oriPoints_VAO);
 }
-// Sammon::void set_cycle_VAO(){
-//     float rad = 2;
-//     vector<float> cycle;
-//     for(int i=0;i<360;i++){
-//         cycle.push_back(0.0f);
-//         cycle.push_back(0.0f);
-
-//         cycle.push_back(rad * cos(2*PI*i/n));
-//         cycle.push_back(rad * sin(2*PI*i/n));
-
-//         cycle.push_back(rad * cos(2*PI*(i+1)/n));
-//         cycle.push_back(rad * sin(2*PI*(i+1)/n));
-//     }
-//     unsigned int VBO;
-//     glGenBuffers(1, &VBO);
-//     glGenVertexArrays(1, &cycle_VAO);
-//     glBindVertexArray(cycle_VAO);
-//     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-//     glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
-//     glEnableVertexAttribArray(0);
-//     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), 0);
-// }
 void Sammon::read_data(string file){
     std::ifstream inputFile(file);
     if (!inputFile.is_open()) {
@@ -62,12 +44,16 @@ void Sammon::read_data(string file){
         // cout << data[i].back();
     }
 }
-void Sammon::draw(){
+void Sammon::draw(MODE mode){
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glBindVertexArray(this->VAO);
+    if(mode == MODE::BEFORE_CALC)
+        glBindVertexArray(this->oriPoints_VAO);
+    else if(mode == MODE::AFTER_CALC)
+        glBindVertexArray(this->VAO);
+    else cout << "ERROR: void Sammon.cpp::draw()\n";
     
     glDrawArrays(GL_POINTS, 0, this->vertexCnt);
     glBindVertexArray(0);
@@ -97,9 +83,19 @@ void Sammon::calc_2d_point(int N){
     float delta = 1e-6;
     float lambda = 1.0f;
     float alpha = 0.3;
+
+    srand( time(NULL) );
+    
     vector<glm::dvec2> pos(N, glm::dvec2(0,0));
     for(int i=0;i<N;i++){
-        pos[i] = glm::dvec2(i/N,i/N);
+        pos[i] = glm::dvec2((rand()%2000 - 1000)/10000.0 * 10, (rand()%2000 - 1000)/10000.0 * 10);
+    }
+
+    oriPoints.clear();
+    for(int i=0;i<N;i++){
+        oriPoints.push_back(pos[i].x);
+        oriPoints.push_back(pos[i].y);
+        oriPoints.push_back(data[ID[i]].back());
     }
 
     // compute diff sum
@@ -125,7 +121,6 @@ void Sammon::calc_2d_point(int N){
                 glm::dvec2 qi = lambda * ( oldDis[i][j] - dis ) / dis * (pos[i] - pos[j]);
                 glm::dvec2 qj = -qi;
 
-                // cout <<  qi.x << " " << qi.y << " ";
                 // update
                 pos[i] += qi;
                 pos[j] += qj;
@@ -138,19 +133,28 @@ void Sammon::calc_2d_point(int N){
                 diff += sqrt((pos[i].x - pos[j].x) * (pos[i].x - pos[j].x) +  (pos[i].y - pos[j].y) * (pos[i].y - pos[j].y));
             }
         }
-        // cout << diff << " ";
+        // cout << diff << "\n";
         lambda = alpha * lambda;
     }
 
+    float maxX = -0X3f, minX = 0x3f, maxY = -0X3f, minY = 0X3f;
+    for(auto i: pos){
+        maxX = fmax(maxX,i.x);
+        minX = fmin(minX,i.x);
+        maxY = fmax(maxY,i.y);
+        minY = fmin(minY,i.y);
+    }
+    glm::dvec2 center = glm::dvec2(minX + (maxX-minX)/2.0,minY + (maxY-minY)/2.0);
+    points.clear();
     for(int i=0;i<N;i++){
-        points.push_back(pos[i].x);
-        points.push_back(pos[i].y);
-        cout << pos[i].x << " "<< pos[i].y << "\n";
+        points.push_back(pos[i].x-center.x);
+        points.push_back(pos[i].y-center.y);
         points.push_back(data[ID[i]].back());
     }
 
     this->vertexCnt =  points.size()/3;
 }
+
 void Sammon::test(){
     double points[] = {
         -50.0, 50.0, 0.0, // top-left
@@ -178,10 +182,24 @@ void Sammon::set_VAO(){
     glGenVertexArrays(1, &VAO);
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(points), &points, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(points[0]) * points.size(), points.data(), GL_STATIC_DRAW);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0, 2, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), 0);
 
     glEnableVertexAttribArray(1);
     glVertexAttribPointer(1, 1, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void*)(2 * sizeof(double)));
+
+    points.clear();
+
+    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &oriPoints_VAO);
+    glBindVertexArray(oriPoints_VAO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(oriPoints[0]) * oriPoints.size(), oriPoints.data(), GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 2, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), 0);
+
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 1, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void*)(2 * sizeof(double)));
+
 }

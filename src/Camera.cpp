@@ -2,20 +2,27 @@
 #include "./header/Camera.hpp"
 void Camera::ProcessMouseScroll(float yoffset){
     if(projectionMethod == PROJECTION_METHODS::PERSPECTIVE){
-        zoom -= (float)yoffset;
+        zoom -= (float)yoffset * sensitivity;
         if (zoom < 1.0f)
             zoom = 1.0f;
         if (zoom > 130.0f)
             zoom = 130.0f;
     }else if(projectionMethod == PROJECTION_METHODS::ORTHO){
-        this -> offset -= yoffset*5;
-        if(this -> offset <= -256) this -> offset = -256;
+        this -> offset -= yoffset * sensitivity;
+        // std::cout << offset << "\n";
+        if(this -> offset <= -256) this -> offset = -255;
     }else{
         std::cout << "ERROR: PROJECTION_METHODS not found!\n";
     }
 }
+void Camera::set_sensitivity(float s){
+    this -> sensitivity = s;
+}
+void Camera::set_ortho_offset(float of){
+    this -> offset = of;
+}
 void Camera::ProcessKeyDown2D(int key){
-    std::cout << "in2\n";
+    // std::cout << "in2\n";
 
     float delta = 0.5;
     if(key == GLFW_KEY_A){
@@ -61,8 +68,22 @@ void Camera::update(){
 void Camera::reset(){
     polarAngle = 180.0f;
     azimuthAngle = 0.0f;
+    offset = 0.0;
+    sensitivity = 5;
     position.x = position.y = 0;
     target.x = target.y = 0;
+    update();
+}
+void Camera::reset(METHODS method){
+    if(method == METHODS::SAMMON_MAPPING){
+        polarAngle = 180.0f;
+        azimuthAngle = 0.0f;
+        position.x = position.y = 0;
+        target.x = target.y = 0;
+        offset = -254;
+        sensitivity = 1;
+    }else 
+        reset();
     update();
 }
 void Camera::set_position(glm::vec3 pos){

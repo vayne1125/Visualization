@@ -61,7 +61,12 @@ static float streamline_width_ratio_clamp_m, streamline_width_ratio_clamp_M;
 
 // sammon mapping
 static int sammon_N;
+static float sammon_ball_sz_ratio;
+MODE sammon_mode;
 
+// TODO:
+// 2. show color (change color....)
+// 3. change ball size
 void reset_RGBA(){
     cout << "reset gui_RGBA\n";
     for(int i=0;i<256;i++) {
@@ -618,6 +623,54 @@ void draw_streamline_gui(){
         ImPlot::EndPlot();
     }
 }
+void draw_sammon_gui(){
+    ImGui::Text("Render points");
+    static int tp = 0; 
+    int btnSz = 130;
+
+    ImGui::SeparatorText("Class Info");
+    {
+        ImGui::PushID(0);
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(176/360.0, 1.0f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(176/360.0,  1.0f, 0.5f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(176/360.0,  1.0f, 0.5f));
+        ImGui::Button("", ImVec2(20, 20));
+        ImGui::PopStyleColor(3);
+        ImGui::PopID();
+        ImGui::SameLine();
+        ImGui::Text("0");
+
+        ImGui::PushID(1);
+        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(330/360.0, 1.0f, 0.74f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(330/360.0,  1.0f, 0.74f));
+        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(330/360.0,  1.0f, 0.74f));
+        ImGui::Button("", ImVec2(20, 20));
+        ImGui::PopStyleColor(3);
+        ImGui::PopID();
+        ImGui::SameLine();
+        ImGui::Text("1");
+    }
+    ImGui::SeparatorText("Set Rander Parameter");
+    ImGui::Text("Ball size");
+    ImGui::SliderFloat("##sammon_ball_sz_ratio", &sammon_ball_sz_ratio,0.1,1);
+
+    ImGui::SeparatorText("Set Sammon Parameter");
+    if(ImGui::RadioButton("origin##SAMMON", &tp, 0)) sammon_mode = MODE::BEFORE_CALC;
+    ImGui::SameLine();
+    if(ImGui::RadioButton("sammon mapping##SAMMON", &tp, 1))  sammon_mode = MODE::AFTER_CALC;
+
+    ImGui::Spacing();
+    ImGui::Text("Point's Num");
+    ImGui::SetNextItemWidth(232);
+    ImGui::SliderInt("##sammon_N", &sammon_N,40,900);
+    ImGui::SameLine();
+
+    ImGui::SetCursorPosX(250);
+    if(ImGui::Button("Apply##SAMMON",ImVec2(btnSz, 20))){
+        delete sammon;
+        sammon = new Sammon("creditcard.dat", sammon_N);
+    }
+}
 void draw_gui(){
     static int btnSz = 130;
     ImGui::SetNextWindowBgAlpha(0.35f);
@@ -691,7 +744,6 @@ void draw_gui(){
                         gui_bar.push_back(log2(modelManager->isoValueDistributed[i]));
                     }
                     
-
                     delete shader;
                     shader = new Shader(v.c_str(),f.c_str());
 
@@ -709,8 +761,24 @@ void draw_gui(){
                     delete shader;
                     shader = new Shader(v.c_str(),f.c_str(),g.c_str());
 
+                    delete streamline;
                     streamline = new Streamline("1.vec",streamline_h,streamline_density,streamline_gap,streamline_points_threshold1,streamline_points_threshold2);
                     streamline->create_1dtexture(gui_RGBA);
+                
+                }else if(renderModeIndex.first == METHODS::SAMMON_MAPPING){
+                    method =  METHODS::SAMMON_MAPPING;
+                    v += "Sammon.vert";
+                    f += "Sammon.frag";
+                    g += "Sammon.geom";
+                    
+                    delete shader;
+                    shader = new Shader(v.c_str(),f.c_str(),g.c_str());
+
+                    delete sammon;
+                    sammon = new Sammon("creditcard.dat",sammon_N);
+
+                    camera->reset(METHODS::SAMMON_MAPPING);
+                
                 }else{
                     cout << "ERROR: main.cpp draw_gui error!\n";
                 }
@@ -749,14 +817,19 @@ void draw_gui(){
         draw_volume_rendering_gui();
     else if(method == METHODS::STREAMLINE)
         draw_streamline_gui();
+    else if(method == METHODS::SAMMON_MAPPING)
+        draw_sammon_gui();
 
     // 排版 reset camera
+    ImGui::Spacing();
+    ImGui::Spacing();
     ImGui::Spacing();
     ImGui::Spacing();
     ImGui::SetCursorPosX(250);
     
     if(ImGui::Button("Reset Camera",ImVec2(btnSz, 20))){
-        camera -> reset();
+        if(method != METHODS::SAMMON_MAPPING) camera -> reset();
+        else camera -> reset(METHODS::SAMMON_MAPPING);
     }
     
     ImGui::End();
@@ -801,8 +874,10 @@ void my_init(){
     
     raycasting_gap = 0.3;
     
-    sammon_N = 40;
-    
+    sammon_N = 900;
+    sammon_mode = MODE::BEFORE_CALC;
+    sammon_ball_sz_ratio = 0.5;
+
     isosurface_enablecliped = 0;
     isosurface_clipnormal = glm::vec4(0,1,0,-150);
 
@@ -847,11 +922,9 @@ void my_init(){
         v = dir + "Sammon.vert"; 
         f = dir + "Sammon.frag";
         g = dir + "Sammon.geom";
-
         sammon = new Sammon("creditcard.dat",sammon_N);
         shader = new Shader(v.c_str(),f.c_str(),g.c_str());
-
-
+        camera->reset(METHODS::SAMMON_MAPPING);
     }
     else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
 
@@ -942,6 +1015,7 @@ int main(){
         // render
         // clear the colorbuffer
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // glClearColor(0.8f, 0.8f, 0.8f, 1.0f);
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 
         shader->use();
@@ -1031,7 +1105,8 @@ int main(){
             shader->set_uniform("view", camera->get_view_matrix());
             shader->set_uniform("screenW", (float)camera->screenW);
             shader->set_uniform("screenH", (float)camera->screenH);
-            sammon -> draw();
+            shader->set_uniform("ballSizeRatio", sammon_ball_sz_ratio);
+            sammon -> draw(sammon_mode);
         }else cout << "error in display func!!\n";
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -1062,7 +1137,7 @@ void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, in
     if(action == 2)
         if(method == METHODS::ISO_SURFACE || method == METHODS::RAY_CASTING || method == METHODS::SLICE_METHOD)
             camera->ProcessKeyDown3D(key);
-        else if(method == METHODS::STREAMLINE)
+        else if(method == METHODS::STREAMLINE || method == METHODS::SAMMON_MAPPING)
             camera->ProcessKeyDown2D(key);
 
 }
