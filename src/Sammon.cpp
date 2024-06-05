@@ -34,7 +34,7 @@ void Sammon::read_data(string file){
     inputFile >> dataNum >> c >> dimension ;
     
     data.resize(dataNum,vector<double>(dimension));
-    
+    this -> classNum = 0;
     for(int i=0;i<dataNum;i++){
         for(int j=0;j<dimension;j++){
             inputFile >> data[i][j];
@@ -53,7 +53,7 @@ void Sammon::draw_ellipse(){
 
     glBindVertexArray(this->ellipse_VAO);
     
-    glDrawArrays(GL_POINTS, 0, 2 + 180 * classNum);
+    glDrawArrays(GL_LINES, 0, ellipseVertexCnt);
     glBindVertexArray(0);
 };
 void Sammon::draw(MODE mode){
@@ -213,13 +213,13 @@ void Sammon::calc_ellipse(){
         double angle = atan2(eigenvectors[i][0][1], eigenvectors[i][0][0]);
         make_ellipse(mean[i],radii,angle,i);
     }
+    ellipseVertexCnt = ellipsePoints.size()/3.0;
+    cout << "ellipseVertexCnt: "<< ellipseVertexCnt << "\n";
 }
 void Sammon::make_ellipse(const glm::dvec2& center, const glm::dvec2& radii, double angle,int class_){
-    ellipsePoints.push_back(center.x);
-    ellipsePoints.push_back(center.y);
-    ellipsePoints.push_back(2);
-    int numSegments = 180;
+    int numSegments = 360;
     for (int i = 0; i < numSegments; i++) {
+        // p0
         double theta = 2.0f * PI * i / double(numSegments);
         double x = radii.x * cos(theta);
         double y = radii.y * sin(theta);
@@ -228,7 +228,18 @@ void Sammon::make_ellipse(const glm::dvec2& center, const glm::dvec2& radii, dou
         double yRot = x * sin(angle) + y * cos(angle);
         ellipsePoints.push_back(center.x + xRot);
         ellipsePoints.push_back(center.y + yRot);
-        ellipsePoints.push_back(2);
+        ellipsePoints.push_back(class_);
+
+        // p1
+        theta = 2.0f * PI * ((i+1)% numSegments) / double(numSegments);
+        x = radii.x * cos(theta);
+        y = radii.y * sin(theta);
+        // 旋轉
+        xRot = x * cos(angle) - y * sin(angle);
+        yRot = x * sin(angle) + y * cos(angle);
+        ellipsePoints.push_back(center.x + xRot);
+        ellipsePoints.push_back(center.y + yRot);
+        ellipsePoints.push_back(class_);
     }
 }
 // 計算2x2矩陣的特徵值和特徵向量

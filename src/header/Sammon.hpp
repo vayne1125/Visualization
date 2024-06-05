@@ -24,6 +24,6 @@ private:
     void read_data(string file);
     void calc_2d_point(int N);
     void calc_ellipse();
-    int vertexCnt = 0;
+    int vertexCnt = 0, ellipseVertexCnt = 0;
     vector<double> points, oriPoints, ellipsePoints;
 };

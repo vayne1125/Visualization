@@ -27,7 +27,7 @@ const unsigned int SCR_HEIGHT = 600;
 
 METHODS method;
 PROJECTION_METHODS projectMethod;
-Shader *shader;
+Shader *shader, *ellipseShadder;
 Camera *camera;
 ModelManager *modelManager;
 Streamline *streamline;
@@ -65,7 +65,10 @@ static float sammon_ball_sz_ratio;
 MODE sammon_mode;
 static ImVec4 sammon_color_0;
 static ImVec4 sammon_color_1;
-
+static ImVec4 sammon_ellipse_color_0;
+static ImVec4 sammon_ellipse_color_1;
+static float sammon_line_width_ratio;
+static bool sammon_show_ellipse;
 // TODO:
 // 1. change marker
 // 2. draw cycle contain points
@@ -626,40 +629,91 @@ void draw_streamline_gui(){
     }
 }
 void draw_sammon_gui(){
-    ImGui::Text("Render points");
     static int tp = 0; 
     int btnSz = 130;
     ImGuiColorEditFlags misc_flags =  ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiTabBarFlags_None;//ImGuiColorEditFlags_NoDragDrop | (alpha_half_preview ? ImGuiColorEditFlags_AlphaPreviewHalf : (alpha_preview ? ImGuiColorEditFlags_AlphaPreview : 0)) | (options_menu ? 0 : ImGuiColorEditFlags_NoOptions);
     
     ImGui::SeparatorText("Class Info");
     {
+        ImGui::Text("0 |");
+        ImGui::SameLine();
         if(ImGui::ColorEdit4("MyColor##CLASS0", (float*)&sammon_color_0, misc_flags)){
             // cout << sammon_color_0.x << " " << sammon_color_0.y << " " << sammon_color_0.z << "\n";
         }
-        ImGui::SameLine();ImGui::Text("0");
+        ImGui::SameLine();
+        ImGui::Text("marker");
 
-        ImGui::ColorEdit4("MyColor##CLASS1", (float*)&sammon_color_1, misc_flags);
-        ImGui::SameLine();ImGui::Text("1");
+        if(sammon_show_ellipse){
+            ImGui::SameLine(); 
+            ImGui::SetCursorPosX(130);
+            ImGui::ColorEdit4("MyColor##CLASS0_ellipse", (float*)&sammon_ellipse_color_0, misc_flags);
+            ImGui::SameLine();
+            ImGui::Text("ellipse");
+        }
+
+        ImGui::Text("1 |");
+        ImGui::SameLine();
+        if(ImGui::ColorEdit4("MyColor##CLASS1", (float*)&sammon_color_1, misc_flags)){
+            // cout << sammon_color_0.x << " " << sammon_color_0.y << " " << sammon_color_0.z << "\n";
+        }
+        ImGui::SameLine();
+        ImGui::Text("marker");
+
+        if(sammon_show_ellipse){
+            ImGui::SameLine(); 
+            ImGui::SetCursorPosX(130);
+            ImGui::ColorEdit4("MyColor##CLASS1_ellipse", (float*)&sammon_ellipse_color_1, misc_flags);
+            ImGui::SameLine();
+            ImGui::Text("ellipse");
+        }
     }
-    ImGui::SeparatorText("Set Rander Parameter");
-    ImGui::Text("Ball size");
-    ImGui::SliderFloat("##sammon_ball_sz_ratio", &sammon_ball_sz_ratio,0.1,1);
+    ImGui::Spacing();
 
     ImGui::SeparatorText("Set Sammon Parameter");
-    if(ImGui::RadioButton("origin##SAMMON", &tp, 0)) sammon_mode = MODE::BEFORE_CALC;
-    ImGui::SameLine();
-    if(ImGui::RadioButton("sammon mapping##SAMMON", &tp, 1))  sammon_mode = MODE::AFTER_CALC;
+    {
+        if(ImGui::RadioButton("origin##SAMMON", &tp, 0)) {
+            sammon_mode = MODE::BEFORE_CALC;
+            sammon_show_ellipse = 0;
+        }
+        ImGui::SameLine();
+        if(ImGui::RadioButton("sammon mapping##SAMMON", &tp, 1))  sammon_mode = MODE::AFTER_CALC;
+        
+        if(sammon_mode == MODE::AFTER_CALC){
+            ImGui::SameLine();
+            ImGui::SetCursorPosX(250);
+            static string sammon_btn = "Show Ellipse##sammon_Show_Ellipse";
+            if(sammon_show_ellipse == 0 ){
+                sammon_btn = "Show Ellipse##sammon_Show_Ellipse";
+            }else {
+                sammon_btn = "Hide Ellipse##sammon_Show_Ellipse";
+            }
+            if(ImGui::Button(sammon_btn.c_str(), ImVec2(btnSz, 20))){
+                sammon_show_ellipse ^= 1;
+            }
+        }
 
+        ImGui::SetCursorPosY(200);
+        ImGui::Text("Point's Num");
+        ImGui::SetNextItemWidth(232);
+        ImGui::SliderInt("##sammon_N", &sammon_N,40,900);
+        ImGui::SameLine();
+
+        ImGui::SetCursorPosX(250);
+        if(ImGui::Button("Apply##SAMMON",ImVec2(btnSz, 20))){
+            delete sammon;
+            sammon = new Sammon("creditcard.dat", sammon_N);
+        }
+    }    
+    
     ImGui::Spacing();
-    ImGui::Text("Point's Num");
-    ImGui::SetNextItemWidth(232);
-    ImGui::SliderInt("##sammon_N", &sammon_N,40,900);
-    ImGui::SameLine();
 
-    ImGui::SetCursorPosX(250);
-    if(ImGui::Button("Apply##SAMMON",ImVec2(btnSz, 20))){
-        delete sammon;
-        sammon = new Sammon("creditcard.dat", sammon_N);
+    ImGui::SeparatorText("Set Rander Parameter");
+    {
+        ImGui::Text("Ball size");
+        ImGui::SliderFloat("##sammon_ball_sz_ratio", &sammon_ball_sz_ratio,0.1,1);
+
+        ImGui::Text("Ellipse Line size");
+        ImGui::SliderFloat("##sammon_line_width_ratio", &sammon_line_width_ratio,0.2,1);
     }
 }
 void draw_gui(){
@@ -680,7 +734,7 @@ void draw_gui(){
             if(renderModeIndex.second != renderModeIndex.first){
                 renderModeIndex.first = renderModeIndex.second;
 
-                string v,f,g;
+                string v,f,g,g2;
                 #ifdef __linux__
                     v = "/home/yu/Desktop/school/Visualization/src/shaders/";
                     f = "/home/yu/Desktop/school/Visualization/src/shaders/";
@@ -690,6 +744,7 @@ void draw_gui(){
                     v = "D:\\school\\Visualization\\src\\shaders\\";
                     f = "D:\\school\\Visualization\\src\\shaders\\";
                     g = "D:\\school\\Visualization\\src\\shaders\\";
+                    g2 = "D:\\school\\Visualization\\src\\shaders\\";
                 #endif
 
                 if(renderModeIndex.first == METHODS::ISO_SURFACE){
@@ -761,9 +816,13 @@ void draw_gui(){
                     v += "Sammon.vert";
                     f += "Sammon.frag";
                     g += "Sammon.geom";
+                    g2 += "Ellipse.geom";
                     
                     delete shader;
                     shader = new Shader(v.c_str(),f.c_str(),g.c_str());
+
+                    delete ellipseShadder;
+                    ellipseShadder = new Shader(v.c_str(),f.c_str(), g2.c_str());
 
                     delete sammon;
                     sammon = new Sammon("creditcard.dat",sammon_N);
@@ -870,7 +929,11 @@ void my_init(){
     sammon_ball_sz_ratio = 0.5;
     sammon_color_0 = ImVec4(0.0f / 255.0f, 255.0f / 255.0f, 238.0f / 255.0f, 255.0f / 255.0f);
     sammon_color_1 = ImVec4(255.0f / 255.0f, 122.0f / 255.0f, 189.0f / 255.0f, 255.0f / 255.0f);
-    
+    sammon_ellipse_color_0 = ImVec4(0.0f / 255.0f, 122.0f / 255.0f, 122.0f / 255.0f, 255.0f / 255.0f);
+    sammon_ellipse_color_1 = ImVec4(255.0f / 255.0f, 51.0f / 255.0f, 153.0f / 255.0f, 255.0f / 255.0f);
+    sammon_line_width_ratio = 0.5;
+    sammon_show_ellipse = 0;
+
     isosurface_enablecliped = 0;
     isosurface_clipnormal = glm::vec4(0,1,0,-150);
 
@@ -915,8 +978,12 @@ void my_init(){
         v = dir + "Sammon.vert"; 
         f = dir + "Sammon.frag";
         g = dir + "Sammon.geom";
+
+        string g2 = dir + "Ellipse.geom";
+
         sammon = new Sammon("creditcard.dat",sammon_N);
         shader = new Shader(v.c_str(),f.c_str(),g.c_str());
+        ellipseShadder = new Shader(v.c_str(),f.c_str(), g2.c_str());
         camera->reset(METHODS::SAMMON_MAPPING);
     }
     else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
@@ -1101,7 +1168,18 @@ int main(){
             shader->set_uniform("color0", glm::vec4(sammon_color_0.x,sammon_color_0.y,sammon_color_0.z,sammon_color_0.w));
             shader->set_uniform("color1", glm::vec4(sammon_color_1.x,sammon_color_1.y,sammon_color_1.z,sammon_color_1.w));
             sammon -> draw(sammon_mode);
-            sammon -> draw_ellipse();
+
+            if(sammon_show_ellipse){
+                ellipseShadder->use();
+                ellipseShadder->set_uniform("projection", camera->get_projection_matrix());
+                ellipseShadder->set_uniform("view", camera->get_view_matrix());
+                ellipseShadder->set_uniform("screenW", (float)camera->screenW);
+                ellipseShadder->set_uniform("screenH", (float)camera->screenH);
+                ellipseShadder->set_uniform("color0", glm::vec4(sammon_ellipse_color_0.x,sammon_ellipse_color_0.y,sammon_ellipse_color_0.z,sammon_ellipse_color_0.w));
+                ellipseShadder->set_uniform("color1", glm::vec4(sammon_ellipse_color_1.x,sammon_ellipse_color_1.y,sammon_ellipse_color_1.z,sammon_ellipse_color_1.w));
+                ellipseShadder->set_uniform("widthRatio", sammon_line_width_ratio);
+                sammon -> draw_ellipse();
+            }
         }else cout << "error in display func!!\n";
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
