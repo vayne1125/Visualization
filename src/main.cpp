@@ -63,10 +63,12 @@ static float streamline_width_ratio_clamp_m, streamline_width_ratio_clamp_M;
 static int sammon_N;
 static float sammon_ball_sz_ratio;
 MODE sammon_mode;
+static ImVec4 sammon_color_0;
+static ImVec4 sammon_color_1;
 
 // TODO:
-// 2. show color (change color....)
-// 3. change ball size
+// 1. change marker
+// 2. draw cycle contain points
 void reset_RGBA(){
     cout << "reset gui_RGBA\n";
     for(int i=0;i<256;i++) {
@@ -627,28 +629,17 @@ void draw_sammon_gui(){
     ImGui::Text("Render points");
     static int tp = 0; 
     int btnSz = 130;
-
+    ImGuiColorEditFlags misc_flags =  ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel | ImGuiTabBarFlags_None;//ImGuiColorEditFlags_NoDragDrop | (alpha_half_preview ? ImGuiColorEditFlags_AlphaPreviewHalf : (alpha_preview ? ImGuiColorEditFlags_AlphaPreview : 0)) | (options_menu ? 0 : ImGuiColorEditFlags_NoOptions);
+    
     ImGui::SeparatorText("Class Info");
     {
-        ImGui::PushID(0);
-        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(176/360.0, 1.0f, 0.5f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(176/360.0,  1.0f, 0.5f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(176/360.0,  1.0f, 0.5f));
-        ImGui::Button("", ImVec2(20, 20));
-        ImGui::PopStyleColor(3);
-        ImGui::PopID();
-        ImGui::SameLine();
-        ImGui::Text("0");
+        if(ImGui::ColorEdit4("MyColor##CLASS0", (float*)&sammon_color_0, misc_flags)){
+            // cout << sammon_color_0.x << " " << sammon_color_0.y << " " << sammon_color_0.z << "\n";
+        }
+        ImGui::SameLine();ImGui::Text("0");
 
-        ImGui::PushID(1);
-        ImGui::PushStyleColor(ImGuiCol_Button, (ImVec4)ImColor::HSV(330/360.0, 1.0f, 0.74f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonHovered, (ImVec4)ImColor::HSV(330/360.0,  1.0f, 0.74f));
-        ImGui::PushStyleColor(ImGuiCol_ButtonActive, (ImVec4)ImColor::HSV(330/360.0,  1.0f, 0.74f));
-        ImGui::Button("", ImVec2(20, 20));
-        ImGui::PopStyleColor(3);
-        ImGui::PopID();
-        ImGui::SameLine();
-        ImGui::Text("1");
+        ImGui::ColorEdit4("MyColor##CLASS1", (float*)&sammon_color_1, misc_flags);
+        ImGui::SameLine();ImGui::Text("1");
     }
     ImGui::SeparatorText("Set Rander Parameter");
     ImGui::Text("Ball size");
@@ -877,7 +868,9 @@ void my_init(){
     sammon_N = 900;
     sammon_mode = MODE::BEFORE_CALC;
     sammon_ball_sz_ratio = 0.5;
-
+    sammon_color_0 = ImVec4(0.0f / 255.0f, 255.0f / 255.0f, 238.0f / 255.0f, 255.0f / 255.0f);
+    sammon_color_1 = ImVec4(255.0f / 255.0f, 122.0f / 255.0f, 189.0f / 255.0f, 255.0f / 255.0f);
+    
     isosurface_enablecliped = 0;
     isosurface_clipnormal = glm::vec4(0,1,0,-150);
 
@@ -1056,7 +1049,6 @@ int main(){
             shader->set_uniform("maxMag",modelManager->volumeArray[0].maxMag);
             shader->set_uniform("minMag",modelManager->volumeArray[0].minMag);
             shader->set_uniform("openPhong",modelManager->openPhong);
-            // shader->set_uniform("sliceNum",modelManager->volumeArray[0].sliceNum);
             glm::mat3 model_3x3 = glm::mat3(modelManager->get_fixedRY_matrix()) * glm::mat3(modelManager->get_model_matrix());
             
             glm::vec3 xyplane = (model_3x3 * glm::vec3(0.0f,0.0f,-100.0f)) - camera->position;
@@ -1077,7 +1069,6 @@ int main(){
             sort(tpv.begin(),tpv.end());
             modelManager->volumeArray[0].draw(tpv[0].second);
         }else if(method == METHODS::RAY_CASTING){
-
             // camera/projection/view transformation
             shader->set_uniform("projection", camera->get_projection_matrix());
             shader->set_uniform("view", camera->get_view_matrix());
@@ -1106,7 +1097,11 @@ int main(){
             shader->set_uniform("screenW", (float)camera->screenW);
             shader->set_uniform("screenH", (float)camera->screenH);
             shader->set_uniform("ballSizeRatio", sammon_ball_sz_ratio);
+            
+            shader->set_uniform("color0", glm::vec4(sammon_color_0.x,sammon_color_0.y,sammon_color_0.z,sammon_color_0.w));
+            shader->set_uniform("color1", glm::vec4(sammon_color_1.x,sammon_color_1.y,sammon_color_1.z,sammon_color_1.w));
             sammon -> draw(sammon_mode);
+            sammon -> draw_ellipse();
         }else cout << "error in display func!!\n";
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

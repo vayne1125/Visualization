@@ -11,16 +11,19 @@ public:
     Sammon();
     ~Sammon();
     void draw(MODE);
+    void draw_ellipse();
     void test();
-    int dataNum, dimension;
+    int dataNum, dimension, classNum;
 private:
-    unsigned int VAO, oriPoints_VAO;
-    vector<unsigned int> animation_VAO;
+    unsigned int VAO, oriPoints_VAO, ellipse_VAO;
     // 讀入的資料
     vector<vector<double>> data;
+    void eig2(const glm::mat2& A, vector<double>& eigenvalues, std::vector<glm::dvec2>& eigenvectors);
     void set_VAO();
+    void make_ellipse(const glm::dvec2&  center, const glm::dvec2&  radii, double angle, int class_);
     void read_data(string file);
     void calc_2d_point(int N);
+    void calc_ellipse();
     int vertexCnt = 0;
-    vector<double> points, oriPoints;
+    vector<double> points, oriPoints, ellipsePoints;
 };

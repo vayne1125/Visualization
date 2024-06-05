@@ -66,7 +66,7 @@ void Camera::update(){
     position.z =  radialDistance*cos(glm::radians(azimuthAngle)) * cos(glm::radians(polarAngle));
 }
 void Camera::reset(){
-    polarAngle = 180.0f;
+    polarAngle = 0.0f;
     azimuthAngle = 0.0f;
     offset = 0.0;
     sensitivity = 5;
@@ -76,7 +76,7 @@ void Camera::reset(){
 }
 void Camera::reset(METHODS method){
     if(method == METHODS::SAMMON_MAPPING){
-        polarAngle = 180.0f;
+        polarAngle = 0.0f;
         azimuthAngle = 0.0f;
         position.x = position.y = 0;
         target.x = target.y = 0;
