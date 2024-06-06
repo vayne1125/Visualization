@@ -69,9 +69,9 @@ static ImVec4 sammon_ellipse_color_0;
 static ImVec4 sammon_ellipse_color_1;
 static float sammon_line_width_ratio;
 static bool sammon_show_ellipse;
+static bool sammon_nstd[3];
 // TODO:
 // 1. change marker
-// 2. draw cycle contain points
 void reset_RGBA(){
     cout << "reset gui_RGBA\n";
     for(int i=0;i<256;i++) {
@@ -689,6 +689,9 @@ void draw_sammon_gui(){
             }
             if(ImGui::Button(sammon_btn.c_str(), ImVec2(btnSz, 20))){
                 sammon_show_ellipse ^= 1;
+                if(sammon_show_ellipse){
+                    if(!sammon_nstd[0] || !sammon_nstd[2]) sammon_nstd[1] = 1;
+                }
             }
         }
 
@@ -711,9 +714,21 @@ void draw_sammon_gui(){
     {
         ImGui::Text("Ball size");
         ImGui::SliderFloat("##sammon_ball_sz_ratio", &sammon_ball_sz_ratio,0.1,1);
+        if(sammon_show_ellipse){
+            ImGui::Text("Ellipse Line size");
+            ImGui::SliderFloat("##sammon_line_width_ratio", &sammon_line_width_ratio,0.2,1);
 
-        ImGui::Text("Ellipse Line size");
-        ImGui::SliderFloat("##sammon_line_width_ratio", &sammon_line_width_ratio,0.2,1);
+            ImGui::Spacing();
+
+            ImGui::Text("Ellipse Sigma");
+            if(ImGui::IsItemHovered()){
+                ImGui::SetTooltip("Ellipses with Sigma (1, 2, 3) Containing (68.27%, 95.45%, 99.73%) of Points");
+            }
+            ImGui::SameLine();
+            ImGui::Checkbox("1##sammon_nstd[0]", &sammon_nstd[0]); ImGui::SameLine();
+            ImGui::Checkbox("2##sammon_nstd[1]", &sammon_nstd[1]); ImGui::SameLine();
+            ImGui::Checkbox("3##sammon_nstd[2]", &sammon_nstd[2]);
+        }
     }
 }
 void draw_gui(){
@@ -933,6 +948,9 @@ void my_init(){
     sammon_ellipse_color_1 = ImVec4(255.0f / 255.0f, 51.0f / 255.0f, 153.0f / 255.0f, 255.0f / 255.0f);
     sammon_line_width_ratio = 0.5;
     sammon_show_ellipse = 0;
+    sammon_nstd[0] = false;
+    sammon_nstd[1] = true;
+    sammon_nstd[2] = false;
 
     isosurface_enablecliped = 0;
     isosurface_clipnormal = glm::vec4(0,1,0,-150);
@@ -1178,7 +1196,9 @@ int main(){
                 ellipseShadder->set_uniform("color0", glm::vec4(sammon_ellipse_color_0.x,sammon_ellipse_color_0.y,sammon_ellipse_color_0.z,sammon_ellipse_color_0.w));
                 ellipseShadder->set_uniform("color1", glm::vec4(sammon_ellipse_color_1.x,sammon_ellipse_color_1.y,sammon_ellipse_color_1.z,sammon_ellipse_color_1.w));
                 ellipseShadder->set_uniform("widthRatio", sammon_line_width_ratio);
-                sammon -> draw_ellipse();
+                for(int nstd=1;nstd<=3;nstd++) 
+                    if(sammon_nstd[nstd-1])
+                        sammon -> draw_ellipse(nstd);
             }
         }else cout << "error in display func!!\n";
         ImGui::Render();

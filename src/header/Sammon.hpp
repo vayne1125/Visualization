@@ -11,11 +11,12 @@ public:
     Sammon();
     ~Sammon();
     void draw(MODE);
-    void draw_ellipse();
+    void draw_ellipse(int);
     void test();
     int dataNum, dimension, classNum;
 private:
-    unsigned int VAO, oriPoints_VAO, ellipse_VAO;
+    unsigned int VAO, oriPoints_VAO;
+    vector<unsigned int> ellipse_VAO;
     // 讀入的資料
     vector<vector<double>> data;
     void eig2(const glm::mat2& A, vector<double>& eigenvalues, std::vector<glm::dvec2>& eigenvectors);
@@ -25,5 +26,6 @@ private:
     void calc_2d_point(int N);
     void calc_ellipse();
     int vertexCnt = 0, ellipseVertexCnt = 0;
-    vector<double> points, oriPoints, ellipsePoints;
+    vector<double> points, oriPoints;
+    vector<vector<double>> ellipsePoints;
 };

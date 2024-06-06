@@ -46,14 +46,14 @@ void Sammon::read_data(string file){
     cout << "dataNum/dimension/classNum = " << dataNum << "/" << dimension << "/" << classNum << "\n"; 
 
 }
-void Sammon::draw_ellipse(){
+void Sammon::draw_ellipse(int nstd){
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glBindVertexArray(this->ellipse_VAO);
-    
+    glBindVertexArray(this->ellipse_VAO[nstd-1]);
     glDrawArrays(GL_LINES, 0, ellipseVertexCnt);
+
     glBindVertexArray(0);
 };
 void Sammon::draw(MODE mode){
@@ -203,45 +203,55 @@ void Sammon::calc_ellipse(){
     vector<vector<double>> eigenvalues(this->classNum);
     vector<vector<glm::dvec2>> eigenvectors(this->classNum);
     vector<glm::dvec2> radii(this->classNum);
-    float scaleFactor = 2;
+    
+    // 每個一維陣列存不同大小的圓
+    ellipsePoints.resize(3);
+
     for(int i=0;i<this->classNum;i++){
         eig2(covarianceMatrix[i],eigenvalues[i],eigenvectors[i]);
         cout << "eigen value[" << i << "]: " <<eigenvalues[i][0] << " " << eigenvalues[i][1] << "\n";
         cout << "eigen vector[" << i << "]: "  <<eigenvectors[i][0][0] << "," << eigenvectors[i][0][1] << "), (" << eigenvectors[i][1][0] << ", " << eigenvectors[i][1][1] << ")"<< "\n";
         // 計算橢圓參數
-        glm::dvec2 radii(scaleFactor * sqrt(eigenvalues[i][0]), scaleFactor * sqrt(eigenvalues[i][1]));
+        glm::dvec2 radii(sqrt(eigenvalues[i][0]),sqrt(eigenvalues[i][1]));
         double angle = atan2(eigenvectors[i][0][1], eigenvectors[i][0][0]);
         make_ellipse(mean[i],radii,angle,i);
     }
-    ellipseVertexCnt = ellipsePoints.size()/3.0;
+    ellipseVertexCnt = ellipsePoints[0].size()/3.0;
     cout << "ellipseVertexCnt: "<< ellipseVertexCnt << "\n";
 }
 void Sammon::make_ellipse(const glm::dvec2& center, const glm::dvec2& radii, double angle,int class_){
-    int numSegments = 360;
-    for (int i = 0; i < numSegments; i++) {
-        // p0
-        double theta = 2.0f * PI * i / double(numSegments);
-        double x = radii.x * cos(theta);
-        double y = radii.y * sin(theta);
-        // 旋轉
-        double xRot = x * cos(angle) - y * sin(angle);
-        double yRot = x * sin(angle) + y * cos(angle);
-        ellipsePoints.push_back(center.x + xRot);
-        ellipsePoints.push_back(center.y + yRot);
-        ellipsePoints.push_back(class_);
+    
+    // nstd 要畫多少標準差 
+    for(int nstd = 1; nstd <= 3; nstd++){
+        int numSegments = 360;
+        for (int i = 0; i < numSegments; i++) {
+            // p0
+            double theta = 2.0f * PI * i / double(numSegments);
+                
+            double x = nstd * radii.x * cos(theta);
+            double y = nstd * radii.y * sin(theta);
 
-        // p1
-        theta = 2.0f * PI * ((i+1)% numSegments) / double(numSegments);
-        x = radii.x * cos(theta);
-        y = radii.y * sin(theta);
-        // 旋轉
-        xRot = x * cos(angle) - y * sin(angle);
-        yRot = x * sin(angle) + y * cos(angle);
-        ellipsePoints.push_back(center.x + xRot);
-        ellipsePoints.push_back(center.y + yRot);
-        ellipsePoints.push_back(class_);
+            // 旋轉
+            double xRot = x * cos(angle) - y * sin(angle);
+            double yRot = x * sin(angle) + y * cos(angle);
+            ellipsePoints[nstd-1].push_back(center.x + xRot);
+            ellipsePoints[nstd-1].push_back(center.y + yRot);
+            ellipsePoints[nstd-1].push_back(class_);
+
+            // p1
+            theta = 2.0f * PI * ((i+1)% numSegments) / double(numSegments);
+            x = nstd * radii.x * cos(theta);
+            y = nstd * radii.y * sin(theta);
+            // 旋轉
+            xRot = x * cos(angle) - y * sin(angle);
+            yRot = x * sin(angle) + y * cos(angle);
+            ellipsePoints[nstd-1].push_back(center.x + xRot);
+            ellipsePoints[nstd-1].push_back(center.y + yRot);
+            ellipsePoints[nstd-1].push_back(class_);
+        }
     }
 }
+
 // 計算2x2矩陣的特徵值和特徵向量
 void Sammon::eig2(const glm::mat2& A, vector<double>& eigenvalues, std::vector<glm::dvec2>& eigenvectors) {
     double a = A[0][0];
@@ -319,18 +329,21 @@ void Sammon::set_VAO(){
     
     oriPoints.clear();
 
-    // ellipse_VAO
-    glGenBuffers(1, &VBO);
-    glGenVertexArrays(1, &this->ellipse_VAO);
-    glBindVertexArray(this->ellipse_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(ellipsePoints[0]) * ellipsePoints.size(), ellipsePoints.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), 0);
+    ellipse_VAO.resize(3);
 
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 1, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void*)(2 * sizeof(double)));
-    
+    // ellipse_VAO
+    for(int i=0;i<3;i++){
+        glGenBuffers(1, &VBO);
+        glGenVertexArrays(1, &this->ellipse_VAO[i]);
+        glBindVertexArray(this->ellipse_VAO[i]);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(ellipsePoints[i][0]) * ellipsePoints[i].size(), ellipsePoints[i].data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 2, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), 0);
+
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 1, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void*)(2 * sizeof(double)));
+    }
     ellipsePoints.clear();
 
 }
