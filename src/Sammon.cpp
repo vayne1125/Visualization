@@ -196,7 +196,7 @@ void Sammon::calc_ellipse(){
             covarianceMatrix[i][1][1] += (p.y - mean[i].y) * (p.y - mean[i].y);
         }
         covarianceMatrix[i] /= (classData[i].size() - 1);
-        cout << "covarianceMatrix[" << i << "]: " << covarianceMatrix[i][0][0] << " " << covarianceMatrix[i][0][1] << " "<<covarianceMatrix[i][1][1]<< "\n";
+        // cout << "covarianceMatrix[" << i << "]: " << covarianceMatrix[i][0][0] << " " << covarianceMatrix[i][0][1] << " "<<covarianceMatrix[i][1][1]<< "\n";
     }
 
     // 計算 eigen value/ vector
@@ -209,8 +209,8 @@ void Sammon::calc_ellipse(){
 
     for(int i=0;i<this->classNum;i++){
         eig2(covarianceMatrix[i],eigenvalues[i],eigenvectors[i]);
-        cout << "eigen value[" << i << "]: " <<eigenvalues[i][0] << " " << eigenvalues[i][1] << "\n";
-        cout << "eigen vector[" << i << "]: "  <<eigenvectors[i][0][0] << "," << eigenvectors[i][0][1] << "), (" << eigenvectors[i][1][0] << ", " << eigenvectors[i][1][1] << ")"<< "\n";
+        // cout << "eigen value[" << i << "]: " <<eigenvalues[i][0] << " " << eigenvalues[i][1] << "\n";
+        // cout << "eigen vector[" << i << "]: "  <<eigenvectors[i][0][0] << "," << eigenvectors[i][0][1] << "), (" << eigenvectors[i][1][0] << ", " << eigenvectors[i][1][1] << ")"<< "\n";
         // 計算橢圓參數
         glm::dvec2 radii(sqrt(eigenvalues[i][0]),sqrt(eigenvalues[i][1]));
         double angle = atan2(eigenvectors[i][0][1], eigenvectors[i][0][0]);
@@ -264,7 +264,7 @@ void Sammon::eig2(const glm::mat2& A, vector<double>& eigenvalues, std::vector<g
     eigenvalues[0] = (double)(((a + d) + sqrt((double)((a + d)*(a + d) - 4 * (a*d - b*c)))) / 2);
     eigenvalues[1] = (double)(((a + d) - sqrt((double)((a + d)*(a + d) - 4 * (a*d - b*c)))) / 2);
     
-    if(eigenvalues[0] < eigenvalues[1]){
+    if(abs(eigenvalues[0]) < abs(eigenvalues[1])){
         swap(eigenvalues[0],eigenvalues[1]);
     }
 
