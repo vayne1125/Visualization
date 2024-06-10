@@ -28,7 +28,7 @@ You should have CMake and a C++ compilation environment installed.<br>
 
 #### other model
 | engine  | teddybear | golf |
-|---|---|---|
+|:---:|:---:|:---:|
 |<img src="/readmeimg/hw1_3.png" alt="hw1_3.png" title="hw1_3.png" height="250"/>|<img src="/readmeimg/hw1_4.png" alt="hw1_4.png" title="hw1_4.png" height="250"/>| <img src="/readmeimg/hw1_5.png" alt="hw1_5.png" title="hw1_5.png" height="250"/>|
 
 #### cross-section
@@ -49,7 +49,7 @@ You should have CMake and a C++ compilation environment installed.<br>
 
 #### different slice num with phong shading
 || 512 | 1024 |
-|---|---|---|
+|:---:|:---:|:---:|
 |dont<br>use<br>phong|<img src="/readmeimg/hw2_1_512.png" height="250"/>|<img src="/readmeimg/hw2_1_1024.png" height="250"/>|
 |use<br>phong|<img src="/readmeimg/hw2_1_512_ph.png" height="250"/>|<img src="/readmeimg/hw2_1_1024_ph.png" height="250"/>|
 
@@ -66,7 +66,7 @@ You should have CMake and a C++ compilation environment installed.<br>
 
 #### Different gap between two sample point with phong shading
 || big gap | small gap |
-|---|---|---|
+|:---:|:---:|:---:|
 |dont<br>use<br>phong|<img src="/readmeimg/hw2_2_1.png" height="250"/>|<img src="/readmeimg/hw2_2_2.png" height="250"/>|
 |use<br>phong|<img src="/readmeimg/hw2_2_1_ph.png" height="250"/>|<img src="/readmeimg/hw2_2_2_ph.png" height="250"/>|
 
@@ -75,11 +75,11 @@ You should have CMake and a C++ compilation environment installed.<br>
 - slice: 512 (= 0.255)
 
 | slice | raycasting |
-|---|---|
+|:---:|:---:|
 |<img src="/readmeimg/hw2_3_slice.png" height="250"/>|<img src="/readmeimg/hw2_3_ray.png" height="250"/>|
 
 ### Implement RK2 Method(Streamline)
-- 計算當前點的方向和預計位置的方向取平均作為前進的方向-
+- 計算當前點的方向和預計位置的方向取平均作為前進的方向
 - 利用內插計算格子點中的準確速度
 - 紀錄流線的遍歷位置，避免重複走到或是交錯
 - 使用幾何著色器，將原本的線條繪製成梯形，達到頭粗尾細的效果
@@ -89,15 +89,39 @@ You should have CMake and a C++ compilation environment installed.<br>
 
 #### 全白
 | 1.vec | 8.vec |14.vec |
-|---|---|---|
+|:---:|:---:|:---:|
 |<img src="/readmeimg/hw3_2_1.png" height="250"/>|<img src="/readmeimg/hw3_2_8.png" height="250"/>|<img src="/readmeimg/hw3_2_10.png" height="250"/>|
 
 #### 考慮速度(紅快藍慢)
 | 7.vec | 19.vec | rect2.vec|
-|---|---|---|
+|:---:|:---:|:---:|
 |<img src="/readmeimg/hw3_3_7.png" height="250"/>|<img src="/readmeimg/hw3_3_19.png" height="250"/>|<img src="/readmeimg/hw3_3_rect2.png" height="250"/>|
 
 #### 較大的圖(512 x 512)
 | test_not_unit.vec | test_unit.vec |
-|---|---|
+|:---:|:---:|
 |<img src="/readmeimg/hw3_4_test_not_unit.png" height="320"/>|<img src="/readmeimg/hw3_4_test_unit.png" height="320"/>|
+
+### Implement Sammon Mapping & PCA
+- 隨機在二維平面佈點
+- 計算高維度(原本資料)和二維度的距離比例以及兩點的向量
+- 如果太近，就往反向移動；太遠，則靠近，持續迭代至收斂為止
+- 計算並利用同群點的斜方差矩陣、特徵值及特徵向量繪製橢圓
+- 使用幾何著色器，將原本的點繪製成圓型
+- 根據螢幕比例繪製圓型，以達到拉伸畫面不會造成變形
+- 可以透過GUI調整資料點個數、繪製橢圓的sigma、大小、顏色
+
+<img src="/readmeimg/hw4.png"/>
+
+#### 使用 900 筆資料(15維度)
+| 原始點分布(隨機分布) | Apply Sammon Mapping|
+|:---:|:---:|
+|<img src="/readmeimg/hw4_1.png" height="320"/>|<img src="/readmeimg/hw4_2.png" height="320"/>|
+
+
+#### 利用特徵值找出圈出點的橢圓形
+| sigma = 1 (68.27%) | sigma = 2 (95.45%)|
+|:---:|:---:|
+|<img src="/readmeimg/hw4_2_1.png" height="320"/>|<img src="/readmeimg/hw4_2_2.png" height="320"/>|
+| **sigma = (99.73%)** | **sigma = 1,2,3** |
+|<img src="/readmeimg/hw4_2_3.png" height="320"/>|<img src="/readmeimg/hw4_2_4.png" height="320"/>|
