@@ -40,7 +40,7 @@ pair<int,int> vecFileIndex = {0,0};
 const char* vecFileList[] = { "1.vec", "2.vec","3.vec", "4.vec", "5.vec", "6.vec", "7.vec", "8.vec", "9.vec", "10.vec", "11.vec", "12.vec", "13.vec", "14.vec", "15.vec", "16.vec", "19.vec", "20.vec", "21.vec", "22.vec", "23.vec", "rect1.vec", "rect2.vec", "step5_velocity.vec", "test_not_unit.vec", "test_unit.vec"};
 
 pair<int,int> renderModeIndex;
-const char* renderModeList[] = { "iso-surface method", "slice method","ray casting method","streamline(RK2 method)", "sammon mapping"};
+const char* renderModeList[] = { "iso-surface method", "slicing method","ray casting method","streamline(RK2 method)", "sammon mapping", "SOM method"};
 
 // iso-surface
 int isosurface_enablecliped;
@@ -70,8 +70,10 @@ static ImVec4 sammon_ellipse_color_1;
 static float sammon_line_width_ratio;
 static bool sammon_show_ellipse;
 static bool sammon_nstd[3];
-// TODO:
-// 1. change marker
+
+// SOM method
+
+
 void reset_RGBA(){
     cout << "reset gui_RGBA\n";
     for(int i=0;i<256;i++) {
@@ -731,6 +733,9 @@ void draw_sammon_gui(){
         }
     }
 }
+void draw_SOM_gui(){
+    // todo
+}
 void draw_gui(){
     static int btnSz = 130;
     ImGui::SetNextWindowBgAlpha(0.35f);
@@ -844,7 +849,10 @@ void draw_gui(){
 
                     camera->reset(METHODS::SAMMON_MAPPING);
                 
-                }else{
+                }else if(renderModeIndex.first == METHODS::SOM_METHOD){
+                    // TODO
+                }
+                else{
                     cout << "ERROR: main.cpp draw_gui error!\n";
                 }
             }
@@ -884,6 +892,8 @@ void draw_gui(){
         draw_streamline_gui();
     else if(method == METHODS::SAMMON_MAPPING)
         draw_sammon_gui();
+    else if(method == METHODS::SOM_METHOD)
+        draw_SOM_gui();
 
     // 排版 reset camera
     ImGui::Spacing();
