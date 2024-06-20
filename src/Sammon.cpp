@@ -76,7 +76,7 @@ void Sammon::calc_2d_point(int N){
     iota(ID.begin(),ID.end(),0);
 
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
-    shuffle(ID.begin(),ID.end(), std::default_random_engine(seed) );
+    shuffle(ID.begin(),ID.end(), std::default_random_engine(seed));
     
     // implement sammon mapping
     vector<vector<double>> oldDis(N, vector<double>(N,0));

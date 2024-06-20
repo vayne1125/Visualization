@@ -14,6 +14,7 @@
 #include "./header/ModelManager.hpp"
 #include "./header/Streamline.hpp"
 #include "./header/Sammon.hpp"
+#include "./header/SOM.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -32,6 +33,7 @@ Camera *camera;
 ModelManager *modelManager;
 Streamline *streamline;
 Sammon *sammon;
+SOM *som;
 
 pair<int,int> modelFileIndex = {1,1};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
@@ -39,8 +41,12 @@ const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
 pair<int,int> vecFileIndex = {0,0};
 const char* vecFileList[] = { "1.vec", "2.vec","3.vec", "4.vec", "5.vec", "6.vec", "7.vec", "8.vec", "9.vec", "10.vec", "11.vec", "12.vec", "13.vec", "14.vec", "15.vec", "16.vec", "19.vec", "20.vec", "21.vec", "22.vec", "23.vec", "rect1.vec", "rect2.vec", "step5_velocity.vec", "test_not_unit.vec", "test_unit.vec"};
 
+pair<int,int> surfaceFileIndex = {0,0};
+const char* surfaceFileList[] = { "vaseSurface.txt", "teapotSurface.txt","bunnySurface.txt"};
+
 pair<int,int> renderModeIndex;
 const char* renderModeList[] = { "iso-surface method", "slicing method","ray casting method","streamline(RK2 method)", "sammon mapping", "SOM method"};
+
 
 // iso-surface
 int isosurface_enablecliped;
@@ -72,7 +78,10 @@ static bool sammon_show_ellipse;
 static bool sammon_nstd[3];
 
 // SOM method
-
+int som_training;
+int som_lattice_size;
+int som_init_pos;
+int som_lattice_mesh;
 
 void reset_RGBA(){
     cout << "reset gui_RGBA\n";
@@ -735,6 +744,90 @@ void draw_sammon_gui(){
 }
 void draw_SOM_gui(){
     // todo
+    int btnSz = 130;
+    ImGui::Text("Load Surface");
+    ImGui::SetNextItemWidth(232);
+    if(ImGui::Combo("##loadsurface_SOM", &surfaceFileIndex.second, surfaceFileList, IM_ARRAYSIZE(surfaceFileList)));
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(250);
+    if(ImGui::Button("Load##loadsurface_SOM",ImVec2(btnSz, 20))){
+        if(surfaceFileIndex.second != surfaceFileIndex.first){
+            surfaceFileIndex.first = surfaceFileIndex.second;
+            delete som;
+            som = new SOM(surfaceFileList[surfaceFileIndex.first]);
+            
+            som->setNodeSz(som_lattice_size,som_lattice_size);
+            if(som_init_pos == 0) som->setNodeInitPos(NODE_INIT_POS::GRID);
+            else if(som_init_pos == 1) som->setNodeInitPos(NODE_INIT_POS::RANDOM);
+            som->init();
+        }
+        
+    }
+    ImGui::Spacing();
+    ImGui::SeparatorText("Lattice");
+
+    ImGui::Text("Fitting Mesh");
+    ImGui::SameLine();
+    if(ImGui::RadioButton("cylinder", &som_lattice_mesh, 0));//som->setNodeSz(som_lattice_size,som_lattice_size);
+    ImGui::SameLine();
+    if(ImGui::RadioButton("plane", &som_lattice_mesh, 1));// som->setNodeSz(som_lattice_size,som_lattice_size);
+    // ImGui::SameLine();
+    // if(ImGui::RadioButton("xxx", &som_lattice_size, 64)) som->setNodeSz(som_lattice_size,som_lattice_size);
+
+    ImGui::Spacing();
+    ImGui::Text("Size");
+    ImGui::SameLine();
+    if(ImGui::RadioButton("16x16##SOM", &som_lattice_size, 16)) som->setNodeSz(som_lattice_size,som_lattice_size);
+    ImGui::SameLine();
+    if(ImGui::RadioButton("32x32##SOM", &som_lattice_size, 32)) som->setNodeSz(som_lattice_size,som_lattice_size);
+    ImGui::SameLine();
+    if(ImGui::RadioButton("64x64##SOM", &som_lattice_size, 64)) som->setNodeSz(som_lattice_size,som_lattice_size);
+
+    ImGui::Spacing();
+    ImGui::Text("InitPos");
+    ImGui::SameLine();
+    if(ImGui::RadioButton("grid##SOM", &som_init_pos, 0)) som->setNodeInitPos(NODE_INIT_POS::GRID);
+    ImGui::SameLine();
+    if(ImGui::RadioButton("random##SOM", &som_init_pos, 1)) som->setNodeInitPos(NODE_INIT_POS::RANDOM);
+
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(250);
+    if(ImGui::Button("apply##SOM_LATTICE",ImVec2(btnSz, 20))){
+        som->init();
+    }
+
+    ImGui::Spacing();
+    ImGui::SeparatorText("training");
+    int cnt = som->getIterationsCnt();
+    int iter = som->getIterations();
+    int percent = cnt/(float)iter*100;
+    string scnt, siter, sper,s;
+    if(cnt == 0) scnt = "0";
+    if(percent == 0) sper = "0";
+    while(cnt){
+        scnt += cnt%10 + '0';
+        cnt/=10;
+    }
+    while(iter){
+        siter += iter%10 + '0';
+        iter/=10;
+    }
+    while(percent){
+        sper += percent%10 + '0';
+        percent/=10;
+    }
+    reverse(scnt.begin(),scnt.end());
+    reverse(siter.begin(),siter.end());
+    reverse(sper.begin(),sper.end());
+    s = "Iterator: " + scnt + "/" + siter + "(" + sper + "%)";
+    ImGui::Text(s.c_str());
+
+    ImGui::SameLine();
+    ImGui::SetCursorPosX(250);
+    if(ImGui::Button("train",ImVec2(btnSz, 20))){
+        som_training ^= 1;
+    }
+
 }
 void draw_gui(){
     static int btnSz = 130;
@@ -850,7 +943,22 @@ void draw_gui(){
                     camera->reset(METHODS::SAMMON_MAPPING);
                 
                 }else if(renderModeIndex.first == METHODS::SOM_METHOD){
-                    // TODO
+                    method =  METHODS::SAMMON_MAPPING;
+                    v += "SOM.vert";
+                    f += "SOM.frag";
+                    
+                    delete shader;
+                    shader = new Shader(v.c_str(),f.c_str());
+
+                    delete som;
+                    som = new SOM(surfaceFileList[surfaceFileIndex.first]);
+
+                    som->setNodeSz(som_lattice_size,som_lattice_size);
+                    if(som_init_pos == 0) som->setNodeInitPos(NODE_INIT_POS::GRID);
+                    else if(som_init_pos == 1) som->setNodeInitPos(NODE_INIT_POS::RANDOM);
+                    som->init();
+                    
+                    camera->reset();
                 }
                 else{
                     cout << "ERROR: main.cpp draw_gui error!\n";
@@ -936,7 +1044,7 @@ void my_init(){
     reset_RGBA();
     
     // init varibale
-    method = METHODS::SAMMON_MAPPING;
+    method = METHODS::SOM_METHOD;
     projectMethod = PROJECTION_METHODS::ORTHO;
     
     streamline_h = 0.1;
@@ -965,12 +1073,18 @@ void my_init(){
     isosurface_enablecliped = 0;
     isosurface_clipnormal = glm::vec4(0,1,0,-150);
 
+    som_training = 0;
+    som_lattice_size = 16;
+    som_init_pos = 0;
+    som_lattice_mesh = 0;
+    
     gui_rgba = 0;
 
     // init camera
     camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
     camera->set_projection_method(projectMethod);
-
+    camera -> set_screen_wh(SCR_WIDTH,SCR_HEIGHT);
+    
     // init model
     if(method == METHODS::ISO_SURFACE){
         renderModeIndex = {0,0};
@@ -1013,6 +1127,15 @@ void my_init(){
         shader = new Shader(v.c_str(),f.c_str(),g.c_str());
         ellipseShadder = new Shader(v.c_str(),f.c_str(), g2.c_str());
         camera->reset(METHODS::SAMMON_MAPPING);
+
+    }else if(method == METHODS::SOM_METHOD){
+
+        renderModeIndex = {5,5};
+        v = dir + "SOM.vert"; 
+        f = dir + "SOM.frag"; 
+
+        som = new SOM(surfaceFileList[surfaceFileIndex.first]);
+        shader = new Shader(v.c_str(),f.c_str());
     }
     else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
 
@@ -1210,6 +1333,16 @@ int main(){
                     if(sammon_nstd[nstd-1])
                         sammon -> draw_ellipse(nstd);
             }
+        }else if(method == METHODS::SOM_METHOD){
+            
+            shader->set_uniform("projection", camera->get_projection_matrix());
+            shader->set_uniform("view", camera->get_view_matrix());
+            if(som_training && !som->isDone)
+                som -> train(500); 
+            else som_training = false;
+
+            som -> draw();
+
         }else cout << "error in display func!!\n";
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -1238,7 +1371,7 @@ void processInput(GLFWwindow *window){
 void keyboard_callback(GLFWwindow* window, int key, int scancode, int action, int mods){
     // cout << action << "\n";
     if(action == 2)
-        if(method == METHODS::ISO_SURFACE || method == METHODS::RAY_CASTING || method == METHODS::SLICE_METHOD)
+        if(method == METHODS::ISO_SURFACE || method == METHODS::RAY_CASTING || method == METHODS::SLICE_METHOD || method == METHODS::SOM_METHOD)
             camera->ProcessKeyDown3D(key);
         else if(method == METHODS::STREAMLINE || method == METHODS::SAMMON_MAPPING)
             camera->ProcessKeyDown2D(key);

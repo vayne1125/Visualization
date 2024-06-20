@@ -40,7 +40,7 @@ void Camera::ProcessKeyDown2D(int key){
     }
 }
 void Camera::ProcessKeyDown3D(int key){
-        std::cout << "in\n";
+    // std::cout << "in\n";
     float w = 10;
     if(key == GLFW_KEY_A){
         polarAngle += w * 0.1f;
@@ -70,8 +70,8 @@ void Camera::reset(){
     azimuthAngle = 0.0f;
     offset = 0.0;
     sensitivity = 5;
-    position.x = position.y = 0;
-    target.x = target.y = 0;
+    position = startPos;
+    target = startTar;
     update();
 }
 void Camera::reset(METHODS method){
@@ -121,9 +121,9 @@ void Camera::set_projection_method(PROJECTION_METHODS projectionMethod){
 Camera::Camera(glm::vec3 pos, glm::vec3 tar, glm::vec3 upup, float fovy){
     std::cout << "Camera.cpp\n";
     up = upup;
-    target = tar;
-    position = pos;
+    target = startTar = tar;
+    position = startPos = pos;
     zoom = fovy;
-    screenW = 800;
-    screenH = 600;
+    update();
+    // reset();
 }

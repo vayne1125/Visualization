@@ -8,15 +8,15 @@
 
 class Camera{
 public:
-    glm::vec3 position;
-    glm::vec3 target;
+    glm::vec3 position, startPos;
+    glm::vec3 target, startTar;
     glm::vec3 up;
     PROJECTION_METHODS projectionMethod;
     float zoom;
     float offset = 0.0;
     float sensitivity = 5;
     int screenW, screenH;
-    float polarAngle = 180.0f;
+    float polarAngle = 0.0f;
     float azimuthAngle = 0.0f;
     float radialDistance = 300.0f;
     Camera(glm::vec3 pos, glm::vec3 tar, glm::vec3 upup, float _r);
