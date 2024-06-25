@@ -72,6 +72,7 @@ void Camera::reset(){
     sensitivity = 5;
     position = startPos;
     target = startTar;
+    // radialDistance = 1000;
     update();
 }
 void Camera::reset(METHODS method){

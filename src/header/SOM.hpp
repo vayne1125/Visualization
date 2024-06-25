@@ -14,10 +14,16 @@ public:
     ~SOM();
     int getIterations();
     int getIterationsCnt();
+    float getLearningRate();
+    float getStartLearningRate();
+    float getStartNeighbourhoodRadius();
+    float getNeighbourhoodRadius();
     void draw();
     void train(int);
     void setNodeSz(int x, int y);
     void setNodeInitPos(NODE_INIT_POS);
+    void setRenderTo(RENDER_TO);
+    void setFittingMesh(FITTING_MESH);
     void init();
 private:
     // const
@@ -30,12 +36,14 @@ private:
     float neighbourhoodRadius;
 
     NODE_INIT_POS nodeInitPos;
+    RENDER_TO renderTo;
+    FITTING_MESH fittingMesh;
 
-    unsigned int points_VAO, lines_VAO, points_VBO, lines_VBO;
+    unsigned int VAO, VBO, textureID;
     int dataNum, dimension;
     pair<int,int> nodeSz;
-    int minX, maxX , minY ,maxY , minZ ,maxZ;
-    int lines_vertexCnt, points_vertexCnt;
+    float minX, maxX , minY ,maxY , minZ ,maxZ;
+    int vertexCnt;
     vector<glm::vec3> data;
     vector<vector<glm::vec3>> node;
     void read_file(string file);

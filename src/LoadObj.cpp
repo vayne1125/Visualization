@@ -11,7 +11,7 @@ struct vertex {
     }
 };
 
-void getMesh(string fname, string outputFName)
+void getMesh(string fname, string outputFName, int scale)
 {
     
     fstream file(fname.c_str(),std::fstream::in | std::fstream::ate); //ate -> 移到最後面
@@ -29,7 +29,7 @@ void getMesh(string fname, string outputFName)
         //cout << fname << "\n";
         if (s == "v") {
             file >> x >> y >> z;
-            v.push_back(vertex(x * 100, y*100, z*100));
+            v.push_back(vertex(x * scale, y*scale, z*scale));
         }
         else if (s == "f") {
             char x;
@@ -60,11 +60,11 @@ void getMesh(string fname, string outputFName)
 
     outFile.close();
 
-    cout <<fname << " " <<tp.size() << "\n";
+    cout <<fname << " " << tp.size() << "\n";
 }
 
 int main(){
-    string inputF = "D:\\school\\Visualization\\src\\asset\\Surface\\fountain.obj";
-    string outputF = "D:\\school\\Visualization\\src\\asset\\Surface\\fountainSurface.txt";
-    getMesh(inputF, outputF);
+    string inputF = "D:\\school\\Visualization\\src\\asset\\Surface\\cat.obj";
+    string outputF = "D:\\school\\Visualization\\src\\asset\\Surface\\catSurface.txt";
+    getMesh(inputF, outputF, 50);
 }

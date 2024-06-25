@@ -13,15 +13,14 @@ SOM::SOM(string file){
     read_file(dir + file);
 
     // init VAO VBO
-    glGenBuffers(1, &points_VBO);
-    glGenBuffers(1, &lines_VBO);
-    glGenVertexArrays(1, &points_VAO);
-    glGenVertexArrays(1, &lines_VAO);
+    glGenBuffers(1, &VBO);
+    glGenVertexArrays(1, &VAO);
 
     // 給初值
     nodeSz = pair(16,16);
     nodeInitPos = NODE_INIT_POS::GRID;
-
+    renderTo = RENDER_TO::LINES;
+    fittingMesh = FITTING_MESH::CYLINDER;
     // init train varible & VAO、VBO
     init();
 }
@@ -43,18 +42,18 @@ void SOM::read_file(string file){
     minX = 0x3f,maxX = -0x3f, minY = 0x3f,maxY = -0x3f, minZ = 0x3f,maxZ = -0x3f;
     for(int i=0;i<dataNum;i++){
         inputFile >> data[i][0] >> data[i][1] >> data[i][2];
-        minX = min(minX, (int)data[i][0]);
-        maxX = max(maxX, (int)data[i][0]);
+        minX = fmin(minX, data[i][0]);
+        maxX = fmax(maxX, data[i][0]);
         
-        minY = min(minY, (int)data[i][1]);
-        maxY = max(maxY, (int)data[i][1]);
+        minY = fmin(minY, data[i][1]);
+        maxY = fmax(maxY, data[i][1]);
 
-        minZ = min(minZ, (int)data[i][2]);
-        maxZ = max(maxZ, (int)data[i][2]);
+        minZ = fmin(minZ, data[i][2]);
+        maxZ = fmax(maxZ, data[i][2]);
     }
     // cout << data[dataNum-1].x << " "<< data[dataNum-1].y << " " << data[dataNum-1].z<<"\n";
     // 移到中間
-    int centerX = minX + (maxX - minX) / 2, centerY =  minY + (maxY - minY) / 2, centerZ =  minZ + (maxZ - minZ) / 2;
+    float centerX = minX + (maxX - minX) / 2, centerY =  minY + (maxY - minY) / 2, centerZ =  minZ + (maxZ - minZ) / 2;
     for(int i=0;i<dataNum;i++){
         data[i][0] -= centerX;
         data[i][1] -= centerY;
@@ -68,25 +67,41 @@ void SOM::init_node(){
     node.clear();
     node.resize(nodeSz.first,vector<glm::vec3>(nodeSz.second));
 
-    glm::vec3 center(minX + (maxX - minX) / 2,minY + (maxY - minY) / 2,minZ + (maxZ - minZ) / 2);
     glm::vec3 range((maxX - minX), (maxY - minY), (maxZ - minZ));
-
+    // cout << range.x << " " << range.y << " " << range.z << "\n";
     srand( time(NULL) );
 
     // random init weight
-    for(int i=0;i < this->nodeSz.first; i++){
-        for(int j=0; j < this->nodeSz.second; j++){
-            if(nodeInitPos == NODE_INIT_POS::RANDOM)
-                node[i][j] = glm::vec3((rand() % int(range.x) - center.x), (rand() % int(range.y) - center.y), (rand() % int(range.z) - center.z));
-            else if(nodeInitPos == NODE_INIT_POS::GRID)
-                node[i][j] = glm::vec3(range.x * ((float)i/nodeSz.first) - center.x, range.y  * ((float)j/nodeSz.second) - center.y, 0);
-            else cout << "SOM.cpp: init_node(): NODE_INIT_POS error!\n";
-            
-            // node[i][j] = glm::vec3((rand() % int(range.x)), (rand() % int(range.y)), (rand() % int(range.z)));
-            // node[i][j] = glm::vec3((rand() % int(range.x) - center.x), (rand() % int(range.y) - center.y), 0);
-
+    if(nodeInitPos == NODE_INIT_POS::RANDOM){
+        for(int i=0;i < this->nodeSz.first; i++){
+            for(int j=0; j < this->nodeSz.second; j++){
+                node[i][j] = glm::vec3((rand() % int(range.x) - range.x/2.0), (rand() % int(range.y) - range.y/2.0), (rand() % int(range.z) - range.z/2.0));
+            }
         }
-    }
+    }else if(nodeInitPos == NODE_INIT_POS::GRID){
+        if(fittingMesh == FITTING_MESH::CYLINDER){
+            float r = range.z / 2.0;
+            float h = range.y;
+            for(int i=0;i < this->nodeSz.first; i++){
+                for(int j=0; j < this->nodeSz.second; j++){
+                    // 高度
+                    float y = (j / ((float)nodeSz.second - 1)) * h - range.y/2.0;
+
+                    // 圓周
+                    float theta = (i / (float)nodeSz.first) * 2 * PI;
+                    float x = r * sin(theta);
+                    float z = r * cos(theta);
+                    node[i][j] = glm::vec3(x,y,z);
+                }
+            }
+        }else if(fittingMesh == FITTING_MESH::PLANE){
+            for(int i=0;i < this->nodeSz.first; i++){
+                for(int j=0; j < this->nodeSz.second; j++){
+                    node[i][j] = glm::vec3(range.x * ((float)i/nodeSz.first) - range.x/2.0, range.y  * ((float)j/nodeSz.second) - range.y/2.0, 0);
+                }
+            }
+        }
+    }else cout << "SOM.cpp: init_node(): NODE_INIT_POS error!\n";
 }
 
 void SOM::init(){
@@ -97,6 +112,7 @@ void SOM::init(){
     iterationsCnt = 0;
     learningRate = startLearningRate;
     startNeighbourhoodRadius = max(nodeSz.first,nodeSz.second)/4.0;
+    neighbourhoodRadius = startNeighbourhoodRadius;
     this -> isDone = false;
     
     // test();
@@ -106,8 +122,12 @@ void SOM::init(){
 void SOM::train(int perIter = 1000){
     while(perIter--){
         // 每次隨機選一個資料(P)做計算
-        int PIndex = (float)rand() / RAND_MAX * dataNum;
-
+        int PIndex = ((float)rand()/ (RAND_MAX))* (dataNum-1);
+        if(PIndex == dataNum){
+            isDone = 1;
+            cout << "SOM.cpp: error: PIndex over vec size\n";
+            break;
+        }
         // 計算 winner node(Best Matching Unit/BMU)
         pair<int,int> BMUIndex = find_BMU(PIndex);
 
@@ -175,12 +195,13 @@ void SOM::update_neighbor(int PIndex, const pair<int,int>& BMU){
             if( i == x && j == y){
                 node[i][j] += learningRate * (data[PIndex] - node[i][j]);
             }else{
-                // double dis = sqrt((i-x)*(i-x) + (j-y)*(j-y));
-                double dis = sqrt(min((i-x)*(i-x) + (j-y)*(j-y),  (nodeSz.first - abs(i - x))*(nodeSz.first - abs(i - x)) + (j-y)*(j-y)));
+                double dis;
+                if(fittingMesh == FITTING_MESH::CYLINDER) dis = sqrt(min((i-x)*(i-x) + (j-y)*(j-y),  (nodeSz.first - abs(i - x))*(nodeSz.first - abs(i - x)) + (j-y)*(j-y)));
+                else if(fittingMesh == FITTING_MESH::PLANE) dis = sqrt((i-x)*(i-x) + (j-y)*(j-y));
+                else cout << "ERROR::SOM.cpp: update_neighbor: unknowen fittingMesh\n";
                 // double disx = min((i-x), nodeSz.first - abs(i - x));
                 // double disy = min((j-y), nodeSz.first - abs(j - y));
                 // double dis = sqrt(disx * disx + disy * disy);
-                
                 // if(dis <= neighbourhoodRadius) node[i][j] += learningRate * (float)exp(-dis/2.0/neighbourhoodRadius/neighbourhoodRadius) * (data[PIndex] - node[i][j]);
                 if(dis <= neighbourhoodRadius) node[i][j] += learningRate * (data[PIndex] - node[i][j]);
             }
@@ -197,54 +218,172 @@ void SOM::test(){
     }
 }
 
-void SOM::set_VAO(){
-    
-    // vector<float> points;
-    // for(int i=0; i<nodeSz.first; i++){
-    //     for(int j=0; j<nodeSz.second; j++){
-    //         points.push_back(node[i][j].x);
-    //         points.push_back(node[i][j].y);
-    //         points.push_back(node[i][j].z);
-    //     }
-    // }
-    // glBindVertexArray(points_VAO);
-    // glBindBuffer(GL_ARRAY_BUFFER, points_VBO);
-    // glBufferData(GL_ARRAY_BUFFER, sizeof(points[0]) * points.size(), points.data(), GL_STATIC_DRAW);
-    // glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(points[0]), 0);
+void SOM::set_VAO(){  
+    if(renderTo == RENDER_TO::LINES){
+        vector<float> lines;
+        if(fittingMesh == FITTING_MESH::CYLINDER){
+            for(int i=0; i<nodeSz.first; i++){
+                for(int j=0; j<nodeSz.second; j++){
+                    
+                    lines.push_back(node[i][j].x);
+                    lines.push_back(node[i][j].y);
+                    lines.push_back(node[i][j].z);
 
+                    lines.push_back(node[(i+1)% nodeSz.first][j].x);
+                    lines.push_back(node[(i+1)% nodeSz.first][j].y);
+                    lines.push_back(node[(i+1)% nodeSz.first][j].z);
+                
+                    // 往上
+                    if(j == nodeSz.second-1) continue;
+                    lines.push_back(node[i][j].x);
+                    lines.push_back(node[i][j].y);
+                    lines.push_back(node[i][j].z);
 
-    vector<float> lines;
-    for(int i=0; i<nodeSz.first; i++){
-        for(int j=0; j<nodeSz.second; j++){
+                    lines.push_back(node[i][(j+1)% nodeSz.second].x);
+                    lines.push_back(node[i][(j+1)% nodeSz.second].y);
+                    lines.push_back(node[i][(j+1)% nodeSz.second].z);
+                }
+            }
+        }else if(fittingMesh == FITTING_MESH::PLANE){
+            for(int i=0; i<nodeSz.first; i++){
+                for(int j=0; j<nodeSz.second; j++){
+                    if(i != nodeSz.first-1){
+                        lines.push_back(node[i][j].x);
+                        lines.push_back(node[i][j].y);
+                        lines.push_back(node[i][j].z);
 
-            lines.push_back(node[i][j].x);
-            lines.push_back(node[i][j].y);
-            lines.push_back(node[i][j].z);
+                        lines.push_back(node[(i+1)% nodeSz.first][j].x);
+                        lines.push_back(node[(i+1)% nodeSz.first][j].y);
+                        lines.push_back(node[(i+1)% nodeSz.first][j].z);
+                    }
+                    // 往上
+                    if(j != nodeSz.second-1) {
+                        lines.push_back(node[i][j].x);
+                        lines.push_back(node[i][j].y);
+                        lines.push_back(node[i][j].z);
 
-            lines.push_back(node[(i+1)% nodeSz.first][j].x);
-            lines.push_back(node[(i+1)% nodeSz.first][j].y);
-            lines.push_back(node[(i+1)% nodeSz.first][j].z);
-          
-            // 往上
-            if(j == nodeSz.second-1) continue;
-            lines.push_back(node[i][j].x);
-            lines.push_back(node[i][j].y);
-            lines.push_back(node[i][j].z);
-
-            lines.push_back(node[i][(j+1)% nodeSz.second].x);
-            lines.push_back(node[i][(j+1)% nodeSz.second].y);
-            lines.push_back(node[i][(j+1)% nodeSz.second].z);
+                        lines.push_back(node[i][(j+1)% nodeSz.second].x);
+                        lines.push_back(node[i][(j+1)% nodeSz.second].y);
+                        lines.push_back(node[i][(j+1)% nodeSz.second].z);
+                    }
+                }
+            }
         }
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(lines[0]) * lines.size(), lines.data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(lines[0]), 0);
+
+        vertexCnt = lines.size()/3;
+    }else if(renderTo == RENDER_TO::SURFACES){
+        vector<float> surfaces;
+        int szx , szy ;
+        if(fittingMesh == FITTING_MESH::CYLINDER){
+            szx = nodeSz.first, szy = nodeSz.second;
+        }else if(fittingMesh == FITTING_MESH::PLANE){
+            szx = nodeSz.first - 1, szy = nodeSz.second;
+        }
+        for(int i=0; i<szx; i++){
+            for(int j=1; j<szy; j++){
+                /*-----------------
+                    p1--p4                                          
+                    |\   |
+                    | \  |
+                    |  \ |
+                    |___\|
+                    p2   p3
+                ------------------*/    
+                glm::vec3 p1 = node[i][j], p2 = node[i][j-1], p3 = node[(i+1)% nodeSz.first][j-1], p4 = node[(i+1)% nodeSz.first][j];
+                glm::vec2 p1_st = glm::vec2(i,j), p2_st = glm::vec2(i,j-1), p3_st = glm::vec2((i+1),j-1), p4_st = glm::vec2((i+1),j);
+                
+                // p123
+                glm::vec3 u = p2 - p1;
+                glm::vec3 v = p3 - p1;
+                glm::vec3 normal = glm::normalize(cross(u,v));
+                
+                // p1
+                surfaces.push_back(p1.x);
+                surfaces.push_back(p1.y);
+                surfaces.push_back(p1.z);
+                surfaces.push_back(normal.x);
+                surfaces.push_back(normal.y);
+                surfaces.push_back(normal.z);
+                surfaces.push_back((float)p1_st[0]/nodeSz.first);
+                surfaces.push_back(1 - (float)p1_st[1]/nodeSz.second);
+
+                // p2
+                surfaces.push_back(p2.x);
+                surfaces.push_back(p2.y);
+                surfaces.push_back(p2.z);
+                surfaces.push_back(normal.x);
+                surfaces.push_back(normal.y);
+                surfaces.push_back(normal.z);
+                surfaces.push_back((float)p2_st[0]/nodeSz.first);
+                surfaces.push_back(1 - (float)p2_st[1]/nodeSz.second);
+
+                // p3
+                surfaces.push_back(p3.x);
+                surfaces.push_back(p3.y);
+                surfaces.push_back(p3.z);
+                surfaces.push_back(normal.x);
+                surfaces.push_back(normal.y);
+                surfaces.push_back(normal.z);
+                surfaces.push_back((float)p3_st[0]/nodeSz.first);
+                surfaces.push_back(1 - (float)p3_st[1]/nodeSz.second);
+
+
+                // p134
+                u = p3 - p1;
+                v = p4 - p1;
+                normal = glm::normalize(cross(u,v));
+                
+                // p1
+                surfaces.push_back(p1.x);
+                surfaces.push_back(p1.y);
+                surfaces.push_back(p1.z);
+                surfaces.push_back(normal.x);
+                surfaces.push_back(normal.y);
+                surfaces.push_back(normal.z);
+                surfaces.push_back((float)p1_st[0]/nodeSz.first);
+                surfaces.push_back(1 - (float)p1_st[1]/nodeSz.second);
+
+                // p3
+                surfaces.push_back(p3.x);
+                surfaces.push_back(p3.y);
+                surfaces.push_back(p3.z);
+                surfaces.push_back(normal.x);
+                surfaces.push_back(normal.y);
+                surfaces.push_back(normal.z);
+                surfaces.push_back((float)p3_st[0]/nodeSz.first);
+                surfaces.push_back(1 - (float)p3_st[1]/nodeSz.second);
+
+                // p4
+                surfaces.push_back(p4.x);
+                surfaces.push_back(p4.y);
+                surfaces.push_back(p4.z);
+                surfaces.push_back(normal.x);
+                surfaces.push_back(normal.y);
+                surfaces.push_back(normal.z);
+                surfaces.push_back((float)p4_st[0]/nodeSz.first);
+                surfaces.push_back(1 - (float)p4_st[1]/nodeSz.second);
+            }
+        }
+        
+            
+        glBindVertexArray(VAO);
+        glBindBuffer(GL_ARRAY_BUFFER, VBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(surfaces[0]) * surfaces.size(), surfaces.data(), GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(surfaces[0]), 0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(surfaces[0]), (void*)(3 * sizeof(surfaces[0])));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(surfaces[0]), (void*)(6 * sizeof(surfaces[0])));
+        vertexCnt = surfaces.size()/8;
+    }else{
+        cout << "SOM.cpp: set_VAO(): error: unknowen value \'renderTo\'\n";
     }
-
-    glBindVertexArray(lines_VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, lines_VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(lines[0]) * lines.size(), lines.data(), GL_STATIC_DRAW);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(lines[0]), 0);
-
-    lines_vertexCnt = lines.size()/3;
     // points_vertexCnt = points.size()/3;
     // glEnableVertexAttribArray(1);
     // glVertexAttribPointer(1, 1, GL_DOUBLE, GL_FALSE, 3 * sizeof(double), (void*)(2 * sizeof(double)));
@@ -259,13 +398,26 @@ void SOM::setNodeInitPos(NODE_INIT_POS iip){
     nodeInitPos = iip;
 }
 
+void SOM::setRenderTo(RENDER_TO r){
+    renderTo = r;
+    set_VAO();
+}
+
+void SOM::setFittingMesh(FITTING_MESH fm){
+    fittingMesh = fm;
+}
+
 void SOM::draw(){
 
-    // glBindVertexArray(this->points_VAO);
-    // glDrawArrays(GL_POINTS, 0, points_vertexCnt);
-    
-    glBindVertexArray(this->lines_VAO);
-    glDrawArrays(GL_LINES, 0, lines_vertexCnt);
+    glBindVertexArray(this->VAO);
+
+    if(renderTo == RENDER_TO::LINES){
+        glDrawArrays(GL_LINES, 0, vertexCnt);
+    }else if(renderTo == RENDER_TO::SURFACES){
+        glDrawArrays(GL_TRIANGLES, 0, vertexCnt);
+    }else{
+        cout << "SOM.cpp: set_VAO(): error: unknowen value \'renderTo\'\n";
+    }
     glBindVertexArray(0);
 }
 
@@ -275,4 +427,20 @@ int SOM::getIterations(){
 
 int SOM::getIterationsCnt(){
     return iterationsCnt;
+}
+
+float SOM::getLearningRate(){
+    return learningRate;
+}
+
+float SOM::getStartLearningRate(){
+    return startLearningRate;
+}
+
+float SOM::getStartNeighbourhoodRadius(){
+    return startNeighbourhoodRadius;
+}
+
+float SOM::getNeighbourhoodRadius(){
+    return neighbourhoodRadius;
 }

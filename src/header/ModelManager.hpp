@@ -41,5 +41,4 @@ private:
     int modelID;
     string infFile, rawFile;
     glm::mat4 fixedRY;
-    void update();
 };

@@ -8,6 +8,8 @@ add_executable(Visualization
 "ModelManager.cpp"
 "Sammon.cpp"
 "SOM.cpp"
+"TextureManager.cpp"
+"std_image.cpp"
 ) #列所有的cpp
 target_link_libraries(Visualization
 # OpenGL::GL

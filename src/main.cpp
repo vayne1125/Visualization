@@ -15,6 +15,7 @@
 #include "./header/Streamline.hpp"
 #include "./header/Sammon.hpp"
 #include "./header/SOM.hpp"
+#include "./header/TextureManager.hpp"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
@@ -28,12 +29,13 @@ const unsigned int SCR_HEIGHT = 600;
 
 METHODS method;
 PROJECTION_METHODS projectMethod;
-Shader *shader, *ellipseShadder;
+Shader *shader, *ellipseShader, *normalShader;
 Camera *camera;
 ModelManager *modelManager;
 Streamline *streamline;
 Sammon *sammon;
 SOM *som;
+TextureManager *textureManager;
 
 pair<int,int> modelFileIndex = {1,1};
 const char* modelFileList[] = { "carp", "engine","golfball", "teddybear"};
@@ -42,11 +44,13 @@ pair<int,int> vecFileIndex = {0,0};
 const char* vecFileList[] = { "1.vec", "2.vec","3.vec", "4.vec", "5.vec", "6.vec", "7.vec", "8.vec", "9.vec", "10.vec", "11.vec", "12.vec", "13.vec", "14.vec", "15.vec", "16.vec", "19.vec", "20.vec", "21.vec", "22.vec", "23.vec", "rect1.vec", "rect2.vec", "step5_velocity.vec", "test_not_unit.vec", "test_unit.vec"};
 
 pair<int,int> surfaceFileIndex = {0,0};
-const char* surfaceFileList[] = { "vaseSurface.txt", "teapotSurface.txt","bunnySurface.txt"};
+const char* surfaceFileList[] = { "vaseSurface.txt", "teapotSurface.txt","bunnySurface.txt", "fountainSurface.txt", "cloudSurface.txt",  "catSurface.txt"};
 
 pair<int,int> renderModeIndex;
 const char* renderModeList[] = { "iso-surface method", "slicing method","ray casting method","streamline(RK2 method)", "sammon mapping", "SOM method"};
 
+int textureFileIndex = 0;
+const char* textureFileList[] = {"none", "rainbow cloud", "yellow marble", "cheese"};
 
 // iso-surface
 int isosurface_enablecliped;
@@ -82,6 +86,10 @@ int som_training;
 int som_lattice_size;
 int som_init_pos;
 int som_lattice_mesh;
+int som_render_to;
+int som_normal;
+float som_normal_ratio;
+TEXTURE som_textureID;
 
 void reset_RGBA(){
     cout << "reset gui_RGBA\n";
@@ -743,7 +751,6 @@ void draw_sammon_gui(){
     }
 }
 void draw_SOM_gui(){
-    // todo
     int btnSz = 130;
     ImGui::Text("Load Surface");
     ImGui::SetNextItemWidth(232);
@@ -760,17 +767,51 @@ void draw_SOM_gui(){
             if(som_init_pos == 0) som->setNodeInitPos(NODE_INIT_POS::GRID);
             else if(som_init_pos == 1) som->setNodeInitPos(NODE_INIT_POS::RANDOM);
             som->init();
+            if(som_render_to == 0) som->setRenderTo(RENDER_TO::LINES);
+            else if(som_render_to == 1) som->setRenderTo(RENDER_TO::SURFACES);
         }
         
     }
     ImGui::Spacing();
-    ImGui::SeparatorText("Lattice");
 
+    ImGui::Text("Load Texture(only for surfaces)");
+    ImGui::SetNextItemWidth(232);
+    if(ImGui::Combo("##loadtexture_SOM", &textureFileIndex, textureFileList, IM_ARRAYSIZE(textureFileList))){
+        if(textureFileIndex == 0){
+            som_textureID = TEXTURE::WHITE;
+        }else if(textureFileIndex == 1){
+            som_textureID = TEXTURE::RAINBOW_CLOUD;
+        }else if(textureFileIndex == 2){
+            som_textureID = TEXTURE::YELLOW_MARBLE;
+        }else if(textureFileIndex == 3){
+            som_textureID = TEXTURE::CHEESE;
+        }else {
+            cout << "error: draw_SOM_gui() unknowen som_textureID\n";
+        }
+    }
+    ImGui::Spacing();
+
+    ImGui::Text("Render to ?");
+    ImGui::SameLine();
+    if(ImGui::RadioButton("lines(mesh)", &som_render_to, 0)) som->setRenderTo(RENDER_TO::LINES);
+    ImGui::SameLine();
+    if(ImGui::RadioButton("surfaces(with Phong)", &som_render_to, 1)) som->setRenderTo(RENDER_TO::SURFACES);
+    ImGui::Spacing();
+
+    ImGui::Text("Show normal(only for surfaces)?");
+    ImGui::SameLine();
+    ImGui::SetNextItemWidth(148);
+    ImGui::SliderFloat("##som_normal_ratio", &som_normal_ratio,0.0, 1.0);
+    ImGui::Spacing();
+
+    ImGui::SeparatorText("Lattice");
+    if (som_training)
+        ImGui::BeginDisabled();
     ImGui::Text("Fitting Mesh");
     ImGui::SameLine();
-    if(ImGui::RadioButton("cylinder", &som_lattice_mesh, 0));//som->setNodeSz(som_lattice_size,som_lattice_size);
+    if(ImGui::RadioButton("cylinder", &som_lattice_mesh, 0)) som->setFittingMesh(FITTING_MESH::CYLINDER);
     ImGui::SameLine();
-    if(ImGui::RadioButton("plane", &som_lattice_mesh, 1));// som->setNodeSz(som_lattice_size,som_lattice_size);
+    if(ImGui::RadioButton("plane", &som_lattice_mesh, 1)) som->setFittingMesh(FITTING_MESH::PLANE); 
     // ImGui::SameLine();
     // if(ImGui::RadioButton("xxx", &som_lattice_size, 64)) som->setNodeSz(som_lattice_size,som_lattice_size);
 
@@ -796,31 +837,16 @@ void draw_SOM_gui(){
         som->init();
     }
 
+    if (som_training)
+        ImGui::EndDisabled();
+        
     ImGui::Spacing();
     ImGui::SeparatorText("training");
-    int cnt = som->getIterationsCnt();
-    int iter = som->getIterations();
-    int percent = cnt/(float)iter*100;
-    string scnt, siter, sper,s;
-    if(cnt == 0) scnt = "0";
-    if(percent == 0) sper = "0";
-    while(cnt){
-        scnt += cnt%10 + '0';
-        cnt/=10;
-    }
-    while(iter){
-        siter += iter%10 + '0';
-        iter/=10;
-    }
-    while(percent){
-        sper += percent%10 + '0';
-        percent/=10;
-    }
-    reverse(scnt.begin(),scnt.end());
-    reverse(siter.begin(),siter.end());
-    reverse(sper.begin(),sper.end());
-    s = "Iterator: " + scnt + "/" + siter + "(" + sper + "%)";
-    ImGui::Text(s.c_str());
+
+    ImGui::Text("Learning Rate: %.3f (%f)",som->getStartLearningRate(), som->getLearningRate());
+    ImGui::Text("Neighborhood Ridus: %.3f (%f)",som->getStartNeighbourhoodRadius(), som->getNeighbourhoodRadius());
+    ImGui::Spacing();
+    ImGui::Text("Iterator: %d / %d (%d%%)",som->getIterationsCnt(), som->getIterations(), som->getIterationsCnt()*100/som->getIterations());
 
     ImGui::SameLine();
     ImGui::SetCursorPosX(250);
@@ -847,16 +873,21 @@ void draw_gui(){
             if(renderModeIndex.second != renderModeIndex.first){
                 renderModeIndex.first = renderModeIndex.second;
 
-                string v,f,g,g2;
+                string v,f,g,v2,f2,g2;
                 #ifdef __linux__
                     v = "/home/yu/Desktop/school/Visualization/src/shaders/";
                     f = "/home/yu/Desktop/school/Visualization/src/shaders/";
                     g = "/home/yu/Desktop/school/Visualization/src/shaders/";
+                    v2 = "/home/yu/Desktop/school/Visualization/src/shaders/";
+                    f2 = "/home/yu/Desktop/school/Visualization/src/shaders/";
+                    g2 = "/home/yu/Desktop/school/Visualization/src/shaders/";
 
                 #else
                     v = "D:\\school\\Visualization\\src\\shaders\\";
                     f = "D:\\school\\Visualization\\src\\shaders\\";
                     g = "D:\\school\\Visualization\\src\\shaders\\";
+                    f2 = "D:\\school\\Visualization\\src\\shaders\\";
+                    v2 = "D:\\school\\Visualization\\src\\shaders\\";
                     g2 = "D:\\school\\Visualization\\src\\shaders\\";
                 #endif
 
@@ -934,8 +965,8 @@ void draw_gui(){
                     delete shader;
                     shader = new Shader(v.c_str(),f.c_str(),g.c_str());
 
-                    delete ellipseShadder;
-                    ellipseShadder = new Shader(v.c_str(),f.c_str(), g2.c_str());
+                    delete ellipseShader;
+                    ellipseShader = new Shader(v.c_str(),f.c_str(), g2.c_str());
 
                     delete sammon;
                     sammon = new Sammon("creditcard.dat",sammon_N);
@@ -943,12 +974,18 @@ void draw_gui(){
                     camera->reset(METHODS::SAMMON_MAPPING);
                 
                 }else if(renderModeIndex.first == METHODS::SOM_METHOD){
-                    method =  METHODS::SAMMON_MAPPING;
+                    method =  METHODS::SOM_METHOD;
                     v += "SOM.vert";
                     f += "SOM.frag";
-                    
+                    v2 += "normal.vert";
+                    f2 += "normal.frag";
+                    g2 += "normal.geom";
+
                     delete shader;
                     shader = new Shader(v.c_str(),f.c_str());
+
+                    delete normalShader;
+                    normalShader = new Shader(v2.c_str(),f2.c_str(), g2.c_str());
 
                     delete som;
                     som = new SOM(surfaceFileList[surfaceFileIndex.first]);
@@ -957,10 +994,10 @@ void draw_gui(){
                     if(som_init_pos == 0) som->setNodeInitPos(NODE_INIT_POS::GRID);
                     else if(som_init_pos == 1) som->setNodeInitPos(NODE_INIT_POS::RANDOM);
                     som->init();
-                    
+
                     camera->reset();
                 }
-                else{
+                else {
                     cout << "ERROR: main.cpp draw_gui error!\n";
                 }
             }
@@ -1028,8 +1065,8 @@ void draw_gui(){
         ImGui::End();
     }
 
-    ImGui::ShowDemoWindow(); // Show demo window! :)
-    ImPlot::ShowDemoWindow();
+    // ImGui::ShowDemoWindow(); // Show demo window! :)
+    // ImPlot::ShowDemoWindow();
 }
 void my_init(){
     gui_RGBA.assign(4,vector<float>(256,0));
@@ -1077,12 +1114,16 @@ void my_init(){
     som_lattice_size = 16;
     som_init_pos = 0;
     som_lattice_mesh = 0;
-    
+    som_render_to = 0;
+    som_normal = 0;
+    som_normal_ratio = 0.0;
+    som_textureID = TEXTURE::WHITE;
+
     gui_rgba = 0;
 
     // init camera
     camera = new Camera(glm::vec3(0,0,-200),glm::vec3(0,0,0),glm::vec3(0,1,0),100);
-    camera->set_projection_method(projectMethod);
+    camera -> set_projection_method(projectMethod);
     camera -> set_screen_wh(SCR_WIDTH,SCR_HEIGHT);
     
     // init model
@@ -1125,7 +1166,7 @@ void my_init(){
 
         sammon = new Sammon("creditcard.dat",sammon_N);
         shader = new Shader(v.c_str(),f.c_str(),g.c_str());
-        ellipseShadder = new Shader(v.c_str(),f.c_str(), g2.c_str());
+        ellipseShader = new Shader(v.c_str(),f.c_str(), g2.c_str());
         camera->reset(METHODS::SAMMON_MAPPING);
 
     }else if(method == METHODS::SOM_METHOD){
@@ -1134,13 +1175,16 @@ void my_init(){
         v = dir + "SOM.vert"; 
         f = dir + "SOM.frag"; 
 
+        string v2 = dir + "normal.vert", f2 = dir + "normal.frag", g2 = dir + "normal.geom";
+
         som = new SOM(surfaceFileList[surfaceFileIndex.first]);
         shader = new Shader(v.c_str(),f.c_str());
+        normalShader = new Shader(v2.c_str(),f2.c_str(), g2.c_str());
     }
     else cout << "ERROR: main.cpp modelManager cant find mrthod.\n";
 
     
-
+    textureManager = new TextureManager();
     gui_xs.clear();
     gui_bar.clear();
     if(method == METHODS::SLICE_METHOD || method == METHODS::RAY_CASTING){
@@ -1321,14 +1365,14 @@ int main(){
             sammon -> draw(sammon_mode);
 
             if(sammon_show_ellipse){
-                ellipseShadder->use();
-                ellipseShadder->set_uniform("projection", camera->get_projection_matrix());
-                ellipseShadder->set_uniform("view", camera->get_view_matrix());
-                ellipseShadder->set_uniform("screenW", (float)camera->screenW);
-                ellipseShadder->set_uniform("screenH", (float)camera->screenH);
-                ellipseShadder->set_uniform("color0", glm::vec4(sammon_ellipse_color_0.x,sammon_ellipse_color_0.y,sammon_ellipse_color_0.z,sammon_ellipse_color_0.w));
-                ellipseShadder->set_uniform("color1", glm::vec4(sammon_ellipse_color_1.x,sammon_ellipse_color_1.y,sammon_ellipse_color_1.z,sammon_ellipse_color_1.w));
-                ellipseShadder->set_uniform("widthRatio", sammon_line_width_ratio);
+                ellipseShader->use();
+                ellipseShader->set_uniform("projection", camera->get_projection_matrix());
+                ellipseShader->set_uniform("view", camera->get_view_matrix());
+                ellipseShader->set_uniform("screenW", (float)camera->screenW);
+                ellipseShader->set_uniform("screenH", (float)camera->screenH);
+                ellipseShader->set_uniform("color0", glm::vec4(sammon_ellipse_color_0.x,sammon_ellipse_color_0.y,sammon_ellipse_color_0.z,sammon_ellipse_color_0.w));
+                ellipseShader->set_uniform("color1", glm::vec4(sammon_ellipse_color_1.x,sammon_ellipse_color_1.y,sammon_ellipse_color_1.z,sammon_ellipse_color_1.w));
+                ellipseShader->set_uniform("widthRatio", sammon_line_width_ratio);
                 for(int nstd=1;nstd<=3;nstd++) 
                     if(sammon_nstd[nstd-1])
                         sammon -> draw_ellipse(nstd);
@@ -1337,12 +1381,28 @@ int main(){
             
             shader->set_uniform("projection", camera->get_projection_matrix());
             shader->set_uniform("view", camera->get_view_matrix());
+            shader->set_uniform("viewPos", camera->position);
+            shader->set_uniform("lightPos",camera->position);
+            shader->set_uniform("renderTo", som_render_to);
+            
+            shader->set_uniform("texture2d", 0);
+
             if(som_training && !som->isDone)
                 som -> train(500); 
             else som_training = false;
 
+            if(som_render_to == RENDER_TO::SURFACES){
+                textureManager->useByID(som_textureID);
+            }
             som -> draw();
-
+            
+            if(som_normal_ratio != 0.0 && som_render_to == RENDER_TO::SURFACES){
+                normalShader->use();
+                normalShader->set_uniform("projection", camera->get_projection_matrix());
+                normalShader->set_uniform("view", camera->get_view_matrix());
+                normalShader->set_uniform("magRatio",som_normal_ratio);
+                som -> draw();
+            }
         }else cout << "error in display func!!\n";
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
