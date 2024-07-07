@@ -125,3 +125,60 @@ You should have CMake and a C++ compilation environment installed.<br>
 |<img src="/readmeimg/hw4_2_1.png" height="320"/>|<img src="/readmeimg/hw4_2_2.png" height="320"/>|
 | **sigma = (99.73%)** | **sigma = 1,2,3** |
 |<img src="/readmeimg/hw4_2_3.png" height="320"/>|<img src="/readmeimg/hw4_2_4.png" height="320"/>|
+
+### Implement SOM Method
+Demo Video: https://youtu.be/8l7O3fyZHcQ
+- 建立大小為k*k的網格點，並隨機給網格點n個值(n為訓練資料的維度)
+- 每次迭代，隨機選一筆資料，並找出最像的網格點(BMU)
+- 利用歐幾里得距離計算網格點間的位置，並更新自己和鄰居
+- 隨著迭代次數更新學習率及鄰居範圍
+- 利用外積計算三角形的法向量
+- 利用幾何著色器將法向量視覺化
+- 可以透過GUI調整lattice及渲染設定
+
+<img src="/readmeimg/hw5.png"/>
+
+#### 參數
+| 參數 | 值 |
+| ---  | --- |
+| Start Learning Rate |  0.01 |
+| Start Neighbourhood Radius | k/4 |
+|Iterations | 500'000|
+|Learning Rate| Start Learning Rate * exp(當前迭代次數/iterations)|
+|Neighbourhood Radius | Start Neighbourhood Radius * ((Iterations - 當前迭代次數)/ Iterations)^2 (min = 1) |
+
+#### 不同的 model 渲染成不同的樣子
+
+|                       | line | surface |
+|:--------------------: | :---:| :---:   |
+| vase   <br> (32 * 32) |      |         |
+| teapot <br> (32 * 32) |      |         |
+| bunny  <br> (32 * 32) |      |         |
+|fountain<br> (32 * 32) |      |         |
+| cloud  <br> (64 * 64) |      |         |
+|  cat   <br> (64 * 64) |<img src="/readmeimg/hw5_1_cat_line.png" height="320"/> |<img src="/readmeimg/hw5_1_cat_surface.png" height="320"/> |
+
+#### 不同的 lattice size
+
+|         | line | surface |
+|:------: | :---:| :------:|
+| 16 * 16 |      |         |
+| 32 * 32 |      |         |
+| 64 * 64 |      |         |
+
+#### 不同的 fitting mesh(皆是使用 32 * 32 的網格)
+|         | cylinder | plane |
+|:------: | :-------:| :----:|
+|  初始   |          |       |
+| line    |          |       |
+| surface |          |       |
+
+#### 貼上紋理(皆是使用64 * 64的網格)
+|     rainbow cloud     |  yellow marble | cheese |
+|:--------------------: | :-------------:| :-----:|
+|                       |                |        |
+
+#### 法向量視覺化(皆是使用64 * 64的網格)
+|     vase     |  teapot | Bunny |
+|:----------:  | :-----: |:-----:|
+|              |         |       |
