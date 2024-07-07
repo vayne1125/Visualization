@@ -151,34 +151,33 @@ Demo Video: https://youtu.be/8l7O3fyZHcQ
 
 |                       | line | surface |
 |:--------------------: | :---:| :---:   |
-| vase   <br> (32 * 32) |      |         |
-| teapot <br> (32 * 32) |      |         |
-| bunny  <br> (32 * 32) |      |         |
-|fountain<br> (32 * 32) |      |         |
-| cloud  <br> (64 * 64) |      |         |
-|  cat   <br> (64 * 64) |<img src="/readmeimg/hw5_1_cat_line.png" height="320"/> |<img src="/readmeimg/hw5_1_cat_surface.png" height="320"/> |
+| vase   <br> (32 * 32) |<img src="/readmeimg/hw5_1_vase_line.png" width="300"/>     | <img src="/readmeimg/hw5_1_vase_surface.png"  width="300"/>      |
+| teapot <br> (32 * 32) |<img src="/readmeimg/hw5_1_teapot_line.png" width="300"/>   | <img src="/readmeimg/hw5_1_teapot_surface.png" width="300"/>   |
+| bunny  <br> (32 * 32) |<img src="/readmeimg/hw5_1_bunny_line.png" width="300"/>    | <img src="/readmeimg/hw5_1_bunny_surface.png" width="300"/>    |
+|fountain<br> (32 * 32) |<img src="/readmeimg/hw5_1_fountain_line.png" width="300"/> | <img src="/readmeimg/hw5_1_fountain_surface.png" width="300"/> |
+| cloud  <br> (64 * 64) |<img src="/readmeimg/hw5_1_cloud_line.png" width="300"/>    | <img src="/readmeimg/hw5_1_cloud_surface.png" width="300"/>    |
+|  cat   <br> (64 * 64) |<img src="/readmeimg/hw5_1_cat_line.png" width="300"/>      | <img src="/readmeimg/hw5_1_cat_surface.png" width="300"/>      |
 
 #### 不同的 lattice size
 
-|         | line | surface |
-|:------: | :---:| :------:|
-| 16 * 16 |      |         |
-| 32 * 32 |      |         |
-| 64 * 64 |      |         |
+|         | 16 * 16 | 32 * 32 | 64 * 64 |
+|:------: | :------:| :------:| :------:|
+|  line   |<img src="/readmeimg/hw5_2_1_1.png" height="400"/>|<img src="/readmeimg/hw5_2_1_2.png" height="400"/>|<img src="/readmeimg/hw5_2_1_3.png" height="400"/>|
+| surface |<img src="/readmeimg/hw5_2_2_1.png" height="400"/>|<img src="/readmeimg/hw5_2_2_2.png" height="400"/>|<img src="/readmeimg/hw5_2_2_3.png" height="400"/>|
 
 #### 不同的 fitting mesh(皆是使用 32 * 32 的網格)
 |         | cylinder | plane |
 |:------: | :-------:| :----:|
-|  初始   |          |       |
-| line    |          |       |
-| surface |          |       |
+|  初始   |<img src="/readmeimg/hw5_3_1_1.png" height="400"/>|<img src="/readmeimg/hw5_3_1_2.png" height="400"/>|
+| line    |<img src="/readmeimg/hw5_3_2_1.png" height="400"/>|<img src="/readmeimg/hw5_3_2_2.png" height="400"/>|
+| surface |<img src="/readmeimg/hw5_3_3_1.png" height="400"/>|<img src="/readmeimg/hw5_3_3_2.png" height="400"/>|
 
 #### 貼上紋理(皆是使用64 * 64的網格)
 |     rainbow cloud     |  yellow marble | cheese |
 |:--------------------: | :-------------:| :-----:|
-|                       |                |        |
+|<img src="/readmeimg/hw5_4_1.png" height="400"/> |<img src="/readmeimg/hw5_4_2.png" height="400"/>|<img src="/readmeimg/hw5_4_3.png" height="400"/>|
 
 #### 法向量視覺化(皆是使用64 * 64的網格)
 |     vase     |  teapot | Bunny |
 |:----------:  | :-----: |:-----:|
-|              |         |       |
+|<img src="/readmeimg/hw5_5_1.png" height="320"/>|<img src="/readmeimg/hw5_5_2.png" height="320"/>|<img src="/readmeimg/hw5_5_3.png" height="320"/>|
