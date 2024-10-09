@@ -109,8 +109,9 @@ void Volume::cal_ray_casting_aabb(){
 }
 void Volume::cal_slice(int sliceNum){
     this -> sliceNum = sliceNum;
-    this->delete_slice_VAO();
-    this -> slice_VAO.assign(6,0);
+    this -> delete_slice_VAO();
+    this -> slice_VAO.clear();
+    this -> slice_VAO.resize(6);
     mesh.clear();
     
     // int sliceNum = 4096; //切片數
@@ -362,9 +363,6 @@ void Volume::cal_slice(int sliceNum){
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     mesh.clear();
-
-    glDeleteBuffers(1, &VBO);
-
 }
 void Volume::set_VAO(){
     //VAO VBO
@@ -433,7 +431,7 @@ void Volume::draw(int v){
 template<typename T> void Volume::read_raw(string file){
     std::ifstream inputFile(file, std::ios::binary);
     if (!inputFile.is_open()) {
-        std::cerr << "Unable to open file." << std::endl;
+        std::cerr << "Volume::Unable to open file." << std::endl;
         return ;
     }
 

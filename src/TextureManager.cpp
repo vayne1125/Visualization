@@ -40,11 +40,11 @@ Texture::Texture(int r,int g,int b){
 TextureManager::TextureManager(){
     white = new Texture(255,255,255);
 
-    string dir;
-    #ifdef __linux__
-        dir = "/home/yu/Desktop/school/Visualization/src/asset/Image/";
+    string dir = ASSET_DIR;
+    #if defined(__linux__) || defined(__APPLE__)
+        dir += "Image/";
     #else
-        dir = "D:\\school\\Visualization\\src\\asset\\Image\\";
+        dir += "Image\\";
     #endif
 
     test = new Texture(dir + "yellow_marble.jpg");

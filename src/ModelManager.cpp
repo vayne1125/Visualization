@@ -34,13 +34,7 @@ void ModelManager::init(int method, const string& modelName, int isoLevel){
     else if(modelName == "teddybear")
         modelID = MODEL_TYPE::TEDDYBEAR;
     
-    
-    string dir;
-    #ifdef __linux__
-        dir = "/home/yu/Desktop/school/Visualization/src/asset/";
-    #else
-        dir = "D:\\school\\Visualization\\src\\asset\\";
-    #endif
+    string dir = ASSET_DIR;
     
     this -> infFile = dir + modelName + ".inf";
     this -> rawFile = dir + modelName + ".raw";

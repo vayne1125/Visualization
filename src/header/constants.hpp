@@ -5,6 +5,15 @@
 #include<bits/stdc++.h>
 
 #define PI acos(-1)
+
+#if defined(__linux__) || defined(__APPLE__)
+    #define SHADER_DIR "../../src/shaders/"
+    #define ASSET_DIR "../../src/asset/"
+#else
+    #define SHADER_DIR "..\\..\\src\\shaders\\"
+    #define ASSET_DIR "..\\..\\src\\asset\\"
+#endif
+
 using namespace std;
 
 enum METHODS

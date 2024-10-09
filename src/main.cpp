@@ -273,16 +273,16 @@ void draw_volume_rendering_gui(){
         ImGui::Text("Rotate:");
         ImGui::Text("X:");ImGui::SameLine();
         ImGui::SetNextItemWidth(50);
-        ImGui::SliderFloat("##x_SM",&modelManager->rotate.x,0,360); // ax + by + cz + d = 0
+        ImGui::SliderFloat("##x_SM",&modelManager->rotate.x,0,360);
         ImGui::SameLine();
         ImGui::Text("Y:");ImGui::SameLine();
         ImGui::SetNextItemWidth(50);
-        ImGui::SliderFloat("##y_SM",&modelManager->rotate.y,0,360); // ax + by + cz + d = 0
+        ImGui::SliderFloat("##y_SM",&modelManager->rotate.y,0,360); 
 
         ImGui::SameLine();
         ImGui::Text("Z:");ImGui::SameLine();
         ImGui::SetNextItemWidth(50);
-        ImGui::SliderFloat("##z_SM",&modelManager->rotate.z,0,360); // ax + by + cz + d = 0
+        ImGui::SliderFloat("##z_SM",&modelManager->rotate.z,0,360); 
 
         ImGui::SameLine();
         ImGui::SetCursorPosX(250);
@@ -873,36 +873,20 @@ void draw_gui(){
             if(renderModeIndex.second != renderModeIndex.first){
                 renderModeIndex.first = renderModeIndex.second;
 
-                string v,f,g,v2,f2,g2;
-                #ifdef __linux__
-                    v = "/home/yu/Desktop/school/Visualization/src/shaders/";
-                    f = "/home/yu/Desktop/school/Visualization/src/shaders/";
-                    g = "/home/yu/Desktop/school/Visualization/src/shaders/";
-                    v2 = "/home/yu/Desktop/school/Visualization/src/shaders/";
-                    f2 = "/home/yu/Desktop/school/Visualization/src/shaders/";
-                    g2 = "/home/yu/Desktop/school/Visualization/src/shaders/";
-
-                #else
-                    v = "D:\\school\\Visualization\\src\\shaders\\";
-                    f = "D:\\school\\Visualization\\src\\shaders\\";
-                    g = "D:\\school\\Visualization\\src\\shaders\\";
-                    f2 = "D:\\school\\Visualization\\src\\shaders\\";
-                    v2 = "D:\\school\\Visualization\\src\\shaders\\";
-                    g2 = "D:\\school\\Visualization\\src\\shaders\\";
-                #endif
+                string v,f,g,v2,f2,g2, dir = SHADER_DIR;
 
                 if(renderModeIndex.first == METHODS::ISO_SURFACE){
                     method =  METHODS::ISO_SURFACE;
-                    v += "IsoSurface.vert";
-                    f += "IsoSurface.frag";
+                    v = dir + "IsoSurface.vert";
+                    f = dir + "IsoSurface.frag";
                     delete modelManager;
                     modelManager = new ModelManager(METHODS::ISO_SURFACE, modelFileList[modelFileIndex.first],200);
                     delete shader;
                     shader = new Shader(v.c_str(),f.c_str());
                 }else if(renderModeIndex.first == METHODS::SLICE_METHOD){
                     method =  METHODS::SLICE_METHOD;
-                    v += "SliceMethod.vert";
-                    f += "SliceMethod.frag";
+                    v = dir + "SliceMethod.vert";
+                    f = dir + "SliceMethod.frag";
                     delete modelManager;
                     modelManager = new ModelManager(METHODS::SLICE_METHOD, modelFileList[modelFileIndex.first]);
                     // modelManager->init(METHODS::SLICE_METHOD, modelFileList[modelFileIndex.first]);
@@ -918,8 +902,8 @@ void draw_gui(){
                     shader = new Shader(v.c_str(),f.c_str());
                 }else if(renderModeIndex.first == METHODS::RAY_CASTING){
                     method =  METHODS::RAY_CASTING;
-                    v += "RayCasting.vert";
-                    f += "RayCasting.frag";
+                    v = dir + "RayCasting.vert";
+                    f = dir + "RayCasting.frag";
                     // modelManager->init(METHODS::RAY_CASTING, modelFileList[modelFileIndex.first]);
                     delete modelManager;
                     modelManager = new ModelManager(METHODS::RAY_CASTING, modelFileList[modelFileIndex.first]);
@@ -939,9 +923,9 @@ void draw_gui(){
 
                 }else if(renderModeIndex.first == METHODS::STREAMLINE){
                     method =  METHODS::STREAMLINE;
-                    v += "Streamline.vert";
-                    f += "Streamline.frag";
-                    g += "Streamline.geom";
+                    v = dir + "Streamline.vert";
+                    f = dir + "Streamline.frag";
+                    g = dir + "Streamline.geom";
                     camera -> reset();
                     reset_RGBA();
                     gui_xs.clear();
@@ -957,10 +941,10 @@ void draw_gui(){
                 
                 }else if(renderModeIndex.first == METHODS::SAMMON_MAPPING){
                     method =  METHODS::SAMMON_MAPPING;
-                    v += "Sammon.vert";
-                    f += "Sammon.frag";
-                    g += "Sammon.geom";
-                    g2 += "Ellipse.geom";
+                    v = dir + "Sammon.vert";
+                    f = dir + "Sammon.frag";
+                    g = dir + "Sammon.geom";
+                    g2 = dir + "Ellipse.geom";
                     
                     delete shader;
                     shader = new Shader(v.c_str(),f.c_str(),g.c_str());
@@ -975,11 +959,11 @@ void draw_gui(){
                 
                 }else if(renderModeIndex.first == METHODS::SOM_METHOD){
                     method =  METHODS::SOM_METHOD;
-                    v += "SOM.vert";
-                    f += "SOM.frag";
-                    v2 += "normal.vert";
-                    f2 += "normal.frag";
-                    g2 += "normal.geom";
+                    v = dir + "SOM.vert";
+                    f = dir + "SOM.frag";
+                    v2 = dir + "normal.vert";
+                    f2 = dir + "normal.frag";
+                    g2 = dir + "normal.geom";
 
                     delete shader;
                     shader = new Shader(v.c_str(),f.c_str());
@@ -1071,12 +1055,7 @@ void draw_gui(){
 void my_init(){
     gui_RGBA.assign(4,vector<float>(256,0));
 
-    string v,f,g,dir;
-    #ifdef __linux__
-        dir = "/home/yu/Desktop/school/Visualization/src/shaders/";
-    #else
-        dir = "D:\\school\\Visualization\\src\\shaders\\";
-    #endif
+    string v,f,g,dir = SHADER_DIR;
 
     reset_RGBA();
     
@@ -1330,6 +1309,7 @@ int main(){
 
             sort(tpv.begin(),tpv.end());
             modelManager->volumeArray[0].draw(tpv[0].second);
+            // modelManager->volumeArray[0].draw(0);
         }else if(method == METHODS::RAY_CASTING){
             // camera/projection/view transformation
             shader->set_uniform("projection", camera->get_projection_matrix());

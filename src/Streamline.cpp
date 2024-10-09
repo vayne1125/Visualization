@@ -2,11 +2,11 @@
 Streamline::Streamline(string file,double h, double density, double gap, int pointsThreshold1, int pointsThreshold2){
     cout << "Streamline.cpp\n";
 
-    string dir;
-    #ifdef __linux__
-        dir = "/home/yu/Desktop/school/Visualization/src/asset/Vector/";
+    string dir = ASSET_DIR;
+    #if defined(__linux__) || defined(__APPLE__)
+        dir += "Vector/";
     #else
-        dir = "D:\\school\\Visualization\\src\\asset\\Vector\\";
+        dir += "Vector\\";
     #endif
 
     read_vec(dir + file);
@@ -57,7 +57,7 @@ void Streamline::test(){
 void Streamline::read_vec(string file){
     std::ifstream inputFile(file);
     if (!inputFile.is_open()) {
-        std::cerr << "Unable to open file." << std::endl;
+        std::cerr << "Streamline::Unable to open file." << std::endl;
         return ;
     }
 
@@ -192,9 +192,6 @@ void Streamline::set_VAO(){
     
     glEnableVertexAttribArray(2);
     glVertexAttribPointer(2, 1, GL_DOUBLE, GL_FALSE, 4 * sizeof(double), (void*)(3 * sizeof(double)));
-    
-    glBindVertexArray(0);
-    glDeleteBuffers(1, &VBO);
 }
 void Streamline::create_1dtexture(){
     unsigned char (*texture1DData)[4] = new unsigned char[256][4];

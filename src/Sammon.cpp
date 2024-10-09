@@ -2,12 +2,7 @@
 Sammon::Sammon(string file,int N){
     cout << "Sammon.cpp\n";
     
-    string dir;
-    #ifdef __linux__
-        dir = "/home/yu/Desktop/school/Visualization/src/asset/";
-    #else
-        dir = "D:\\school\\Visualization\\src\\asset\\";
-    #endif
+    string dir = ASSET_DIR;
 
     read_data(dir + file);
     calc_2d_point(N);

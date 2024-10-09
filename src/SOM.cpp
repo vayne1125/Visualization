@@ -3,11 +3,11 @@
 SOM::SOM(string file){
     cout << "SOM.cpp\n";
     
-    string dir;
-    #ifdef __linux__
-        dir = "/home/yu/Desktop/school/Visualization/src/asset/Surface/";
+    string dir = ASSET_DIR;
+    #if defined(__linux__) || defined(__APPLE__)
+        dir += "Surface/";
     #else
-        dir = "D:\\school\\Visualization\\src\\asset\\Surface\\";
+        dir += "Surface\\";
     #endif
 
     read_file(dir + file);
